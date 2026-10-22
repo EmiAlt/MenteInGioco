@@ -56,6 +56,9 @@ export function useCognitiveSession() {
   const [domandeAI, setDomandeAI] = useState<Domanda[]>([]);
   const [domandeAIGenerate, setDomandeAIGenerate] = useState<boolean>(false);
 
+  // ─── DOMANDE CUSTOM IMPORTATE DAL CAREGIVER ───
+  const [domandeCustom, setDomandeCustom] = useState<Domanda[]>([]);
+
   // ─── RIFERIMENTI PER IL TIMER ───
   const timerInizioRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -102,7 +105,7 @@ export function useCognitiveSession() {
     (livello?: 1 | 2) => {
       const livelloTarget = livello ?? livelloDifficoltaAttuale;
 
-      // ─── PRIORITÀ: DOMANDE AI PERSONALIZZATE ───
+      // ─── PRIORITÀ 1: DOMANDE AI PERSONALIZZATE ───
       if (domandeAI.length > 0) {
         // Prende la prima domanda AI dalla coda
         const prossimaDomandaAI = domandeAI[0];
@@ -117,6 +120,24 @@ export function useCognitiveSession() {
 
         setDomandeAI(rimanenti);
         setDomandaCorrente(prossimaDomandaAI);
+        setIndiceDomandaCorrente((prev) => prev + 1);
+
+        // Avvia il timer
+        avviaTimer();
+        return;
+      }
+
+      // ─── PRIORITÀ 2: DOMANDE CUSTOM IMPORTATE DAL CAREGIVER ───
+      if (domandeCustom.length > 0) {
+        // Prende una domanda custom casuale
+        const indiceCasuale = Math.floor(Math.random() * domandeCustom.length);
+        const prossimaDomandaCustom = domandeCustom[indiceCasuale];
+
+        console.log(
+          `[COGNITIVE] 📝 Domanda custom caricata: "${prossimaDomandaCustom.testoDomanda}" (Importata dal caregiver)`
+        );
+
+        setDomandaCorrente(prossimaDomandaCustom);
         setIndiceDomandaCorrente((prev) => prev + 1);
 
         // Avvia il timer
@@ -163,7 +184,7 @@ export function useCognitiveSession() {
       // Avvia il timer
       avviaTimer();
     },
-    [domandaCorrente, livelloDifficoltaAttuale, domandeAI, avviaTimer]
+    [domandaCorrente, livelloDifficoltaAttuale, domandeAI, domandeCustom, avviaTimer]
   );
 
   // ─── AVVIA SESSIONE ───
@@ -183,6 +204,21 @@ export function useCognitiveSession() {
     setDomandeAI([]);
     setDomandeAIGenerate(false);
     inizioSessioneRef.current = Date.now();
+
+    // Carica domande custom dal localStorage
+    try {
+      const domandeCustomJSON = localStorage.getItem("stimolazione_cognitiva_domande_custom");
+      if (domandeCustomJSON) {
+        const domandeCustomCaricate = JSON.parse(domandeCustomJSON);
+        setDomandeCustom(domandeCustomCaricate);
+        console.log(`[COGNITIVE] 📝 Caricate ${domandeCustomCaricate.length} domande custom dal caregiver`);
+      } else {
+        setDomandeCustom([]);
+      }
+    } catch (error) {
+      console.error("[COGNITIVE] Errore nel caricare le domande custom:", error);
+      setDomandeCustom([]);
+    }
 
     // Seleziona prima domanda (livello 1)
     const domandeLivello1 = domande.filter((d) => d.livelloDifficolta === 1);

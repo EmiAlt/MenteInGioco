@@ -27,6 +27,8 @@ function App() {
     terminaSessione,
     iniettaDomandeAI,
     domandeAIGenerate,
+    tempoDiReazione,
+    cronologiaRisposte,
   } = useCognitiveSession();
 
   const [fase, setFase] = useState<FaseSessione>("benvenuto");
@@ -228,21 +230,33 @@ function App() {
       {/* ─── SCHERMATA DOMANDA ─── */}
       {(fase === "domanda" || fase === "feedback") && domandaCorrente && (
         <div className="flex-1 flex flex-col px-4 py-6 md:px-8 md:py-10">
-          {/* Barra progresso gentile */}
+          {/* Timer e progresso */}
           <div className="max-w-2xl w-full mx-auto mb-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-slate-500 text-sm font-medium">
                 Domanda {Math.min(indiceDomandaCorrente, MAX_DOMANDE)} di {MAX_DOMANDE}
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 {domandaCorrente.id.startsWith("ai-") && (
                   <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
                     🤖 Personalizzata
                   </span>
                 )}
+                {domandaCorrente.id.startsWith("custom-") && (
+                  <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+                    📝 Importata
+                  </span>
+                )}
                 <span className="text-slate-400 text-sm">
                   {domandaCorrente.categoria}
                 </span>
+                {/* Timer discreto */}
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-100 rounded-lg">
+                  <span className="text-slate-400 text-xs">⏱️</span>
+                  <span className="text-slate-600 text-sm font-mono font-medium">
+                    {tempoDiReazione}s
+                  </span>
+                </div>
               </div>
             </div>
             <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
@@ -253,6 +267,27 @@ function App() {
                 }}
               />
             </div>
+            {/* Riepilogo risposte precedenti */}
+            {cronologiaRisposte.length > 0 && (
+              <div className="flex items-center gap-2 mt-3">
+                <span className="text-xs text-slate-500 font-medium">Risposte:</span>
+                <div className="flex gap-1.5">
+                  {cronologiaRisposte.map((entry, idx) => (
+                    <div
+                      key={idx}
+                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                        entry.corretta
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-amber-100 text-amber-700"
+                      }`}
+                      title={`Domanda ${idx + 1}: ${entry.corretta ? "Corretta" : "Errata"} (${entry.tempoReazione}s)`}
+                    >
+                      {entry.corretta ? "✓" : "·"}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Contenuto principale */}

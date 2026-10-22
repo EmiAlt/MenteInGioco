@@ -1,6 +1,10 @@
 import { useState, useMemo } from "react";
 import { useProfiloPaziente } from "../hooks/useProfiloPaziente";
 import { useCronologiaSessioni, SessioneSalvata } from "../hooks/useCronologiaSessioni";
+import ImportaDomande from "./ImportaDomande";
+import { Domanda } from "../data/questions";
+
+type TabAttiva = "profilo" | "statistiche" | "domande";
 
 interface PannelloCaregiverProps {
   onTornaAlGioco: () => void;
@@ -9,6 +13,7 @@ interface PannelloCaregiverProps {
 export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverProps) {
   const [profilo, setProfilo] = useProfiloPaziente();
   const [sessioni, aggiungiSessione, cancellaSessioni] = useCronologiaSessioni();
+  const [tabAttiva, setTabAttiva] = useState<TabAttiva>("profilo");
 
   // Stato form
   const [formNome, setFormNome] = useState(profilo.nome);
@@ -28,6 +33,12 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
     });
     setSalvato(true);
     setTimeout(() => setSalvato(false), 2000);
+  };
+
+  // Handler per domande importate
+  const handleDomandeImportate = (domande: Domanda[]) => {
+    console.log(`[PANNELLO CAREGIVER] ${domande.length} domande importate dal caregiver`);
+    // Le domande sono già salvate nel localStorage dal componente ImportaDomande
   };
 
   // Calcola statistiche
@@ -105,8 +116,48 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
         </div>
       </header>
 
+      {/* Tab Navigation */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex gap-6" aria-label="Tabs">
+            <button
+              onClick={() => setTabAttiva("profilo")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                tabAttiva === "profilo"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+              }`}
+            >
+              👤 Profilo Paziente
+            </button>
+            <button
+              onClick={() => setTabAttiva("statistiche")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                tabAttiva === "statistiche"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+              }`}
+            >
+              📊 Statistiche
+            </button>
+            <button
+              onClick={() => setTabAttiva("domande")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                tabAttiva === "domande"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+              }`}
+            >
+              📝 Importa Domande
+            </button>
+          </nav>
+        </div>
+      </div>
+
       {/* Contenuto principale */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Tab: Profilo */}
+        {tabAttiva === "profilo" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Colonna sinistra: Profilo Paziente */}
           <div className="space-y-6">
@@ -228,9 +279,12 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
               </div>
             </div>
           </div>
+        </div>
+        )}
 
-          {/* Colonna destra: Statistiche */}
-          <div className="space-y-6">
+        {/* Tab: Statistiche */}
+        {tabAttiva === "statistiche" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Card Statistiche Generali */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
               <div className="px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-600">
@@ -346,7 +400,14 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
               </div>
             )}
           </div>
-        </div>
+        )}
+
+        {/* Tab: Importa Domande */}
+        {tabAttiva === "domande" && (
+          <div className="max-w-3xl mx-auto">
+            <ImportaDomande onDomandeImportate={handleDomandeImportate} />
+          </div>
+        )}
       </main>
     </div>
   );
