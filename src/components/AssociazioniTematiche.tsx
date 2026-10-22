@@ -42,16 +42,57 @@ export default function AssociazioniTematiche({ onChiudi }: AssociazioniTematich
   const [completato, setCompletato] = useState(false);
   const [feedback, setFeedback] = useState<"corretto" | "sbagliato" | null>(null);
   const [numeroCoppie, setNumeroCoppie] = useState(5);
+  const [maxCoppieDisponibili, setMaxCoppieDisponibili] = useState(10);
+
+  useEffect(() => {
+    // Calcola il massimo numero di coppie disponibili
+    const associazioniCustom = localStorage.getItem("associazioni_custom_rounds");
+    let maxDisponibili = ASSOCIAZIONI_DEFAULT.length;
+    
+    if (associazioniCustom) {
+      try {
+        const parsed = JSON.parse(associazioniCustom);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          maxDisponibili = parsed.length;
+        }
+      } catch (e) {
+        console.error("[ASSOCIAZIONI] Errore nel caricare associazioni personalizzate:", e);
+      }
+    }
+    
+    setMaxCoppieDisponibili(maxDisponibili);
+    
+    // Aggiusta il numero di coppie se necessario
+    if (numeroCoppie > maxDisponibili) {
+      setNumeroCoppie(maxDisponibili);
+    }
+  }, []);
 
   useEffect(() => {
     generaTessere();
   }, [numeroCoppie]);
 
   const generaTessere = () => {
+    // Carica associazioni personalizzate dal localStorage o usa quelle predefinite
+    let associazioniDisponibili = ASSOCIAZIONI_DEFAULT;
+    
+    const associazioniCustom = localStorage.getItem("associazioni_custom_rounds");
+    if (associazioniCustom) {
+      try {
+        const parsed = JSON.parse(associazioniCustom);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          associazioniDisponibili = parsed;
+          console.log("[ASSOCIAZIONI] 🎨 Caricate associazioni personalizzate:", parsed.length);
+        }
+      } catch (e) {
+        console.error("[ASSOCIAZIONI] Errore nel caricare associazioni personalizzate:", e);
+      }
+    }
+
     // Seleziona un numero casuale di associazioni
-    const associazioniSelezionate = [...ASSOCIAZIONI_DEFAULT]
+    const associazioniSelezionate = [...associazioniDisponibili]
       .sort(() => Math.random() - 0.5)
-      .slice(0, numeroCoppie);
+      .slice(0, Math.min(numeroCoppie, associazioniDisponibili.length));
 
     const nuoveTessere: Tessera[] = [];
 
@@ -139,10 +180,20 @@ export default function AssociazioniTematiche({ onChiudi }: AssociazioniTematich
 
   // Schermata configurazione iniziale
   if (tessere.length === 0) {
+    const haAssociazioniCustom = localStorage.getItem("associazioni_custom_rounds") !== null;
+    
     return (
       <div className="fixed inset-0 bg-slate-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-2xl max-w-2xl w-full p-8 space-y-6">
           <h2 className="text-3xl font-bold text-slate-900 text-center">🔗 Associazioni Tematiche</h2>
+          
+          {haAssociazioniCustom && (
+            <div className="bg-fuchsia-50 border border-fuchsia-200 rounded-lg p-3 text-center">
+              <p className="text-sm text-fuchsia-900 font-medium">
+                🎨 Verranno usate le tue associazioni personalizzate ({maxCoppieDisponibili} disponibili)
+              </p>
+            </div>
+          )}
           
           <div>
             <label className="block text-lg font-semibold text-slate-700 mb-2">
@@ -151,14 +202,14 @@ export default function AssociazioniTematiche({ onChiudi }: AssociazioniTematich
             <input
               type="range"
               min="3"
-              max="8"
+              max={Math.min(maxCoppieDisponibili, 10)}
               value={numeroCoppie}
               onChange={(e) => setNumeroCoppie(parseInt(e.target.value))}
               className="w-full"
             />
             <div className="flex justify-between text-sm text-slate-600 mt-1">
               <span>3 coppie</span>
-              <span>8 coppie</span>
+              <span>{Math.min(maxCoppieDisponibili, 10)} coppie</span>
             </div>
           </div>
 

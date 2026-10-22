@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import EmojiPicker from "./EmojiPicker";
 
-type AttivitàTipo = "intruso" | "canzoni" | "orologio" | "valigia";
+type AttivitàTipo = "intruso" | "canzoni" | "orologio" | "valigia" | "associazioni";
 
 interface PersonalizzaAttivitàProps {
   onChiudi: () => void;
@@ -78,6 +78,17 @@ export default function PersonalizzaAttività({ onChiudi }: PersonalizzaAttivit�
                   Crea scenari con oggetti corretti e sbagliati
                 </div>
               </button>
+
+              <button
+                onClick={() => setAttivitàSelezionata("associazioni")}
+                className="p-6 bg-gradient-to-br from-fuchsia-500 to-pink-600 hover:from-fuchsia-600 hover:to-pink-700 text-white rounded-xl shadow-lg transition-all text-left"
+              >
+                <div className="text-5xl mb-3">🔗</div>
+                <div className="text-xl font-bold mb-2">Associazioni</div>
+                <div className="text-sm opacity-90">
+                  Crea coppie di concetti correlati
+                </div>
+              </button>
             </div>
           </div>
         </div>
@@ -136,6 +147,7 @@ function EditorAttività({ tipo, onIndietro, onChiudi }: EditorAttivitàProps) {
     canzoni: "🎶 Completa Canzone",
     orologio: "⏰ Orologio",
     valigia: "🧳 Valigia / Spesa",
+    associazioni: "🔗 Associazioni Tematiche",
   };
 
   return (
@@ -158,6 +170,7 @@ function EditorAttività({ tipo, onIndietro, onChiudi }: EditorAttivitàProps) {
           {tipo === "canzoni" && <EditorCanzoni rounds={rounds} setRounds={setRounds} />}
           {tipo === "orologio" && <EditorOrologio rounds={rounds} setRounds={setRounds} />}
           {tipo === "valigia" && <EditorValigia rounds={rounds} setRounds={setRounds} />}
+          {tipo === "associazioni" && <EditorAssociazioni rounds={rounds} setRounds={setRounds} />}
 
           <div className="flex gap-3 sticky bottom-0 bg-slate-50 py-4">
             <button
@@ -680,6 +693,124 @@ function EditorValigia({ rounds, setRounds }: { rounds: any[]; setRounds: (r: an
         className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg transition-colors"
       >
         + Aggiungi Scenario
+      </button>
+    </div>
+  );
+}
+
+// Editor per Associazioni Tematiche
+function EditorAssociazioni({ rounds, setRounds }: { rounds: any[]; setRounds: (r: any[]) => void }) {
+  const aggiungiRound = () => {
+    setRounds([
+      ...rounds,
+      {
+        concetto: "Nuovo Concetto",
+        emojiConcetto: "📦",
+        associato: "Associato",
+        emojiAssociato: "📦",
+      },
+    ]);
+  };
+
+  const rimuoviRound = (idx: number) => {
+    setRounds(rounds.filter((_, i) => i !== idx));
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+        <h3 className="font-semibold text-amber-900 mb-2">📝 Come creare un'associazione</h3>
+        <p className="text-sm text-amber-800">
+          Ogni associazione è una coppia di concetti correlati (es. Matrimonio ↔ Bomboniera).
+          Scegli emoji appropriate per entrambi i concetti.
+        </p>
+      </div>
+
+      {rounds.map((round, roundIdx) => (
+        <div key={roundIdx} className="bg-white rounded-lg border border-slate-200 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-slate-900">Associazione {roundIdx + 1}</h3>
+            <button
+              onClick={() => rimuoviRound(roundIdx)}
+              className="text-red-600 hover:text-red-700 text-sm"
+            >
+              🗑️ Rimuovi
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Concetto (sinistra) */}
+            <div className="bg-blue-50 rounded-lg p-3 space-y-2">
+              <p className="text-sm font-semibold text-blue-900">Concetto (sinistra)</p>
+              <EmojiPicker
+                valore={round.emojiConcetto}
+                onChange={(emoji) => {
+                  const nuoviRounds = [...rounds];
+                  nuoviRounds[roundIdx].emojiConcetto = emoji;
+                  setRounds(nuoviRounds);
+                }}
+                label="Emoji concetto"
+              />
+              <input
+                type="text"
+                value={round.concetto}
+                onChange={(e) => {
+                  const nuoviRounds = [...rounds];
+                  nuoviRounds[roundIdx].concetto = e.target.value;
+                  setRounds(nuoviRounds);
+                }}
+                className="w-full border border-slate-300 rounded px-3 py-2"
+                placeholder="Es: Matrimonio, Cucina, Scuola..."
+              />
+            </div>
+
+            {/* Associato (destra) */}
+            <div className="bg-green-50 rounded-lg p-3 space-y-2">
+              <p className="text-sm font-semibold text-green-900">Associato (destra)</p>
+              <EmojiPicker
+                valore={round.emojiAssociato}
+                onChange={(emoji) => {
+                  const nuoviRounds = [...rounds];
+                  nuoviRounds[roundIdx].emojiAssociato = emoji;
+                  setRounds(nuoviRounds);
+                }}
+                label="Emoji associato"
+              />
+              <input
+                type="text"
+                value={round.associato}
+                onChange={(e) => {
+                  const nuoviRounds = [...rounds];
+                  nuoviRounds[roundIdx].associato = e.target.value;
+                  setRounds(nuoviRounds);
+                }}
+                className="w-full border border-slate-300 rounded px-3 py-2"
+                placeholder="Es: Bomboniera, Pentola, Libro..."
+              />
+            </div>
+          </div>
+
+          {/* Anteprima */}
+          <div className="bg-slate-50 rounded-lg p-3 text-center">
+            <p className="text-sm text-slate-600 mb-2">Anteprima:</p>
+            <div className="flex items-center justify-center gap-4 text-lg">
+              <span className="font-semibold text-blue-700">
+                {round.emojiConcetto} {round.concetto}
+              </span>
+              <span className="text-slate-400">↔</span>
+              <span className="font-semibold text-green-700">
+                {round.emojiAssociato} {round.associato}
+              </span>
+            </div>
+          </div>
+        </div>
+      ))}
+
+      <button
+        onClick={aggiungiRound}
+        className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg transition-colors"
+      >
+        + Aggiungi Associazione
       </button>
     </div>
   );
