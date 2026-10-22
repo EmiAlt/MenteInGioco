@@ -286,14 +286,14 @@ export default function AssociazioniTematiche({ onChiudi }: AssociazioniTematich
       </div>
 
       {/* Contenuto */}
-      <div className="flex-1 flex flex-col items-center justify-start p-4 md:p-6">
-        <div className="max-w-6xl w-full space-y-6">
+      <div className="flex-1 flex flex-col items-center justify-start p-3 md:p-4">
+        <div className="w-full space-y-3">
           {/* Istruzioni */}
           <div className="text-center">
-            <p className="text-2xl text-slate-700 font-medium mb-2">
+            <p className="text-lg md:text-xl text-slate-700 font-medium mb-1">
               Collega i concetti!
             </p>
-            <p className="text-lg text-slate-500">
+            <p className="text-sm md:text-base text-slate-500">
               Clicca su un elemento a sinistra e poi sul suo associato a destra
             </p>
           </div>
@@ -301,23 +301,23 @@ export default function AssociazioniTematiche({ onChiudi }: AssociazioniTematich
           {/* Feedback */}
           {feedback && (
             <div
-              className={`text-center p-4 rounded-xl ${
+              className={`text-center p-3 rounded-lg ${
                 feedback === "corretto"
                   ? "bg-emerald-100 border-2 border-emerald-300"
                   : "bg-amber-100 border-2 border-amber-300"
               }`}
             >
-              <p className="text-2xl font-bold">
-                {feedback === "corretto" ? "✅ Perfetto! Associazione corretta!" : "❌ Riprova!"}
+              <p className="text-lg md:text-xl font-bold">
+                {feedback === "corretto" ? "✅ Perfetto!" : "❌ Riprova!"}
               </p>
             </div>
           )}
 
           {/* Due colonne di tessere */}
-          <div className="grid grid-cols-2 gap-4 md:gap-8">
+          <div className="grid grid-cols-2 gap-2 md:gap-4 max-w-3xl mx-auto">
             {/* Colonna sinistra: Concetti */}
-            <div className="space-y-3">
-              <h3 className="text-xl font-bold text-slate-900 text-center mb-4">
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-slate-900 text-center mb-3">
                 Concetti
               </h3>
               {concetti.map((tessera) => (
@@ -325,7 +325,7 @@ export default function AssociazioniTematiche({ onChiudi }: AssociazioniTematich
                   key={tessera.id}
                   onClick={() => gestisciClickTessera(tessera.id)}
                   disabled={tessera.trovata}
-                  className={`w-full p-4 md:p-6 rounded-2xl border-4 transition-all ${
+                  className={`w-full p-3 md:p-4 rounded-xl border-3 transition-all ${
                     tessera.trovata
                       ? "bg-emerald-100 border-emerald-500 opacity-60"
                       : tessera.selezionata
@@ -333,8 +333,8 @@ export default function AssociazioniTematiche({ onChiudi }: AssociazioniTematich
                       : "bg-white border-slate-300 hover:border-blue-400 hover:scale-105 cursor-pointer"
                   }`}
                 >
-                  <div className="text-4xl md:text-5xl mb-2">{tessera.emoji}</div>
-                  <div className="text-lg md:text-xl font-bold text-slate-900">
+                  <div className="text-3xl md:text-4xl mb-1">{tessera.emoji}</div>
+                  <div className="text-base md:text-lg font-bold text-slate-900">
                     {tessera.contenuto}
                   </div>
                 </button>
@@ -342,8 +342,8 @@ export default function AssociazioniTematiche({ onChiudi }: AssociazioniTematich
             </div>
 
             {/* Colonna destra: Associati */}
-            <div className="space-y-3">
-              <h3 className="text-xl font-bold text-slate-900 text-center mb-4">
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-slate-900 text-center mb-3">
                 Associati
               </h3>
               {associati.map((tessera) => (
@@ -351,7 +351,7 @@ export default function AssociazioniTematiche({ onChiudi }: AssociazioniTematich
                   key={tessera.id}
                   onClick={() => gestisciClickTessera(tessera.id)}
                   disabled={tessera.trovata}
-                  className={`w-full p-4 md:p-6 rounded-2xl border-4 transition-all ${
+                  className={`w-full p-3 md:p-4 rounded-xl border-3 transition-all ${
                     tessera.trovata
                       ? "bg-emerald-100 border-emerald-500 opacity-60"
                       : tessera.selezionata
@@ -359,8 +359,8 @@ export default function AssociazioniTematiche({ onChiudi }: AssociazioniTematich
                       : "bg-white border-slate-300 hover:border-blue-400 hover:scale-105 cursor-pointer"
                   }`}
                 >
-                  <div className="text-4xl md:text-5xl mb-2">{tessera.emoji}</div>
-                  <div className="text-lg md:text-xl font-bold text-slate-900">
+                  <div className="text-3xl md:text-4xl mb-1">{tessera.emoji}</div>
+                  <div className="text-base md:text-lg font-bold text-slate-900">
                     {tessera.contenuto}
                   </div>
                 </button>
