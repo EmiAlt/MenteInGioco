@@ -128,11 +128,11 @@ export default function ProverbiPopolari({ onChiudi }: ProverbiPopolariProps) {
 
   if (completato) {
     return (
-      <div className="fixed inset-0 bg-slate-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl max-w-2xl w-full p-8 text-center space-y-6">
-          <div className="text-7xl">📚</div>
-          <h2 className="text-3xl font-bold text-slate-900">Bravissimo!</h2>
-          <p className="text-xl text-slate-600">
+      <div className="fixed inset-0 bg-slate-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div className="bg-white rounded-2xl max-w-2xl w-full p-6 md:p-8 text-center space-y-4 md:space-y-6 my-auto">
+          <div className="text-6xl md:text-7xl">📚</div>
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Bravissimo!</h2>
+          <p className="text-lg md:text-xl text-slate-600">
             Hai completato {punteggio} proverbi su {rounds.length}
           </p>
           <p className="text-lg text-slate-500">La saggezza popolare è un tesoro!</p>
@@ -148,9 +148,9 @@ export default function ProverbiPopolari({ onChiudi }: ProverbiPopolariProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-slate-50 flex flex-col z-50">
+    <div className="fixed inset-0 bg-slate-50 flex flex-col z-50 overflow-y-auto">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 p-4">
+      <div className="bg-white border-b border-slate-200 p-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <h2 className="text-2xl font-bold text-slate-900">📜 I Proverbi Popolari</h2>
           <button
@@ -163,7 +163,7 @@ export default function ProverbiPopolari({ onChiudi }: ProverbiPopolariProps) {
       </div>
 
       {/* Contenuto */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6">
+      <div className="flex-1 flex flex-col items-center justify-start p-4 md:p-6">
         <div className="max-w-2xl w-full space-y-8">
           {/* Istruzioni */}
           <div className="text-center">
