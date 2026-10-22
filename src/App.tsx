@@ -290,8 +290,34 @@ function App() {
             </div>
           </div>
 
-          {/* Pulsanti admin a destra */}
+          {/* Pulsanti a destra */}
           <div className="flex items-center gap-2">
+            {/* Pulsante AI */}
+            <button
+              onClick={handleGeneraAI}
+              disabled={caricamentoAI}
+              className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 disabled:from-slate-400 disabled:to-slate-500 text-white shadow transition-all flex items-center justify-center"
+              aria-label="Genera esercizio personalizzato AI"
+              title="Personalizza con AI"
+            >
+              {caricamentoAI ? (
+                <span className="text-sm animate-spin">⚙️</span>
+              ) : (
+                <span className="text-sm">🤖</span>
+              )}
+            </button>
+            
+            {/* Pulsante Carica Dati */}
+            <button
+              onClick={handleCaricaJSON}
+              className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow transition-all flex items-center justify-center"
+              aria-label="Carica dati paziente da JSON"
+              title="Carica Dati"
+            >
+              <span className="text-sm">📥</span>
+            </button>
+            
+            {/* Pulsante Test (nascosto) */}
             <button
               onClick={() => setVistaCorrente("test")}
               className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-indigo-100 hover:bg-indigo-200 text-indigo-600 hover:text-indigo-700 text-sm font-bold flex items-center justify-center transition-all opacity-50 hover:opacity-100 focus:opacity-100"
@@ -300,6 +326,8 @@ function App() {
             >
               🧪
             </button>
+            
+            {/* Pulsante Caregiver */}
             <button
               onClick={() => setVistaCorrente("caregiver")}
               className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 text-sm font-bold flex items-center justify-center transition-all opacity-50 hover:opacity-100 focus:opacity-100"
@@ -309,6 +337,15 @@ function App() {
               ⚙️
             </button>
           </div>
+          
+          {/* Input file nascosto */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
         </div>
       </header>
 
@@ -393,53 +430,6 @@ function App() {
                   <div className="text-xs font-bold">Orologio</div>
                 </button>
               </div>
-            </section>
-
-            {/* Categoria 4: Impostazioni & Strumenti */}
-            <section>
-              <h2 className="text-base md:text-lg font-bold text-slate-800 mb-3 px-1">
-                ⚙️ Impostazioni & Strumenti
-              </h2>
-              <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
-                <button
-                  onClick={() => setVistaCorrente("caregiver")}
-                  className="p-3 bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 text-white rounded-lg shadow transition-all flex flex-col items-center justify-center"
-                >
-                  <div className="text-3xl mb-1">⚙️</div>
-                  <div className="text-xs font-bold">Personalizza</div>
-                </button>
-                <button
-                  onClick={handleGeneraAI}
-                  disabled={caricamentoAI}
-                  className="p-3 bg-gradient-to-br from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-lg shadow transition-all flex flex-col items-center justify-center"
-                >
-                  {caricamentoAI ? (
-                    <>
-                      <div className="text-3xl mb-1 animate-spin">⚙️</div>
-                      <div className="text-xs font-bold">Generando...</div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="text-3xl mb-1">🤖</div>
-                      <div className="text-xs font-bold">AI</div>
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={handleCaricaJSON}
-                  className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow transition-all flex flex-col items-center justify-center"
-                >
-                  <div className="text-3xl mb-1">📥</div>
-                  <div className="text-xs font-bold">Carica Dati</div>
-                </button>
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
             </section>
           </div>
         </div>
