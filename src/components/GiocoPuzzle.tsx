@@ -1,12 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 
-interface PezzoPuzzle {
-  id: number;
-  immagineUrl: string;
-  posizioneCorretta: number;
-  posizioneAttuale: number;
-}
-
 interface PuzzleProps {
   onChiudi: () => void;
 }
@@ -79,6 +72,12 @@ function GestioneImmaginiPuzzle({
 
 /**
  * Componente principale del gioco Puzzle
+ * 
+ * Logica di gioco:
+ * - Tutte le tessere sono visibili (nessuna casella vuota)
+ * - L'utente clicca su una tessera per selezionarla
+ * - L'utente clicca su un'altra tessera per scambiarle
+ * - Il puzzle è completato quando tutte le tessere sono nella posizione corretta
  */
 export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
   const [immaginiPuzzle, setImmaginiPuzzle] = useState<string[]>(() => {
@@ -88,8 +87,12 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
 
   const [fase, setFase] = useState<"scegli" | "gestione" | "gioco">("scegli");
   const [immagineSelezionata, setImmagineSelezionata] = useState<string | null>(null);
-  const [pezzi, setPezzi] = useState<PezzoPuzzle[]>([]);
-  const [dimensioneGriglia, setDimensioneGriglia] = useState(3); // 3x3, 4x4, etc.
+  const [dimensioneGriglia, setDimensioneGriglia] = useState(3);
+  
+  // ordineAttuale[i] = id del pezzo nella posizione i della griglia
+  // Quando l'utente scambia due pezzi, scambio i loro id in questo array
+  const [ordineAttuale, setOrdineAttuale] = useState<number[]>([]);
+  const [pezzoSelezionato, setPezzoSelezionato] = useState<number | null>(null); // posizione nella griglia
   const [mosse, setMosse] = useState(0);
   const [completato, setCompletato] = useState(false);
 
@@ -106,75 +109,70 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
     setImmaginiPuzzle(immaginiPuzzle.filter((_, i) => i !== idx));
   };
 
+  /**
+   * Mescola l'array in modo che sia sempre risolvibile
+   * (un numero pari di scambi garantisce la risolvibilità)
+   */
+  const mescolaArray = (dimensione: number): number[] => {
+    const arr = Array.from({ length: dimensione * dimensione }, (_, i) => i);
+    
+    // Fai un numero pari di scambi casuali per garantire risolvibilità
+    const numScambi = dimensione * dimensione * 10; // Abbastanza scambi per mescolare bene
+    for (let i = 0; i < numScambi; i++) {
+      const idx1 = Math.floor(Math.random() * arr.length);
+      const idx2 = Math.floor(Math.random() * arr.length);
+      if (idx1 !== idx2) {
+        [arr[idx1], arr[idx2]] = [arr[idx2], arr[idx1]];
+      }
+    }
+    
+    // Assicurati che non sia già risolto
+    const giaRisolto = arr.every((val, idx) => val === idx);
+    if (giaRisolto) {
+      // Fai uno scambio extra
+      [arr[0], arr[1]] = [arr[1], arr[0]];
+    }
+    
+    return arr;
+  };
+
   const iniziaPuzzle = (immagine: string, dimensione: number) => {
     setImmagineSelezionata(immagine);
     setDimensioneGriglia(dimensione);
-    
-    // Crea i pezzi del puzzle
-    const totalePezzi = dimensione * dimensione;
-    const nuoviPezzi: PezzoPuzzle[] = [];
-
-    for (let i = 0; i < totalePezzi; i++) {
-      nuoviPezzi.push({
-        id: i,
-        immagineUrl: immagine,
-        posizioneCorretta: i,
-        posizioneAttuale: i,
-      });
-    }
-
-    // Mescola i pezzi
-    for (let i = nuoviPezzi.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [nuoviPezzi[i].posizioneAttuale, nuoviPezzi[j].posizioneAttuale] = [
-        nuoviPezzi[j].posizioneAttuale,
-        nuoviPezzi[i].posizioneAttuale,
-      ];
-    }
-
-    setPezzi(nuoviPezzi);
+    setOrdineAttuale(mescolaArray(dimensione));
+    setPezzoSelezionato(null);
     setMosse(0);
     setCompletato(false);
     setFase("gioco");
   };
 
-  const gestisciClickPezzo = (pezzoCliccato: PezzoPuzzle) => {
+  /**
+   * Gestisce il click su una tessera del puzzle
+   * - Se nessuna tessera è selezionata: seleziona questa
+   * - Se una tessera è già selezionata: scambia le due tessere
+   */
+  const gestisciClickTessera = (posizioneCliccata: number) => {
     if (completato) return;
 
-    // Trova la posizione vuota (ultimo pezzo)
-    const posizioneVuota = dimensioneGriglia * dimensioneGriglia - 1;
-    const pezzoVuoto = pezzi.find((p) => p.posizioneAttuale === posizioneVuota);
-    
-    if (!pezzoVuoto) return;
-
-    // Controlla se il pezzo cliccato è adiacente alla posizione vuota
-    const rigaCliccata = Math.floor(pezzoCliccato.posizioneAttuale / dimensioneGriglia);
-    const colCliccata = pezzoCliccato.posizioneAttuale % dimensioneGriglia;
-    const rigaVuota = Math.floor(posizioneVuota / dimensioneGriglia);
-    const colVuota = posizioneVuota % dimensioneGriglia;
-
-    const adiacente =
-      (Math.abs(rigaCliccata - rigaVuota) === 1 && colCliccata === colVuota) ||
-      (Math.abs(colCliccata - colVuota) === 1 && rigaCliccata === rigaVuota);
-
-    if (adiacente) {
-      // Scambia le posizioni
-      const nuoviPezzi = pezzi.map((p) => {
-        if (p.id === pezzoCliccato.id) {
-          return { ...p, posizioneAttuale: posizioneVuota };
-        }
-        if (p.id === pezzoVuoto.id) {
-          return { ...p, posizioneAttuale: pezzoCliccato.posizioneAttuale };
-        }
-        return p;
-      });
-
-      setPezzi(nuoviPezzi);
+    if (pezzoSelezionato === null) {
+      // Prima selezione
+      setPezzoSelezionato(posizioneCliccata);
+    } else if (pezzoSelezionato === posizioneCliccata) {
+      // Deseleziona se clicca sulla stessa
+      setPezzoSelezionato(null);
+    } else {
+      // Scambia le due tessere
+      const nuovoOrdine = [...ordineAttuale];
+      [nuovoOrdine[pezzoSelezionato], nuovoOrdine[posizioneCliccata]] = 
+        [nuovoOrdine[posizioneCliccata], nuovoOrdine[pezzoSelezionato]];
+      
+      setOrdineAttuale(nuovoOrdine);
+      setPezzoSelezionato(null);
       setMosse(mosse + 1);
 
       // Controlla se il puzzle è completato
-      const completato = nuoviPezzi.every((p) => p.posizioneAttuale === p.posizioneCorretta);
-      if (completato) {
+      const isCompletato = nuovoOrdine.every((id, idx) => id === idx);
+      if (isCompletato) {
         setCompletato(true);
       }
     }
@@ -286,7 +284,9 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900">🧩 Puzzle</h2>
-            <p className="text-slate-600 text-sm mt-1">Mosse: {mosse}</p>
+            <p className="text-slate-600 text-sm mt-1">
+              Mosse: {mosse} | Clicca su due tessere per scambiarle
+            </p>
           </div>
           <button
             onClick={() => setFase("scegli")}
@@ -317,37 +317,52 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
               aspectRatio: "1",
             }}
           >
-            {Array.from({ length: dimensioneGriglia * dimensioneGriglia }).map((_, idx) => {
-              const pezzo = pezzi.find((p) => p.posizioneAttuale === idx);
-              const ultimoPezzo = idx === dimensioneGriglia * dimensioneGriglia - 1;
-
-              if (!pezzo || (ultimoPezzo && pezzo.posizioneCorretta !== idx)) {
-                return <div key={idx} className="bg-slate-200 rounded" />;
-              }
-
-              const rigaOrig = Math.floor(pezzo.posizioneCorretta / dimensioneGriglia);
-              const colOrig = pezzo.posizioneCorretta % dimensioneGriglia;
+            {ordineAttuale.map((idPezzo, posizione) => {
+              const isSelected = pezzoSelezionato === posizione;
+              const rigaOrig = Math.floor(idPezzo / dimensioneGriglia);
+              const colOrig = idPezzo % dimensioneGriglia;
 
               return (
                 <div
-                  key={idx}
-                  onClick={() => gestisciClickPezzo(pezzo)}
-                  className="relative cursor-pointer hover:opacity-80 transition-opacity rounded overflow-hidden"
+                  key={posizione}
+                  onClick={() => gestisciClickTessera(posizione)}
+                  className={`relative cursor-pointer rounded overflow-hidden transition-all ${
+                    isSelected 
+                      ? "ring-4 ring-blue-500 scale-95 z-10" 
+                      : "hover:scale-98 hover:ring-2 hover:ring-blue-300"
+                  }`}
                   style={{ aspectRatio: "1" }}
                 >
                   <div
                     className="w-full h-full bg-cover bg-no-repeat"
                     style={{
-                      backgroundImage: `url(${pezzo.immagineUrl})`,
+                      backgroundImage: `url(${immagineSelezionata})`,
                       backgroundSize: `${dimensioneGriglia * 100}% ${dimensioneGriglia * 100}%`,
                       backgroundPosition: `${(colOrig / (dimensioneGriglia - 1)) * 100}% ${(rigaOrig / (dimensioneGriglia - 1)) * 100}%`,
                     }}
                   />
+                  {isSelected && (
+                    <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
+                      <span className="text-white text-3xl font-bold">✓</span>
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
         </div>
+
+        {/* Anteprima immagine originale */}
+        {immagineSelezionata && (
+          <div className="mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+            <h3 className="text-sm font-semibold text-slate-700 mb-2">📷 Immagine originale:</h3>
+            <img
+              src={immagineSelezionata}
+              alt="Anteprima"
+              className="w-32 h-32 object-cover rounded-lg mx-auto border-2 border-slate-200"
+            />
+          </div>
+        )}
 
         {/* Controlli */}
         <div className="mt-6 flex gap-3">
