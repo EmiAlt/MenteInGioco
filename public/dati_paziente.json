@@ -1,0 +1,47 @@
+{
+  "profilo": {
+    "nome": "Mario",
+    "annoNascita": 1950,
+    "exMestiere": "Falegname",
+    "hobby": ["Inter", "Orto", "Bocce"],
+    "livelloIniziale": 1
+  },
+  "ricordi": [
+    {
+      "id": 1,
+      "titolo": "Matrimonio",
+      "anno": 1974,
+      "dettaglio": "Foto del matrimonio con Anna",
+      "emozione": "alta"
+    },
+    {
+      "id": 2,
+      "titolo": "La prima auto",
+      "anno": 1968,
+      "dettaglio": "FIAT 500 colore blu",
+      "emozione": "media"
+    },
+    {
+      "id": 3,
+      "titolo": "Nascita del primo figlio",
+      "anno": 1976,
+      "dettaglio": "Giorgio è nato in una giornata di sole",
+      "emozione": "alta"
+    },
+    {
+      "id": 4,
+      "titolo": "Primo giorno in falegnameria",
+      "anno": 1965,
+      "dettaglio": "Assunto come apprendista da maestro Giuseppe",
+      "emozione": "media"
+    },
+    {
+      "id": 5,
+      "titolo": "Vacanza al mare",
+      "anno": 1980,
+      "dettaglio": "Prima volta in Riviera con la famiglia",
+      "emozione": "alta"
+    }
+  ],
+  "storicoSessioni": []
+}

@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useProfiloPaziente } from "../hooks/useProfiloPaziente";
 import { useCronologiaSessioni, SessioneSalvata } from "../hooks/useCronologiaSessioni";
 import { useImpostazioniSessione } from "../hooks/useImpostazioniSessione";
+import { useDatiPaziente } from "../hooks/useDatiPaziente";
 import ImportaDomande from "./ImportaDomande";
 import PersonalizzaAttività from "./PersonalizzaAttività";
 import ReportMedico from "./ReportMedico";
@@ -17,6 +18,7 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
   const [profilo, setProfilo] = useProfiloPaziente();
   const [sessioni, aggiungiSessione, cancellaSessioni] = useCronologiaSessioni();
   const [impostazioni, setImpostazioni] = useImpostazioniSessione();
+  const { dati: datiJSON, esportaJSON } = useDatiPaziente();
   const [tabAttiva, setTabAttiva] = useState<TabAttiva>("profilo");
 
   // Stato form profilo
@@ -736,6 +738,41 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
                 >
                   <span>✏️</span>
                   <span>Personalizza Attività</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Card Esporta JSON Aggiornato */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-6 py-4 bg-gradient-to-r from-indigo-600 to-blue-600">
+                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <span>💾</span>
+                  Esporta Dati Paziente (JSON)
+                </h2>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <p className="text-sm text-slate-600">
+                  Esporta tutti i dati del paziente (profilo, ricordi e storico sessioni) in un file JSON scaricabile.
+                  Utile per backup o condivisione con altri sistemi.
+                </p>
+                
+                {datiJSON && (
+                  <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+                    <div className="text-xs text-indigo-900 space-y-1">
+                      <div>👤 Paziente: <strong>{datiJSON.profilo.nome}</strong></div>
+                      <div>💭 Ricordi: <strong>{datiJSON.ricordi.length}</strong></div>
+                      <div>📊 Sessioni: <strong>{datiJSON.storicoSessioni.length}</strong></div>
+                    </div>
+                  </div>
+                )}
+                
+                <button
+                  onClick={esportaJSON}
+                  className="w-full py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>📥</span>
+                  <span>Esporta JSON Aggiornato</span>
                 </button>
               </div>
             </div>

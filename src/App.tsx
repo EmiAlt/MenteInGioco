@@ -13,12 +13,13 @@ import CompletaCanzone from "./components/CompletaCanzone";
 import ProverbiPopolari from "./components/ProverbiPopolari";
 import ValigiaSpesa from "./components/ValigiaSpesa";
 import OrologioDigitale from "./components/OrologioDigitale";
+import TestDatiPaziente from "./components/TestDatiPaziente";
 
 /** Durata del feedback visivo in millisecondi */
 const FEEDBACK_DURATION_MS = 2500;
 
 type FaseSessione = "benvenuto" | "domanda" | "feedback" | "fine";
-type VistaApp = "paziente" | "caregiver";
+type VistaApp = "paziente" | "caregiver" | "test";
 type GiocoAttivo = 
   | "quiz" 
   | "cruciverba" 
@@ -204,6 +205,21 @@ function App() {
     return <PannelloCaregiver onTornaAlGioco={() => setVistaCorrente("paziente")} />;
   }
 
+  // Vista Test Dati Paziente
+  if (vistaCorrente === "test") {
+    return (
+      <div className="relative">
+        <button
+          onClick={() => setVistaCorrente("paziente")}
+          className="fixed top-4 left-4 z-50 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium rounded-lg shadow-lg transition-colors"
+        >
+          ← Torna alla Home
+        </button>
+        <TestDatiPaziente />
+      </div>
+    );
+  }
+
   // Vista Paziente
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex flex-col relative">
@@ -226,15 +242,25 @@ function App() {
             </p>
           </div>
 
-          {/* Pulsante Caregiver */}
-          <button
-            onClick={() => setVistaCorrente("caregiver")}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 text-sm font-bold flex items-center justify-center transition-all opacity-50 hover:opacity-100 focus:opacity-100"
-            aria-label="Accedi al Pannello Caregiver"
-            title="Pannello Caregiver"
-          >
-            ⚙️
-          </button>
+          {/* Pulsanti admin (nascosti) */}
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+            <button
+              onClick={() => setVistaCorrente("test")}
+              className="w-10 h-10 rounded-full bg-indigo-100 hover:bg-indigo-200 text-indigo-600 hover:text-indigo-700 text-sm font-bold flex items-center justify-center transition-all opacity-50 hover:opacity-100 focus:opacity-100"
+              aria-label="Test Dati Paziente JSON"
+              title="Test Dati JSON"
+            >
+              🧪
+            </button>
+            <button
+              onClick={() => setVistaCorrente("caregiver")}
+              className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 text-sm font-bold flex items-center justify-center transition-all opacity-50 hover:opacity-100 focus:opacity-100"
+              aria-label="Accedi al Pannello Caregiver"
+              title="Pannello Caregiver"
+            >
+              ⚙️
+            </button>
+          </div>
         </div>
       </header>
 
