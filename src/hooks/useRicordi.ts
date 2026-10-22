@@ -13,15 +13,24 @@ const STORAGE_KEY = "stimolazione_cognitiva_ricordi";
 export function useRicordi() {
   const [ricordi, setRicordi] = useState<Ricordo[]>([]);
 
-  useEffect(() => {
+  // Funzione helper per caricare i ricordi dal localStorage
+  const caricaDalLocalStorage = () => {
     const salvati = localStorage.getItem(STORAGE_KEY);
     if (salvati) {
       try {
-        setRicordi(JSON.parse(salvati));
+        return JSON.parse(salvati);
       } catch (e) {
         console.error("Errore nel caricare i ricordi:", e);
+        return [];
       }
     }
+    return [];
+  };
+
+  useEffect(() => {
+    const ricordiCaricati = caricaDalLocalStorage();
+    setRicordi(ricordiCaricati);
+    console.log("[RICORDI] 📂 Ricordi caricati dal localStorage:", ricordiCaricati.length);
   }, []);
 
   const salvaRicordo = (foto: string, descrizione: string, categoria?: string) => {
@@ -33,28 +42,36 @@ export function useRicordi() {
       dataCreazione: new Date().toISOString(),
     };
 
-    const nuoviRicordi = [...ricordi, nuovoRicordo];
-    setRicordi(nuoviRicordi);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(nuoviRicordi));
+    // Usa la versione funzionale di setRicordi per evitare stati stale
+    setRicordi(prev => {
+      const nuoviRicordi = [...prev, nuovoRicordo];
+      // Salva immediatamente in localStorage
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nuoviRicordi));
+      console.log("[RICORDI] 💾 Ricordo salvato:", descrizione, "| Totale:", nuoviRicordi.length);
+      return nuoviRicordi;
+    });
 
-    console.log("[RICORDI] 💾 Ricordo salvato:", descrizione);
     return nuovoRicordo;
   };
 
   const eliminaRicordo = (id: string) => {
-    const nuoviRicordi = ricordi.filter(r => r.id !== id);
-    setRicordi(nuoviRicordi);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(nuoviRicordi));
-    console.log("[RICORDI] 🗑️ Ricordo eliminato");
+    setRicordi(prev => {
+      const nuoviRicordi = prev.filter(r => r.id !== id);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nuoviRicordi));
+      console.log("[RICORDI] 🗑️ Ricordo eliminato | Totale:", nuoviRicordi.length);
+      return nuoviRicordi;
+    });
   };
 
   const modificaRicordo = (id: string, descrizione: string, categoria?: string) => {
-    const nuoviRicordi = ricordi.map(r =>
-      r.id === id ? { ...r, descrizione, categoria } : r
-    );
-    setRicordi(nuoviRicordi);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(nuoviRicordi));
-    console.log("[RICORDI] ✏️ Ricordo modificato");
+    setRicordi(prev => {
+      const nuoviRicordi = prev.map(r =>
+        r.id === id ? { ...r, descrizione, categoria } : r
+      );
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nuoviRicordi));
+      console.log("[RICORDI] ✏️ Ricordo modificato | Totale:", nuoviRicordi.length);
+      return nuoviRicordi;
+    });
   };
 
   return {

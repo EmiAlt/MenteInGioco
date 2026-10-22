@@ -11,6 +11,7 @@ export default function PannelloRicordi({ onChiudi }: PannelloRicordiProps) {
   const [descrizione, setDescrizione] = useState("");
   const [categoria, setCategoria] = useState("");
   const [ricordoDaModificare, setRicordoDaModificare] = useState<string | null>(null);
+  const [messaggioSuccesso, setMessaggioSuccesso] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,9 +20,26 @@ export default function PannelloRicordi({ onChiudi }: PannelloRicordiProps) {
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      setFotoBase64(event.target?.result as string);
+      const base64 = event.target?.result as string;
+      setFotoBase64(base64);
+      console.log("[PANNELLO RICORDI] 📷 Foto caricata, dimensione:", base64.length, "bytes");
     };
     reader.readAsDataURL(file);
+  };
+
+  const resetForm = () => {
+    setFotoBase64(null);
+    setDescrizione("");
+    setCategoria("");
+    setRicordoDaModificare(null);
+    setMessaggioSuccesso(null);
+    // Reset del file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+      // Forza il reset del value per permettere di caricare lo stesso file di nuovo
+      fileInputRef.current.type = "";
+      fileInputRef.current.type = "file";
+    }
   };
 
   const handleSalva = () => {
@@ -32,18 +50,16 @@ export default function PannelloRicordi({ onChiudi }: PannelloRicordiProps) {
 
     if (ricordoDaModificare) {
       modificaRicordo(ricordoDaModificare, descrizione, categoria || undefined);
-      setRicordoDaModificare(null);
+      setMessaggioSuccesso("✅ Ricordo modificato con successo!");
     } else {
       salvaRicordo(fotoBase64, descrizione, categoria || undefined);
+      setMessaggioSuccesso("✅ Ricordo salvato con successo!");
     }
 
-    // Reset form
-    setFotoBase64(null);
-    setDescrizione("");
-    setCategoria("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    // Reset form dopo un breve delay per mostrare il messaggio
+    setTimeout(() => {
+      resetForm();
+    }, 1500);
   };
 
   const handleModifica = (id: string) => {
@@ -57,13 +73,7 @@ export default function PannelloRicordi({ onChiudi }: PannelloRicordiProps) {
   };
 
   const handleAnnulla = () => {
-    setFotoBase64(null);
-    setDescrizione("");
-    setCategoria("");
-    setRicordoDaModificare(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    resetForm();
   };
 
   return (
@@ -92,6 +102,13 @@ export default function PannelloRicordi({ onChiudi }: PannelloRicordiProps) {
           <h2 className="text-2xl font-bold text-slate-900 mb-4">
             {ricordoDaModificare ? "✏️ Modifica Ricordo" : "➕ Aggiungi Nuovo Ricordo"}
           </h2>
+
+          {/* Messaggio di successo */}
+          {messaggioSuccesso && (
+            <div className="mb-4 p-4 bg-emerald-50 border-2 border-emerald-200 rounded-lg text-emerald-800 font-medium text-lg">
+              {messaggioSuccesso}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Upload foto */}
