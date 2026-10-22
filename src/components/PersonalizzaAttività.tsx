@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import EmojiPicker from "./EmojiPicker";
+import { useRicordi } from "../hooks/useRicordi";
 
-type AttivitàTipo = "intruso" | "canzoni" | "orologio" | "valigia" | "associazioni";
+type AttivitàTipo = "intruso" | "canzoni" | "orologio" | "valigia" | "associazioni" | "memorie";
 
 interface PersonalizzaAttivitàProps {
   onChiudi: () => void;
@@ -89,6 +90,17 @@ export default function PersonalizzaAttività({ onChiudi }: PersonalizzaAttivit�
                   Crea coppie di concetti correlati
                 </div>
               </button>
+
+              <button
+                onClick={() => setAttivitàSelezionata("memorie")}
+                className="p-6 bg-gradient-to-br from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white rounded-xl shadow-lg transition-all text-left"
+              >
+                <div className="text-5xl mb-3">📸</div>
+                <div className="text-xl font-bold mb-2">Memorie di Vita</div>
+                <div className="text-sm opacity-90">
+                  Personalizza foto e descrizioni dei ricordi
+                </div>
+              </button>
             </div>
           </div>
         </div>
@@ -148,6 +160,7 @@ function EditorAttività({ tipo, onIndietro, onChiudi }: EditorAttivitàProps) {
     orologio: "⏰ Orologio",
     valigia: "🧳 Valigia / Spesa",
     associazioni: "🔗 Associazioni Tematiche",
+    memorie: "📸 Memorie di Vita",
   };
 
   return (
@@ -171,29 +184,308 @@ function EditorAttività({ tipo, onIndietro, onChiudi }: EditorAttivitàProps) {
           {tipo === "orologio" && <EditorOrologio rounds={rounds} setRounds={setRounds} />}
           {tipo === "valigia" && <EditorValigia rounds={rounds} setRounds={setRounds} />}
           {tipo === "associazioni" && <EditorAssociazioni rounds={rounds} setRounds={setRounds} />}
+          {tipo === "memorie" && <EditorMemorie rounds={rounds} setRounds={setRounds} />}
 
-          <div className="flex gap-3 sticky bottom-0 bg-slate-50 py-4">
-            <button
-              onClick={salva}
-              className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
-            >
-              {salvato ? "✓ Salvato!" : "💾 Salva Personalizzazioni"}
-            </button>
-            <button
-              onClick={resetta}
-              className="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors"
-            >
-              🔄 Resetta
-            </button>
-            <button
-              onClick={onChiudi}
-              className="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors"
-            >
-              ← Chiudi
-            </button>
-          </div>
+          {tipo !== "memorie" && (
+            <div className="flex gap-3 sticky bottom-0 bg-slate-50 py-4">
+              <button
+                onClick={salva}
+                className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
+              >
+                {salvato ? "✓ Salvato!" : "💾 Salva Personalizzazioni"}
+              </button>
+              <button
+                onClick={resetta}
+                className="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors"
+              >
+                🔄 Resetta
+              </button>
+              <button
+                onClick={onChiudi}
+                className="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors"
+              >
+                ← Chiudi
+              </button>
+            </div>
+          )}
+          
+          {tipo === "memorie" && (
+            <div className="flex gap-3 sticky bottom-0 bg-slate-50 py-4">
+              <button
+                onClick={onChiudi}
+                className="flex-1 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors"
+              >
+                ← Chiudi
+              </button>
+            </div>
+          )}
         </div>
       </div>
+    </div>
+  );
+}
+
+// Editor per Memorie di Vita
+function EditorMemorie({ rounds, setRounds }: { rounds: any[]; setRounds: (r: any[]) => void }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fotoSelezionata, setFotoSelezionata] = useState<string | null>(null);
+  const [indiceModifica, setIndiceModifica] = useState<number | null>(null);
+  const [descrizioneCorretta, setDescrizioneCorretta] = useState("");
+  const [descrizioneSbagliata1, setDescrizioneSbagliata1] = useState("");
+  const [descrizioneSbagliata2, setDescrizioneSbagliata2] = useState("");
+  const { ricordi, salvaRicordo, eliminaRicordo, modificaRicordo } = useRicordi();
+
+  // Sincronizza rounds con ricordi
+  useEffect(() => {
+    setRounds(ricordi);
+  }, [ricordi, setRounds]);
+
+  const aggiungiMemoria = async () => {
+    if (!fotoSelezionata) {
+      alert("Carica prima una foto");
+      return;
+    }
+
+    if (!descrizioneCorretta || !descrizioneSbagliata1 || !descrizioneSbagliata2) {
+      alert("Compila tutte e tre le descrizioni");
+      return;
+    }
+
+    try {
+      if (indiceModifica !== null) {
+        // Modifica memoria esistente
+        await modificaRicordo(
+          ricordi[indiceModifica].id,
+          descrizioneCorretta,
+          descrizioneSbagliata1,
+          descrizioneSbagliata2
+        );
+        setIndiceModifica(null);
+      } else {
+        // Aggiungi nuova memoria
+        await salvaRicordo(
+          fotoSelezionata,
+          descrizioneCorretta,
+          descrizioneSbagliata1,
+          descrizioneSbagliata2
+        );
+      }
+
+      // Reset form
+      setFotoSelezionata(null);
+      setDescrizioneCorretta("");
+      setDescrizioneSbagliata1("");
+      setDescrizioneSbagliata2("");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } catch (error) {
+      alert("Errore nel salvataggio: " + (error as Error).message);
+    }
+  };
+
+  const rimuoviMemoria = (idx: number) => {
+    if (confirm("Sei sicuro di voler eliminare questa memoria?")) {
+      eliminaRicordo(ricordi[idx].id);
+    }
+  };
+
+  const modificaMemoria = (idx: number) => {
+    const memoria = ricordi[idx];
+    setFotoSelezionata(memoria.foto);
+    setDescrizioneCorretta(memoria.descrizioneCorretta);
+    setDescrizioneSbagliata1(memoria.descrizioneSbagliata1);
+    setDescrizioneSbagliata2(memoria.descrizioneSbagliata2);
+    setIndiceModifica(idx);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const gestisciFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setFotoSelezionata(event.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const resettaTutto = () => {
+    if (confirm("Sei sicuro di voler eliminare TUTTE le memorie personalizzate? Questa azione non può essere annullata.")) {
+      ricordi.forEach(memoria => {
+        eliminaRicordo(memoria.id);
+      });
+      setFotoSelezionata(null);
+      setDescrizioneCorretta("");
+      setDescrizioneSbagliata1("");
+      setDescrizioneSbagliata2("");
+      setIndiceModifica(null);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+        <h3 className="font-semibold text-amber-900 mb-2">📝 Come creare Memorie di Vita</h3>
+        <p className="text-sm text-amber-800">
+          Carica una foto personale e inserisci 3 descrizioni: 1 corretta e 2 sbagliate.
+          Il paziente dovrà indovinare quale descrizione è corretta per quella foto.
+        </p>
+      </div>
+
+      {/* Form per aggiungere/modificare memoria */}
+      <div className="bg-white rounded-lg border-2 border-pink-300 p-4 space-y-3">
+        <h3 className="font-bold text-slate-900">
+          {indiceModifica !== null ? "✏️ Modifica Memoria" : "➕ Nuova Memoria"}
+        </h3>
+
+        {/* Upload foto */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Foto</label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={gestisciFile}
+            className="w-full border border-slate-300 rounded px-3 py-2"
+          />
+          {fotoSelezionata && (
+            <div className="mt-2">
+              <img
+                src={fotoSelezionata}
+                alt="Anteprima"
+                className="w-full h-48 object-cover rounded-lg border-2 border-slate-200"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Descrizioni */}
+        {fotoSelezionata && (
+          <div className="space-y-2">
+            <div>
+              <label className="block text-sm font-medium text-emerald-700 mb-1">
+                ✓ Descrizione Corretta
+              </label>
+              <input
+                type="text"
+                value={descrizioneCorretta}
+                onChange={(e) => setDescrizioneCorretta(e.target.value)}
+                className="w-full border-2 border-emerald-300 rounded px-3 py-2 bg-emerald-50"
+                placeholder="Es: Foto del matrimonio con Anna nel 1974"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-amber-700 mb-1">
+                ✗ Descrizione Sbagliata 1
+              </label>
+              <input
+                type="text"
+                value={descrizioneSbagliata1}
+                onChange={(e) => setDescrizioneSbagliata1(e.target.value)}
+                className="w-full border-2 border-amber-300 rounded px-3 py-2 bg-amber-50"
+                placeholder="Es: Foto delle vacanze al mare"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-amber-700 mb-1">
+                ✗ Descrizione Sbagliata 2
+              </label>
+              <input
+                type="text"
+                value={descrizioneSbagliata2}
+                onChange={(e) => setDescrizioneSbagliata2(e.target.value)}
+                className="w-full border-2 border-amber-300 rounded px-3 py-2 bg-amber-50"
+                placeholder="Es: Foto della festa di compleanno"
+              />
+            </div>
+
+            <button
+              onClick={aggiungiMemoria}
+              className="w-full py-3 bg-pink-500 hover:bg-pink-600 text-white font-medium rounded-lg transition-colors"
+            >
+              {indiceModifica !== null ? "💾 Salva Modifiche" : "➕ Aggiungi Memoria"}
+            </button>
+
+            {indiceModifica !== null && (
+              <button
+                onClick={() => {
+                  setIndiceModifica(null);
+                  setFotoSelezionata(null);
+                  setDescrizioneCorretta("");
+                  setDescrizioneSbagliata1("");
+                  setDescrizioneSbagliata2("");
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                  }
+                }}
+                className="w-full py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors"
+              >
+                ❌ Annulla Modifica
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Lista memorie esistenti */}
+      {ricordi.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-slate-900">
+              📚 Memorie Salvate ({ricordi.length})
+            </h3>
+            <button
+              onClick={resettaTutto}
+              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              🗑️ Resetta Tutto
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {ricordi.map((memoria, idx) => (
+              <div key={memoria.id} className="bg-slate-50 rounded-lg border border-slate-200 overflow-hidden">
+                <img
+                  src={memoria.foto}
+                  alt="Memoria"
+                  className="w-full h-32 object-cover"
+                />
+                <div className="p-3 space-y-1">
+                  <p className="text-xs font-semibold text-emerald-700">
+                    ✓ {memoria.descrizioneCorretta || "(non impostata)"}
+                  </p>
+                  <p className="text-xs text-amber-700">
+                    ✗ {memoria.descrizioneSbagliata1 || "(non impostata)"}
+                  </p>
+                  <p className="text-xs text-amber-700">
+                    ✗ {memoria.descrizioneSbagliata2 || "(non impostata)"}
+                  </p>
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      onClick={() => modificaMemoria(idx)}
+                      className="flex-1 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs font-medium rounded transition-colors"
+                    >
+                      ✏️ Modifica
+                    </button>
+                    <button
+                      onClick={() => rimuoviMemoria(idx)}
+                      className="flex-1 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-medium rounded transition-colors"
+                    >
+                      🗑️ Elimina
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

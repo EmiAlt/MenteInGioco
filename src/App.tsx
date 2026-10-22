@@ -353,7 +353,7 @@ function App() {
                 </button>
                 <button onClick={() => setGiocoAttivo("memory-vita")} className="p-3 bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
                   <div className="text-3xl mb-1">📸</div>
-                  <div className="text-xs font-bold">M. Vita</div>
+                  <div className="text-xs font-bold">Memorie</div>
                 </button>
                 <button onClick={() => setGiocoAttivo("associazioni")} className="p-3 bg-gradient-to-br from-fuchsia-500 to-pink-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
                   <div className="text-3xl mb-1">🔗</div>
