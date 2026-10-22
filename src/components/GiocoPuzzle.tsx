@@ -95,6 +95,7 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
   const [pezzoSelezionato, setPezzoSelezionato] = useState<number | null>(null); // posizione nella griglia
   const [mosse, setMosse] = useState(0);
   const [completato, setCompletato] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState<number>(1); // aspect ratio dell'immagine originale
 
   // Salva immagini nel localStorage
   useEffect(() => {
@@ -135,6 +136,17 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
     
     return arr;
   };
+
+  // Carica l'immagine e calcola l'aspect ratio
+  useEffect(() => {
+    if (immagineSelezionata) {
+      const img = new Image();
+      img.onload = () => {
+        setAspectRatio(img.width / img.height);
+      };
+      img.src = immagineSelezionata;
+    }
+  }, [immagineSelezionata]);
 
   const iniziaPuzzle = (immagine: string, dimensione: number) => {
     setImmagineSelezionata(immagine);
@@ -314,13 +326,20 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
             style={{
               gridTemplateColumns: `repeat(${dimensioneGriglia}, 1fr)`,
               maxWidth: "600px",
-              aspectRatio: "1",
+              aspectRatio: aspectRatio, // Usa l'aspect ratio dell'immagine originale
             }}
           >
             {ordineAttuale.map((idPezzo, posizione) => {
               const isSelected = pezzoSelezionato === posizione;
               const rigaOrig = Math.floor(idPezzo / dimensioneGriglia);
               const colOrig = idPezzo % dimensioneGriglia;
+
+              // Calcola la porzione di immagine per questa tessera
+              // Mantiene l'aspect ratio originale dell'immagine
+              const bgSizeX = dimensioneGriglia * 100;
+              const bgSizeY = dimensioneGriglia * 100;
+              const bgPosX = dimensioneGriglia > 1 ? (colOrig / (dimensioneGriglia - 1)) * 100 : 0;
+              const bgPosY = dimensioneGriglia > 1 ? (rigaOrig / (dimensioneGriglia - 1)) * 100 : 0;
 
               return (
                 <div
@@ -334,11 +353,11 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
                   style={{ aspectRatio: "1" }}
                 >
                   <div
-                    className="w-full h-full bg-cover bg-no-repeat"
+                    className="w-full h-full bg-no-repeat"
                     style={{
                       backgroundImage: `url(${immagineSelezionata})`,
-                      backgroundSize: `${dimensioneGriglia * 100}% ${dimensioneGriglia * 100}%`,
-                      backgroundPosition: `${(colOrig / (dimensioneGriglia - 1)) * 100}% ${(rigaOrig / (dimensioneGriglia - 1)) * 100}%`,
+                      backgroundSize: `${bgSizeX}% ${bgSizeY}%`,
+                      backgroundPosition: `${bgPosX}% ${bgPosY}%`,
                     }}
                   />
                   {isSelected && (
@@ -356,11 +375,14 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
         {immagineSelezionata && (
           <div className="mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-4">
             <h3 className="text-sm font-semibold text-slate-700 mb-2">📷 Immagine originale:</h3>
-            <img
-              src={immagineSelezionata}
-              alt="Anteprima"
-              className="w-32 h-32 object-cover rounded-lg mx-auto border-2 border-slate-200"
-            />
+            <div className="flex justify-center">
+              <img
+                src={immagineSelezionata}
+                alt="Anteprima"
+                className="max-w-full h-auto max-h-48 object-contain rounded-lg border-2 border-slate-200"
+                style={{ aspectRatio: aspectRatio }}
+              />
+            </div>
           </div>
         )}
 
