@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ProverbiPopolariProps {
   onChiudi: () => void;
@@ -8,6 +8,16 @@ interface RoundProverbio {
   inizio: string;
   finale: string;
   opzioni: { testo: string; èCorretto: boolean }[];
+}
+
+// Funzione per mescolare array
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
 }
 
 const ROUNDS: RoundProverbio[] = [
@@ -77,12 +87,24 @@ const ROUNDS: RoundProverbio[] = [
 ];
 
 export default function ProverbiPopolari({ onChiudi }: ProverbiPopolariProps) {
+  const [rounds, setRounds] = useState<RoundProverbio[]>([]);
   const [roundCorrente, setRoundCorrente] = useState(0);
   const [feedback, setFeedback] = useState<"corretto" | "sbagliato" | null>(null);
   const [punteggio, setPunteggio] = useState(0);
   const [completato, setCompletato] = useState(false);
 
-  const round = ROUNDS[roundCorrente];
+  // Mescola i rounds e le opzioni di ogni round
+  useEffect(() => {
+    const shuffledRounds = shuffleArray(ROUNDS).map(round => ({
+      ...round,
+      opzioni: shuffleArray(round.opzioni)
+    }));
+    setRounds(shuffledRounds);
+  }, []);
+
+  if (rounds.length === 0) return null;
+  
+  const round = rounds[roundCorrente];
 
   const gestisciClick = (èCorretto: boolean) => {
     if (feedback) return;
@@ -95,7 +117,7 @@ export default function ProverbiPopolari({ onChiudi }: ProverbiPopolariProps) {
     }
 
     setTimeout(() => {
-      if (roundCorrente < ROUNDS.length - 1) {
+      if (roundCorrente < rounds.length - 1) {
         setRoundCorrente(roundCorrente + 1);
         setFeedback(null);
       } else {
@@ -111,7 +133,7 @@ export default function ProverbiPopolari({ onChiudi }: ProverbiPopolariProps) {
           <div className="text-7xl">📚</div>
           <h2 className="text-3xl font-bold text-slate-900">Bravissimo!</h2>
           <p className="text-xl text-slate-600">
-            Hai completato {punteggio} proverbi su {ROUNDS.length}
+            Hai completato {punteggio} proverbi su {rounds.length}
           </p>
           <p className="text-lg text-slate-500">La saggezza popolare è un tesoro!</p>
           <button
@@ -202,7 +224,7 @@ export default function ProverbiPopolari({ onChiudi }: ProverbiPopolariProps) {
 
           {/* Progresso */}
           <div className="text-center text-slate-500">
-            Proverbio {roundCorrente + 1} di {ROUNDS.length}
+            Proverbio {roundCorrente + 1} di {rounds.length}
           </div>
         </div>
       </div>

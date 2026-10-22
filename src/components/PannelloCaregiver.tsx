@@ -3,6 +3,7 @@ import { useProfiloPaziente } from "../hooks/useProfiloPaziente";
 import { useCronologiaSessioni, SessioneSalvata } from "../hooks/useCronologiaSessioni";
 import { useImpostazioniSessione } from "../hooks/useImpostazioniSessione";
 import ImportaDomande from "./ImportaDomande";
+import PersonalizzaAttività from "./PersonalizzaAttività";
 import { Domanda } from "../data/questions";
 
 type TabAttiva = "profilo" | "statistiche" | "domande" | "impostazioni";
@@ -34,6 +35,9 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
     return salvato ? parseInt(salvato) : 3;
   });
   const [memorySalvato, setMemorySalvato] = useState(false);
+
+  // Stato per personalizzazione attività
+  const [mostraPersonalizza, setMostraPersonalizza] = useState(false);
 
   // Salva profilo
   const handleSalvaProfilo = (e: React.FormEvent) => {
@@ -673,7 +677,35 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
                 </div>
               </div>
             </div>
+
+            {/* Card Personalizza Attività */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600">
+                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <span>✏️</span>
+                  Personalizza Attività
+                </h2>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <p className="text-sm text-slate-600">
+                  Personalizza i contenuti di alcune attività per renderle più significative per il paziente.
+                </p>
+                <button
+                  onClick={() => setMostraPersonalizza(true)}
+                  className="w-full py-3 bg-purple-500 hover:bg-purple-600 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>✏️</span>
+                  <span>Personalizza Attività</span>
+                </button>
+              </div>
+            </div>
           </div>
+        )}
+
+        {/* Modal Personalizza Attività */}
+        {mostraPersonalizza && (
+          <PersonalizzaAttività onChiudi={() => setMostraPersonalizza(false)} />
         )}
       </main>
     </div>

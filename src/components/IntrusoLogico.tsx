@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface IntrusoLogicoProps {
   onChiudi: () => void;
@@ -9,7 +9,7 @@ interface RoundIntruso {
   elementi: { testo: string; emoji: string; èIntruso: boolean }[];
 }
 
-const ROUNDS: RoundIntruso[] = [
+const ROUNDS_DEFAULT: RoundIntruso[] = [
   {
     categoria: "Frutti",
     elementi: [
@@ -57,13 +57,51 @@ const ROUNDS: RoundIntruso[] = [
   },
 ];
 
+// Funzione per mescolare array
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 export default function IntrusoLogico({ onChiudi }: IntrusoLogicoProps) {
+  const [rounds, setRounds] = useState<RoundIntruso[]>([]);
   const [roundCorrente, setRoundCorrente] = useState(0);
   const [feedback, setFeedback] = useState<"corretto" | "sbagliato" | null>(null);
   const [punteggio, setPunteggio] = useState(0);
   const [completato, setCompletato] = useState(false);
 
-  const round = ROUNDS[roundCorrente];
+  // Carica rounds personalizzati o default e mescola
+  useEffect(() => {
+    const customRounds = localStorage.getItem("intruso_custom_rounds");
+    let roundsToUse = ROUNDS_DEFAULT;
+    
+    if (customRounds) {
+      try {
+        const parsed = JSON.parse(customRounds);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          roundsToUse = parsed;
+        }
+      } catch (e) {
+        console.error("Errore nel caricare rounds personalizzati:", e);
+      }
+    }
+    
+    // Mescola i rounds e gli elementi di ogni round
+    const shuffledRounds = shuffleArray(roundsToUse).map(round => ({
+      ...round,
+      elementi: shuffleArray(round.elementi)
+    }));
+    
+    setRounds(shuffledRounds);
+  }, []);
+
+  if (rounds.length === 0) return null;
+  
+  const round = rounds[roundCorrente];
 
   const gestisciClick = (èIntruso: boolean) => {
     if (feedback) return;
@@ -76,7 +114,7 @@ export default function IntrusoLogico({ onChiudi }: IntrusoLogicoProps) {
     }
 
     setTimeout(() => {
-      if (roundCorrente < ROUNDS.length - 1) {
+      if (roundCorrente < rounds.length - 1) {
         setRoundCorrente(roundCorrente + 1);
         setFeedback(null);
       } else {
@@ -92,7 +130,7 @@ export default function IntrusoLogico({ onChiudi }: IntrusoLogicoProps) {
           <div className="text-7xl">🎉</div>
           <h2 className="text-3xl font-bold text-slate-900">Bravissimo!</h2>
           <p className="text-xl text-slate-600">
-            Hai trovato {punteggio} intrusi su {ROUNDS.length}
+            Hai trovato {punteggio} intrusi su {rounds.length}
           </p>
           <button
             onClick={onChiudi}
@@ -171,7 +209,7 @@ export default function IntrusoLogico({ onChiudi }: IntrusoLogicoProps) {
 
           {/* Progresso */}
           <div className="text-center text-slate-500">
-            Round {roundCorrente + 1} di {ROUNDS.length}
+            Round {roundCorrente + 1} di {rounds.length}
           </div>
         </div>
       </div>

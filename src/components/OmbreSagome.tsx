@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface OmbreSagomeProps {
   onChiudi: () => void;
@@ -8,6 +8,16 @@ interface RoundOmbra {
   oggetto: string;
   emoji: string;
   sagome: { id: number; emoji: string; èCorretta: boolean }[];
+}
+
+// Funzione per mescolare array
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
 }
 
 const ROUNDS: RoundOmbra[] = [
@@ -59,12 +69,24 @@ const ROUNDS: RoundOmbra[] = [
 ];
 
 export default function OmbreSagome({ onChiudi }: OmbreSagomeProps) {
+  const [rounds, setRounds] = useState<RoundOmbra[]>([]);
   const [roundCorrente, setRoundCorrente] = useState(0);
   const [feedback, setFeedback] = useState<"corretto" | "sbagliato" | null>(null);
   const [punteggio, setPunteggio] = useState(0);
   const [completato, setCompletato] = useState(false);
 
-  const round = ROUNDS[roundCorrente];
+  // Mescola i rounds e le sagome di ogni round
+  useEffect(() => {
+    const shuffledRounds = shuffleArray(ROUNDS).map(round => ({
+      ...round,
+      sagome: shuffleArray(round.sagome)
+    }));
+    setRounds(shuffledRounds);
+  }, []);
+
+  if (rounds.length === 0) return null;
+  
+  const round = rounds[roundCorrente];
 
   const gestisciClick = (èCorretta: boolean) => {
     if (feedback) return;
@@ -77,7 +99,7 @@ export default function OmbreSagome({ onChiudi }: OmbreSagomeProps) {
     }
 
     setTimeout(() => {
-      if (roundCorrente < ROUNDS.length - 1) {
+      if (roundCorrente < rounds.length - 1) {
         setRoundCorrente(roundCorrente + 1);
         setFeedback(null);
       } else {
@@ -93,7 +115,7 @@ export default function OmbreSagome({ onChiudi }: OmbreSagomeProps) {
           <div className="text-7xl">🎉</div>
           <h2 className="text-3xl font-bold text-slate-900">Bravissimo!</h2>
           <p className="text-xl text-slate-600">
-            Hai associato {punteggio} oggetti su {ROUNDS.length}
+            Hai associato {punteggio} oggetti su {rounds.length}
           </p>
           <button
             onClick={onChiudi}
@@ -177,7 +199,7 @@ export default function OmbreSagome({ onChiudi }: OmbreSagomeProps) {
 
           {/* Progresso */}
           <div className="text-center text-slate-500">
-            Round {roundCorrente + 1} di {ROUNDS.length}
+            Round {roundCorrente + 1} di {rounds.length}
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ValigiaSpesaProps {
   onChiudi: () => void;
@@ -11,7 +11,17 @@ interface RoundValigia {
   oggetti: { nome: string; emoji: string; èCorretto: boolean }[];
 }
 
-const ROUNDS: RoundValigia[] = [
+// Funzione per mescolare array
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+const ROUNDS_DEFAULT: RoundValigia[] = [
   {
     titolo: "Andiamo al mare",
     emoji: "🏖️",
@@ -67,13 +77,41 @@ const ROUNDS: RoundValigia[] = [
 ];
 
 export default function ValigiaSpesa({ onChiudi }: ValigiaSpesaProps) {
+  const [rounds, setRounds] = useState<RoundValigia[]>([]);
   const [roundCorrente, setRoundCorrente] = useState(0);
   const [oggettiSelezionati, setOggettiSelezionati] = useState<Set<number>>(new Set());
   const [feedback, setFeedback] = useState<"corretto" | "sbagliato" | null>(null);
   const [punteggio, setPunteggio] = useState(0);
   const [completato, setCompletato] = useState(false);
 
-  const round = ROUNDS[roundCorrente];
+  // Carica rounds personalizzati o default e mescola
+  useEffect(() => {
+    const customRounds = localStorage.getItem("valigia_custom_rounds");
+    let roundsToUse = ROUNDS_DEFAULT;
+    
+    if (customRounds) {
+      try {
+        const parsed = JSON.parse(customRounds);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          roundsToUse = parsed;
+        }
+      } catch (e) {
+        console.error("Errore nel caricare rounds personalizzati:", e);
+      }
+    }
+    
+    // Mescola i rounds e gli oggetti di ogni round
+    const shuffledRounds = shuffleArray(roundsToUse).map(round => ({
+      ...round,
+      oggetti: shuffleArray(round.oggetti)
+    }));
+    
+    setRounds(shuffledRounds);
+  }, []);
+
+  if (rounds.length === 0) return null;
+  
+  const round = rounds[roundCorrente];
 
   const gestisciClick = (idx: number) => {
     if (feedback) return;
@@ -106,7 +144,7 @@ export default function ValigiaSpesa({ onChiudi }: ValigiaSpesaProps) {
     }
 
     setTimeout(() => {
-      if (roundCorrente < ROUNDS.length - 1) {
+      if (roundCorrente < rounds.length - 1) {
         setRoundCorrente(roundCorrente + 1);
         setOggettiSelezionati(new Set());
         setFeedback(null);
@@ -123,7 +161,7 @@ export default function ValigiaSpesa({ onChiudi }: ValigiaSpesaProps) {
           <div className="text-7xl">🎉</div>
           <h2 className="text-3xl font-bold text-slate-900">Bravissimo!</h2>
           <p className="text-xl text-slate-600">
-            Hai preparato {punteggio} liste su {ROUNDS.length}
+            Hai preparato {punteggio} liste su {rounds.length}
           </p>
           <p className="text-lg text-slate-500">Ottima memoria per le cose quotidiane!</p>
           <button
@@ -224,7 +262,7 @@ export default function ValigiaSpesa({ onChiudi }: ValigiaSpesaProps) {
 
           {/* Progresso */}
           <div className="text-center text-slate-500">
-            Round {roundCorrente + 1} di {ROUNDS.length}
+            Round {roundCorrente + 1} di {rounds.length}
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface OrologioDigitaleProps {
   onChiudi: () => void;
@@ -11,7 +11,17 @@ interface RoundOrologio {
   opzioni: { testo: string; èCorretta: boolean }[];
 }
 
-const ROUNDS: RoundOrologio[] = [
+// Funzione per mescolare array
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+const ROUNDS_DEFAULT: RoundOrologio[] = [
   {
     ore: 8,
     minuti: 0,
@@ -65,12 +75,40 @@ const ROUNDS: RoundOrologio[] = [
 ];
 
 export default function OrologioDigitale({ onChiudi }: OrologioDigitaleProps) {
+  const [rounds, setRounds] = useState<RoundOrologio[]>([]);
   const [roundCorrente, setRoundCorrente] = useState(0);
   const [feedback, setFeedback] = useState<"corretto" | "sbagliato" | null>(null);
   const [punteggio, setPunteggio] = useState(0);
   const [completato, setCompletato] = useState(false);
 
-  const round = ROUNDS[roundCorrente];
+  // Carica rounds personalizzati o default e mescola
+  useEffect(() => {
+    const customRounds = localStorage.getItem("orologio_custom_rounds");
+    let roundsToUse = ROUNDS_DEFAULT;
+    
+    if (customRounds) {
+      try {
+        const parsed = JSON.parse(customRounds);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          roundsToUse = parsed;
+        }
+      } catch (e) {
+        console.error("Errore nel caricare rounds personalizzati:", e);
+      }
+    }
+    
+    // Mescola i rounds e le opzioni di ogni round
+    const shuffledRounds = shuffleArray(roundsToUse).map(round => ({
+      ...round,
+      opzioni: shuffleArray(round.opzioni)
+    }));
+    
+    setRounds(shuffledRounds);
+  }, []);
+
+  if (rounds.length === 0) return null;
+  
+  const round = rounds[roundCorrente];
 
   const gestisciClick = (èCorretta: boolean) => {
     if (feedback) return;
@@ -83,7 +121,7 @@ export default function OrologioDigitale({ onChiudi }: OrologioDigitaleProps) {
     }
 
     setTimeout(() => {
-      if (roundCorrente < ROUNDS.length - 1) {
+      if (roundCorrente < rounds.length - 1) {
         setRoundCorrente(roundCorrente + 1);
         setFeedback(null);
       } else {
@@ -103,7 +141,7 @@ export default function OrologioDigitale({ onChiudi }: OrologioDigitaleProps) {
           <div className="text-7xl">⏰</div>
           <h2 className="text-3xl font-bold text-slate-900">Bravissimo!</h2>
           <p className="text-xl text-slate-600">
-            Hai letto {punteggio} orologi su {ROUNDS.length}
+            Hai letto {punteggio} orologi su {rounds.length}
           </p>
           <p className="text-lg text-slate-500">Ottima capacità di orientamento!</p>
           <button
@@ -228,7 +266,7 @@ export default function OrologioDigitale({ onChiudi }: OrologioDigitaleProps) {
 
           {/* Progresso */}
           <div className="text-center text-slate-500">
-            Round {roundCorrente + 1} di {ROUNDS.length}
+            Round {roundCorrente + 1} di {rounds.length}
           </div>
         </div>
       </div>
