@@ -569,7 +569,9 @@ function App() {
             {/* Testo della domanda con pulsante altoparlante */}
             <div className="w-full flex items-start gap-3 mb-6 md:mb-10">
               <h2
-                className="flex-1 text-2xl md:text-4xl font-bold text-slate-900 text-center leading-snug"
+                className={`flex-1 text-2xl md:text-4xl font-bold text-center leading-snug transition-colors duration-300 ${
+                  theme === 'dark' ? 'text-white' : 'text-slate-900'
+                }`}
                 aria-live="polite"
               >
                 {domandaCorrente.testoDomanda}
@@ -696,7 +698,7 @@ function App() {
 
       {/* ─── GIOCHI EXTRA ─── */}
       {giocoAttivo === "cruciverba" && (
-        <GiocoCruciverba onChiudi={() => setGiocoAttivo(null)} />
+        <GiocoCruciverba onChiudi={() => setGiocoAttivo(null)} theme={theme} />
       )}
 
       {giocoAttivo === "puzzle" && (
