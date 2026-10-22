@@ -8,18 +8,23 @@ const IMMAGINI = ["🍎", "🐕", "🏠", "🚗", "🌸", "🎵"];
 
 export default function MemorySemplificato({ onChiudi }: MemorySemplificatoProps) {
   const [carte, setCarte] = useState<{ id: number; emoji: string; girata: boolean; trovata: boolean }[]>([]);
-  const [primaCarta, setPrimaCarta] = useState<number | null>(null);
+  const [cartaSelezionata, setCartaSelezionata] = useState<number | null>(null);
+  const [staConfrontando, setStaConfrontando] = useState(false);
   const [mosse, setMosse] = useState(0);
   const [completato, setCompletato] = useState(false);
+  const [numeroCoppie, setNumeroCoppie] = useState(() => {
+    const salvato = localStorage.getItem("memory_numero_coppie");
+    return salvato ? parseInt(salvato) : 3;
+  });
 
   // Inizializza il gioco
   useEffect(() => {
     iniziaGioco();
-  }, []);
+  }, [numeroCoppie]);
 
   const iniziaGioco = () => {
-    // Crea coppie di carte (3 coppie = 6 carte)
-    const coppie = IMMAGINI.slice(0, 3);
+    // Crea coppie di carte
+    const coppie = IMMAGINI.slice(0, numeroCoppie);
     const carteDoppie = [...coppie, ...coppie];
     
     // Mescola
@@ -33,51 +38,58 @@ export default function MemorySemplificato({ onChiudi }: MemorySemplificatoProps
       .sort(() => Math.random() - 0.5);
 
     setCarte(carteMescolate);
-    setPrimaCarta(null);
+    setCartaSelezionata(null);
+    setStaConfrontando(false);
     setMosse(0);
     setCompletato(false);
   };
 
   const gestisciClickCarta = (id: number) => {
-    if (carte[id].girata || carte[id].trovata || primaCarta !== null) return;
+    // Blocca se sta confrontando o se la carta è già girata/trovata
+    if (staConfrontando || carte[id].girata || carte[id].trovata) {
+      return;
+    }
 
     // Gira la carta
     const nuoveCarte = [...carte];
     nuoveCarte[id].girata = true;
     setCarte(nuoveCarte);
 
-    if (primaCarta === null) {
+    if (cartaSelezionata === null) {
       // Prima carta selezionata
-      setPrimaCarta(id);
+      setCartaSelezionata(id);
     } else {
-      // Seconda carta selezionata
+      // Seconda carta selezionata - confronta
+      setStaConfrontando(true);
       setMosse(mosse + 1);
       
-      if (carte[primaCarta].emoji === carte[id].emoji) {
+      if (carte[cartaSelezionata].emoji === carte[id].emoji) {
         // Coppia trovata!
         setTimeout(() => {
           const carteAggiornate = [...carte];
-          carteAggiornate[primaCarta].trovata = true;
-          carteAggiornate[primaCarta].girata = false;
+          carteAggiornate[cartaSelezionata].trovata = true;
+          carteAggiornate[cartaSelezionata].girata = false;
           carteAggiornate[id].trovata = true;
           carteAggiornate[id].girata = false;
           setCarte(carteAggiornate);
-          setPrimaCarta(null);
+          setCartaSelezionata(null);
+          setStaConfrontando(false);
 
           // Controlla se il gioco è completato
           if (carteAggiornate.every(c => c.trovata)) {
             setCompletato(true);
           }
-        }, 800);
+        }, 1000);
       } else {
         // Non è una coppia, gira indietro
         setTimeout(() => {
           const carteAggiornate = [...carte];
-          carteAggiornate[primaCarta].girata = false;
+          carteAggiornate[cartaSelezionata].girata = false;
           carteAggiornate[id].girata = false;
           setCarte(carteAggiornate);
-          setPrimaCarta(null);
-        }, 1000);
+          setCartaSelezionata(null);
+          setStaConfrontando(false);
+        }, 1200);
       }
     }
   };
@@ -110,6 +122,10 @@ export default function MemorySemplificato({ onChiudi }: MemorySemplificatoProps
     );
   }
 
+  // Calcola il numero di colonne in base al numero di carte
+  const totaleCarte = numeroCoppie * 2;
+  const colonne = totaleCarte <= 6 ? 3 : totaleCarte <= 10 ? 4 : 5;
+
   return (
     <div className="fixed inset-0 bg-slate-50 flex flex-col z-50">
       {/* Header */}
@@ -117,7 +133,7 @@ export default function MemorySemplificato({ onChiudi }: MemorySemplificatoProps
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-slate-900">🧠 Trova la Coppia</h2>
-            <p className="text-sm text-slate-500">Mosse: {mosse}</p>
+            <p className="text-sm text-slate-500">Mosse: {mosse} | Coppie: {numeroCoppie}</p>
           </div>
           <button
             onClick={onChiudi}
@@ -142,18 +158,23 @@ export default function MemorySemplificato({ onChiudi }: MemorySemplificatoProps
           </div>
 
           {/* Griglia carte */}
-          <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
+          <div 
+            className="grid gap-4 max-w-lg mx-auto"
+            style={{
+              gridTemplateColumns: `repeat(${colonne}, 1fr)`,
+            }}
+          >
             {carte.map((carta) => (
               <button
                 key={carta.id}
                 onClick={() => gestisciClickCarta(carta.id)}
-                disabled={carta.girata || carta.trovata}
+                disabled={carta.girata || carta.trovata || staConfrontando}
                 className={`aspect-square rounded-2xl border-4 transition-all text-6xl flex items-center justify-center ${
                   carta.trovata
                     ? "bg-emerald-100 border-emerald-500"
                     : carta.girata
                     ? "bg-white border-blue-500"
-                    : "bg-blue-500 border-blue-600 hover:bg-blue-400 hover:scale-105"
+                    : "bg-blue-500 border-blue-600 hover:bg-blue-400 hover:scale-105 cursor-pointer"
                 }`}
               >
                 {carta.girata || carta.trovata ? (

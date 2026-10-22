@@ -28,6 +28,13 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
   const [formNumeroDomande, setFormNumeroDomande] = useState(impostazioni.numeroDomande.toString());
   const [impostazioniSalvate, setImpostazioniSalvate] = useState(false);
 
+  // Stato per configurazione Memory
+  const [formNumeroCoppieMemory, setFormNumeroCoppieMemory] = useState(() => {
+    const salvato = localStorage.getItem("memory_numero_coppie");
+    return salvato ? parseInt(salvato) : 3;
+  });
+  const [memorySalvato, setMemorySalvato] = useState(false);
+
   // Salva profilo
   const handleSalvaProfilo = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +59,17 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
       });
       setImpostazioniSalvate(true);
       setTimeout(() => setImpostazioniSalvate(false), 2000);
+    }
+  };
+
+  // Salva configurazione Memory
+  const handleSalvaMemory = (e: React.FormEvent) => {
+    e.preventDefault();
+    const numeroCoppie = parseInt(formNumeroCoppieMemory.toString());
+    if (numeroCoppie >= 2 && numeroCoppie <= 6) {
+      localStorage.setItem("memory_numero_coppie", numeroCoppie.toString());
+      setMemorySalvato(true);
+      setTimeout(() => setMemorySalvato(false), 2000);
     }
   };
 
@@ -536,6 +554,98 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
               </form>
             </div>
 
+            {/* Card Configurazione Memory */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-600">
+                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <span>🧠</span>
+                  Configurazione Memory
+                </h2>
+              </div>
+
+              <form onSubmit={handleSalvaMemory} className="p-6 space-y-6">
+                {/* Numero di coppie */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Numero di coppie nel Memory
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="range"
+                      min="2"
+                      max="6"
+                      value={formNumeroCoppieMemory}
+                      onChange={(e) => setFormNumeroCoppieMemory(parseInt(e.target.value))}
+                      className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                    />
+                    <div className="w-20 text-center">
+                      <span className="text-2xl font-bold text-emerald-600">
+                        {formNumeroCoppieMemory}
+                      </span>
+                      <span className="text-sm text-slate-500 ml-1">
+                        {formNumeroCoppieMemory === 1 ? "coppia" : "coppie"}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-2">
+                    Il Memory avrà {formNumeroCoppieMemory * 2} carte totali ({formNumeroCoppieMemory} coppie da trovare).
+                  </p>
+                </div>
+
+                {/* Preset rapidi */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Preset rapidi
+                  </label>
+                  <div className="flex gap-2 flex-wrap">
+                    {[2, 3, 4, 5, 6].map((num) => (
+                      <button
+                        key={num}
+                        type="button"
+                        onClick={() => setFormNumeroCoppieMemory(num)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          formNumeroCoppieMemory === num
+                            ? "bg-emerald-600 text-white"
+                            : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                        }`}
+                      >
+                        {num} {num === 1 ? "coppia" : "coppie"} ({num * 2} carte)
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Info sessione */}
+                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-emerald-900 mb-2">
+                    💡 Suggerimento
+                  </h4>
+                  <p className="text-sm text-emerald-800">
+                    Per pazienti con difficoltà cognitive, si consigliano <strong>2-3 coppie</strong> (4-6 carte).
+                    Per pazienti con buone capacità, si possono usare <strong>4-6 coppie</strong> (8-12 carte).
+                  </p>
+                </div>
+
+                {/* Pulsante salva */}
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  {memorySalvato ? (
+                    <>
+                      <span>✓</span>
+                      <span>Configurazione Salvata!</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>💾</span>
+                      <span>Salva Configurazione Memory</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+
             {/* Card Info Attuali */}
             <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200 p-6">
               <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
@@ -553,6 +663,12 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
                   <span className="text-slate-600">Durata feedback:</span>
                   <span className="font-semibold text-slate-900">
                     {(impostazioni.durataFeedbackMs / 1000).toFixed(1)}s
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Memory - Coppie:</span>
+                  <span className="font-semibold text-slate-900">
+                    {formNumeroCoppieMemory} ({formNumeroCoppieMemory * 2} carte)
                   </span>
                 </div>
               </div>
