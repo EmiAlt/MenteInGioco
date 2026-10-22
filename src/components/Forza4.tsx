@@ -329,43 +329,46 @@ export default function Forza4({ onChiudi }: Forza4Props) {
 
       {/* Modale fine partita */}
       {gameState === 'finished' && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-8 text-center space-y-6 shadow-2xl transform animate-in zoom-in-95 duration-300">
-            <div className="text-7xl">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+          <div className="bg-white/95 rounded-2xl max-w-xs w-full p-5 text-center space-y-4 shadow-2xl transform animate-in zoom-in-95 duration-300 border-2 border-white">
+            <div className="text-5xl">
               {winner === 'player' ? '🎉' : winner === 'ai' ? '😊' : '🤝'}
             </div>
-            <h2 className="text-3xl font-bold text-slate-900">
+            <h2 className="text-2xl font-bold text-slate-900">
               {winner === 'player' && 'Bravissimo! Hai vinto!'}
               {winner === 'ai' && 'Ottima partita!'}
               {winner === 'pareggio' && 'Pareggio!'}
             </h2>
-            <p className="text-xl text-slate-600">
+            <p className="text-base text-slate-600">
               {winner === 'player' && 'Sei stato fantastico!'}
               {winner === 'ai' && 'La prossima volta andrà meglio!'}
               {winner === 'pareggio' && 'Siete stati entrambi bravi!'}
             </p>
             
-            <div className="space-y-3">
+            <div className="flex flex-row gap-3">
               <button
                 onClick={() => startGame(difficolta)}
-                className="w-full p-4 bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold rounded-xl shadow-lg transition-colors"
+                className="flex-1 py-2.5 px-3 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-lg shadow transition-colors"
+                title="Riavvia Partita"
               >
-                🔄 Riavvia Partita
+                🔄
               </button>
               <button
                 onClick={() => {
                   setGameState('selecting');
                   setWinningCells([]);
                 }}
-                className="w-full p-4 bg-slate-200 hover:bg-slate-300 text-slate-700 text-lg font-medium rounded-xl transition-colors"
+                className="flex-1 py-2.5 px-3 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium rounded-lg transition-colors"
+                title="Cambia Difficoltà"
               >
-                ⚙️ Cambia Difficoltà
+                ⚙️
               </button>
               <button
                 onClick={onChiudi}
-                className="w-full py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors"
+                className="flex-1 py-2.5 px-3 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium rounded-lg transition-colors"
+                title="Esci"
               >
-                ← Esci
+                ←
               </button>
             </div>
           </div>
