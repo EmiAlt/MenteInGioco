@@ -2,10 +2,8 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useCognitiveSession } from "./hooks/useCognitiveSession";
 import { simulaChiamataAI } from "./services/aiSimulator";
 import { useProfiloPaziente } from "./hooks/useProfiloPaziente";
+import { useImpostazioniSessione } from "./hooks/useImpostazioniSessione";
 import PannelloCaregiver from "./components/PannelloCaregiver";
-
-/** Numero massimo di domande per sessione */
-const MAX_DOMANDE = 5;
 
 /** Durata del feedback visivo in millisecondi */
 const FEEDBACK_DURATION_MS = 2500;
@@ -15,7 +13,11 @@ type VistaApp = "paziente" | "caregiver";
 
 function App() {
   const [profiloPaziente] = useProfiloPaziente();
+  const [impostazioni] = useImpostazioniSessione();
   const [vistaCorrente, setVistaCorrente] = useState<VistaApp>("paziente");
+  
+  // Numero di domande per sessione (configurabile dal caregiver)
+  const numeroDomande = impostazioni.numeroDomande;
   const {
     domandaCorrente,
     indiceDomandaCorrente,
@@ -101,7 +103,7 @@ function App() {
       // Dopo il duration del feedback, passa alla prossima domanda o alla fine
       feedbackTimerRef.current = setTimeout(() => {
         // Controlla se abbiamo raggiunto il massimo di domande
-        if (indiceDomandaCorrente >= MAX_DOMANDE) {
+        if (indiceDomandaCorrente >= numeroDomande) {
           terminaSessione();
           setFase("fine");
         } else {
@@ -178,7 +180,7 @@ function App() {
             {/* Info sessione */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-2">
               <p className="text-slate-700 text-lg">
-                📝 <strong>{MAX_DOMANDE} domande</strong> semplici e divertenti
+                📝 <strong>{numeroDomande} domande</strong> semplici e divertenti
               </p>
               <p className="text-slate-500">
                 Nessuna pressione, nessun voto. Solo un momento per te.
@@ -234,7 +236,7 @@ function App() {
           <div className="max-w-2xl w-full mx-auto mb-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-slate-500 text-sm font-medium">
-                Domanda {Math.min(indiceDomandaCorrente, MAX_DOMANDE)} di {MAX_DOMANDE}
+                Domanda {Math.min(indiceDomandaCorrente, numeroDomande)} di {numeroDomande}
               </span>
               <div className="flex items-center gap-3">
                 {domandaCorrente.id.startsWith("ai-") && (
@@ -263,7 +265,7 @@ function App() {
               <div
                 className="h-full bg-blue-400 rounded-full transition-all duration-500 ease-out"
                 style={{
-                  width: `${(Math.min(indiceDomandaCorrente, MAX_DOMANDE) / MAX_DOMANDE) * 100}%`,
+                  width: `${(Math.min(indiceDomandaCorrente, numeroDomande) / numeroDomande) * 100}%`,
                 }}
               />
             </div>

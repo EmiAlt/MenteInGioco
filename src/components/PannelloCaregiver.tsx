@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
 import { useProfiloPaziente } from "../hooks/useProfiloPaziente";
 import { useCronologiaSessioni, SessioneSalvata } from "../hooks/useCronologiaSessioni";
+import { useImpostazioniSessione } from "../hooks/useImpostazioniSessione";
 import ImportaDomande from "./ImportaDomande";
 import { Domanda } from "../data/questions";
 
-type TabAttiva = "profilo" | "statistiche" | "domande";
+type TabAttiva = "profilo" | "statistiche" | "domande" | "impostazioni";
 
 interface PannelloCaregiverProps {
   onTornaAlGioco: () => void;
@@ -13,14 +14,19 @@ interface PannelloCaregiverProps {
 export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverProps) {
   const [profilo, setProfilo] = useProfiloPaziente();
   const [sessioni, aggiungiSessione, cancellaSessioni] = useCronologiaSessioni();
+  const [impostazioni, setImpostazioni] = useImpostazioniSessione();
   const [tabAttiva, setTabAttiva] = useState<TabAttiva>("profilo");
 
-  // Stato form
+  // Stato form profilo
   const [formNome, setFormNome] = useState(profilo.nome);
   const [formAnnoNascita, setFormAnnoNascita] = useState(profilo.annoNascita.toString());
   const [formMestiere, setFormMestiere] = useState(profilo.exMestiere);
   const [formHobby, setFormHobby] = useState(profilo.hobby.join(", "));
   const [salvato, setSalvato] = useState(false);
+
+  // Stato form impostazioni
+  const [formNumeroDomande, setFormNumeroDomande] = useState(impostazioni.numeroDomande.toString());
+  const [impostazioniSalvate, setImpostazioniSalvate] = useState(false);
 
   // Salva profilo
   const handleSalvaProfilo = (e: React.FormEvent) => {
@@ -33,6 +39,20 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
     });
     setSalvato(true);
     setTimeout(() => setSalvato(false), 2000);
+  };
+
+  // Salva impostazioni
+  const handleSalvaImpostazioni = (e: React.FormEvent) => {
+    e.preventDefault();
+    const numeroDomande = parseInt(formNumeroDomande);
+    if (numeroDomande >= 1 && numeroDomande <= 50) {
+      setImpostazioni({
+        ...impostazioni,
+        numeroDomande: numeroDomande,
+      });
+      setImpostazioniSalvate(true);
+      setTimeout(() => setImpostazioniSalvate(false), 2000);
+    }
   };
 
   // Handler per domande importate
@@ -149,6 +169,16 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
               }`}
             >
               📝 Importa Domande
+            </button>
+            <button
+              onClick={() => setTabAttiva("impostazioni")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                tabAttiva === "impostazioni"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+              }`}
+            >
+              ⚙️ Impostazioni
             </button>
           </nav>
         </div>
@@ -406,6 +436,127 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
         {tabAttiva === "domande" && (
           <div className="max-w-3xl mx-auto">
             <ImportaDomande onDomandeImportate={handleDomandeImportate} />
+          </div>
+        )}
+
+        {/* Tab: Impostazioni */}
+        {tabAttiva === "impostazioni" && (
+          <div className="max-w-2xl mx-auto space-y-6">
+            {/* Card Impostazioni Sessione */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-6 py-4 bg-gradient-to-r from-cyan-600 to-blue-600">
+                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <span>⚙️</span>
+                  Impostazioni Sessione
+                </h2>
+              </div>
+
+              <form onSubmit={handleSalvaImpostazioni} className="p-6 space-y-6">
+                {/* Numero di domande */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Numero di domande per sessione
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="range"
+                      min="1"
+                      max="20"
+                      value={formNumeroDomande}
+                      onChange={(e) => setFormNumeroDomande(e.target.value)}
+                      className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-cyan-600"
+                    />
+                    <div className="w-20 text-center">
+                      <span className="text-2xl font-bold text-cyan-600">
+                        {formNumeroDomande}
+                      </span>
+                      <span className="text-sm text-slate-500 ml-1">
+                        {parseInt(formNumeroDomande) === 1 ? "domanda" : "domande"}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-2">
+                    Imposta quante domande il paziente dovrà affrontare in ogni sessione di gioco.
+                    Un numero maggiore permette un allenamento più lungo, ma potrebbe stancare il paziente.
+                  </p>
+                </div>
+
+                {/* Preset rapidi */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Preset rapidi
+                  </label>
+                  <div className="flex gap-2 flex-wrap">
+                    {[3, 5, 7, 10, 15].map((num) => (
+                      <button
+                        key={num}
+                        type="button"
+                        onClick={() => setFormNumeroDomande(num.toString())}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          parseInt(formNumeroDomande) === num
+                            ? "bg-cyan-600 text-white"
+                            : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                        }`}
+                      >
+                        {num} {num === 1 ? "domanda" : "domande"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Info sessione */}
+                <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-cyan-900 mb-2">
+                    💡 Suggerimento
+                  </h4>
+                  <p className="text-sm text-cyan-800">
+                    Per pazienti con decadimento cognitivo lieve, si consigliano sessioni da{" "}
+                    <strong>5-7 domande</strong>. Per pazienti più fragili o stanchi,{" "}
+                    <strong>3 domande</strong> possono essere sufficienti.
+                  </p>
+                </div>
+
+                {/* Pulsante salva */}
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  {impostazioniSalvate ? (
+                    <>
+                      <span>✓</span>
+                      <span>Impostazioni Salvate!</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>💾</span>
+                      <span>Salva Impostazioni</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+
+            {/* Card Info Attuali */}
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200 p-6">
+              <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <span>📊</span>
+                Configurazione Attuale
+              </h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Numero domande:</span>
+                  <span className="font-semibold text-slate-900">
+                    {impostazioni.numeroDomande}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Durata feedback:</span>
+                  <span className="font-semibold text-slate-900">
+                    {(impostazioni.durataFeedbackMs / 1000).toFixed(1)}s
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </main>
