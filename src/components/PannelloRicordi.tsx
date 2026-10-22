@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRicordi } from "../hooks/useRicordi";
+import { calcolaDimensioneLocalStorage, formattaDimensione } from "../utils/imageCompression";
 
 interface PannelloRicordiProps {
   onChiudi: () => void;
@@ -12,7 +13,21 @@ export default function PannelloRicordi({ onChiudi }: PannelloRicordiProps) {
   const [categoria, setCategoria] = useState("");
   const [ricordoDaModificare, setRicordoDaModificare] = useState<string | null>(null);
   const [messaggioSuccesso, setMessaggioSuccesso] = useState<string | null>(null);
+  const [dimensioneStorage, setDimensioneStorage] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Calcola la dimensione dello storage
+  useEffect(() => {
+    const aggiornaDimensione = () => {
+      setDimensioneStorage(calcolaDimensioneLocalStorage());
+    };
+    
+    aggiornaDimensione();
+    
+    // Aggiorna ogni volta che cambiano i ricordi
+    const interval = setInterval(aggiornaDimensione, 1000);
+    return () => clearInterval(interval);
+  }, [ricordi]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -42,24 +57,34 @@ export default function PannelloRicordi({ onChiudi }: PannelloRicordiProps) {
     }
   };
 
-  const handleSalva = () => {
+  const handleSalva = async () => {
     if (!fotoBase64 || !descrizione.trim()) {
       alert("Inserisci una foto e una descrizione");
       return;
     }
 
-    if (ricordoDaModificare) {
-      modificaRicordo(ricordoDaModificare, descrizione, categoria || undefined);
-      setMessaggioSuccesso("✅ Ricordo modificato con successo!");
-    } else {
-      salvaRicordo(fotoBase64, descrizione, categoria || undefined);
-      setMessaggioSuccesso("✅ Ricordo salvato con successo!");
-    }
+    try {
+      if (ricordoDaModificare) {
+        modificaRicordo(ricordoDaModificare, descrizione, categoria || undefined);
+        setMessaggioSuccesso("✅ Ricordo modificato con successo!");
+      } else {
+        setMessaggioSuccesso("🗜️ Compressione immagine in corso...");
+        await salvaRicordo(fotoBase64, descrizione, categoria || undefined);
+        setMessaggioSuccesso("✅ Ricordo salvato con successo!");
+      }
 
-    // Reset form dopo un breve delay per mostrare il messaggio
-    setTimeout(() => {
-      resetForm();
-    }, 1500);
+      // Reset form dopo un breve delay per mostrare il messaggio
+      setTimeout(() => {
+        resetForm();
+      }, 1500);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("Spazio di archiviazione")) {
+        setMessaggioSuccesso("❌ " + error.message);
+      } else {
+        setMessaggioSuccesso("❌ Errore durante il salvataggio. Riprova.");
+      }
+      console.error("[PANNELLO RICORDI] Errore:", error);
+    }
   };
 
   const handleModifica = (id: string) => {
@@ -87,6 +112,9 @@ export default function PannelloRicordi({ onChiudi }: PannelloRicordiProps) {
               <p className="text-slate-600 mt-1">
                 Carica foto e descrizioni per creare giochi di memoria personalizzati
               </p>
+              <p className="text-xs text-slate-500 mt-2">
+                💾 Spazio utilizzato: {formattaDimensione(dimensioneStorage)} / ~5 MB
+              </p>
             </div>
             <button
               onClick={onChiudi}
@@ -103,9 +131,15 @@ export default function PannelloRicordi({ onChiudi }: PannelloRicordiProps) {
             {ricordoDaModificare ? "✏️ Modifica Ricordo" : "➕ Aggiungi Nuovo Ricordo"}
           </h2>
 
-          {/* Messaggio di successo */}
+          {/* Messaggio di successo/errore */}
           {messaggioSuccesso && (
-            <div className="mb-4 p-4 bg-emerald-50 border-2 border-emerald-200 rounded-lg text-emerald-800 font-medium text-lg">
+            <div className={`mb-4 p-4 border-2 rounded-lg font-medium text-lg ${
+              messaggioSuccesso.startsWith("✅") 
+                ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+                : messaggioSuccesso.startsWith("❌")
+                ? "bg-red-50 border-red-200 text-red-800"
+                : "bg-blue-50 border-blue-200 text-blue-800"
+            }`}>
               {messaggioSuccesso}
             </div>
           )}
