@@ -296,25 +296,25 @@ function App() {
             <button
               onClick={handleGeneraAI}
               disabled={caricamentoAI}
-              className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 disabled:from-slate-400 disabled:to-slate-500 text-white shadow transition-all flex items-center justify-center"
+              className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-purple-100 hover:bg-purple-200 text-purple-600 hover:text-purple-700 disabled:bg-slate-200 disabled:text-slate-400 text-sm font-bold flex items-center justify-center transition-all opacity-60 hover:opacity-100 focus:opacity-100"
               aria-label="Genera esercizio personalizzato AI"
               title="Personalizza con AI"
             >
               {caricamentoAI ? (
-                <span className="text-sm animate-spin">⚙️</span>
+                <span className="animate-spin">⚙️</span>
               ) : (
-                <span className="text-sm">🤖</span>
+                <span>🤖</span>
               )}
             </button>
             
             {/* Pulsante Carica Dati */}
             <button
               onClick={handleCaricaJSON}
-              className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow transition-all flex items-center justify-center"
+              className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-emerald-100 hover:bg-emerald-200 text-emerald-600 hover:text-emerald-700 text-sm font-bold flex items-center justify-center transition-all opacity-60 hover:opacity-100 focus:opacity-100"
               aria-label="Carica dati paziente da JSON"
               title="Carica Dati"
             >
-              <span className="text-sm">📥</span>
+              <span>📥</span>
             </button>
             
             {/* Pulsante Test (nascosto) */}
@@ -358,11 +358,12 @@ function App() {
           <div className="w-full max-w-6xl space-y-6">
             
             {/* Categoria 1: Giochi di Parole & Linguaggio */}
-            <section>
-              <h2 className="text-base md:text-lg font-bold text-slate-800 mb-3 px-1">
-                📝 Giochi di Parole & Linguaggio
+            <section className="bg-gray-50 rounded-xl p-4 md:p-6">
+              <h2 className="text-lg md:text-xl font-extrabold text-slate-900 mb-4 flex items-center gap-2">
+                <span className="text-2xl md:text-3xl">📝</span>
+                <span>Giochi di Parole & Linguaggio</span>
               </h2>
-              <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
+              <div className="flex flex-wrap gap-4 justify-start">
                 <button onClick={handleInizia} className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
                   <div className="text-3xl mb-1">📝</div>
                   <div className="text-xs font-bold">Quiz</div>
@@ -379,11 +380,12 @@ function App() {
             </section>
 
             {/* Categoria 2: Memoria & Reminiscenza */}
-            <section>
-              <h2 className="text-base md:text-lg font-bold text-slate-800 mb-3 px-1">
-                🧠 Memoria & Reminiscenza
+            <section className="bg-gray-50 rounded-xl p-4 md:p-6">
+              <h2 className="text-lg md:text-xl font-extrabold text-slate-900 mb-4 flex items-center gap-2">
+                <span className="text-2xl md:text-3xl">🧠</span>
+                <span>Memoria & Reminiscenza</span>
               </h2>
-              <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
+              <div className="flex flex-wrap gap-4 justify-start">
                 <button onClick={() => setGiocoAttivo("memory")} className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
                   <div className="text-3xl mb-1">🃏</div>
                   <div className="text-xs font-bold">Memory</div>
@@ -404,11 +406,12 @@ function App() {
             </section>
 
             {/* Categoria 3: Logica & Osservazione */}
-            <section>
-              <h2 className="text-base md:text-lg font-bold text-slate-800 mb-3 px-1">
-                👁️ Logica & Osservazione
+            <section className="bg-gray-50 rounded-xl p-4 md:p-6">
+              <h2 className="text-lg md:text-xl font-extrabold text-slate-900 mb-4 flex items-center gap-2">
+                <span className="text-2xl md:text-3xl">👁️</span>
+                <span>Logica & Osservazione</span>
               </h2>
-              <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
+              <div className="flex flex-wrap gap-4 justify-start">
                 <button onClick={() => setGiocoAttivo("intruso")} className="p-3 bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
                   <div className="text-3xl mb-1">🔍</div>
                   <div className="text-xs font-bold">Intruso</div>
