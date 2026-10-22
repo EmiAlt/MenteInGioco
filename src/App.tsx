@@ -1,7 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useCognitiveSession } from "./hooks/useCognitiveSession";
-import { profiloPaziente } from "./data/profiloPaziente";
 import { simulaChiamataAI } from "./services/aiSimulator";
+import { useProfiloPaziente } from "./hooks/useProfiloPaziente";
+import PannelloCaregiver from "./components/PannelloCaregiver";
 
 /** Numero massimo di domande per sessione */
 const MAX_DOMANDE = 5;
@@ -10,8 +11,11 @@ const MAX_DOMANDE = 5;
 const FEEDBACK_DURATION_MS = 2500;
 
 type FaseSessione = "benvenuto" | "domanda" | "feedback" | "fine";
+type VistaApp = "paziente" | "caregiver";
 
 function App() {
+  const [profiloPaziente] = useProfiloPaziente();
+  const [vistaCorrente, setVistaCorrente] = useState<VistaApp>("paziente");
   const {
     domandaCorrente,
     indiceDomandaCorrente,
@@ -130,8 +134,24 @@ function App() {
   // RENDER
   // ═══════════════════════════════════════════
 
+  // Vista Pannello Caregiver
+  if (vistaCorrente === "caregiver") {
+    return <PannelloCaregiver onTornaAlGioco={() => setVistaCorrente("paziente")} />;
+  }
+
+  // Vista Paziente
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col relative">
+      {/* Pulsante nascosto per accedere al Pannello Caregiver */}
+      <button
+        onClick={() => setVistaCorrente("caregiver")}
+        className="fixed top-3 right-3 z-50 w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-700 text-xs font-bold flex items-center justify-center transition-colors opacity-30 hover:opacity-100 focus:opacity-100"
+        aria-label="Accedi al Pannello Caregiver"
+        title="Pannello Caregiver"
+      >
+        ⚙
+      </button>
+
       {/* ─── SCHERMATA BENVENUTO ─── */}
       {fase === "benvenuto" && (
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">

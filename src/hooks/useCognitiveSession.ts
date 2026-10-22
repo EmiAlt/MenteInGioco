@@ -59,6 +59,7 @@ export function useCognitiveSession() {
   // ─── RIFERIMENTI PER IL TIMER ───
   const timerInizioRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const inizioSessioneRef = useRef<number | null>(null);
 
   // ─── TIMER ───
   const avviaTimer = useCallback(() => {
@@ -181,6 +182,7 @@ export function useCognitiveSession() {
     setCronologiaRisposte([]);
     setDomandeAI([]);
     setDomandeAIGenerate(false);
+    inizioSessioneRef.current = Date.now();
 
     // Seleziona prima domanda (livello 1)
     const domandeLivello1 = domande.filter((d) => d.livelloDifficolta === 1);
@@ -308,13 +310,63 @@ export function useCognitiveSession() {
     setSessioneAttiva(false);
     setSessioneCompletata(true);
 
+    // Calcola durata sessione
+    const durata = inizioSessioneRef.current
+      ? Math.floor((Date.now() - inizioSessioneRef.current) / 1000)
+      : 0;
+
+    // Leggi il nome del paziente da localStorage
+    let nomePaziente = "Paziente";
+    try {
+      const profiloJSON = localStorage.getItem("stimolazione_cognitiva_profilo_paziente");
+      if (profiloJSON) {
+        const profilo = JSON.parse(profiloJSON);
+        nomePaziente = profilo.nome || "Paziente";
+      }
+    } catch (e) {
+      // fallback silenzioso
+    }
+
+    // Salva sessione in localStorage
+    const sessioneDaSalvare = {
+      id: `sessione-${Date.now()}`,
+      data: new Date().toISOString(),
+      durata,
+      domandeRispondendo: indiceDomandaCorrente - 1,
+      punteggioFinale: punteggioInvisibile,
+      livelloMaxRaggiunto: livelloDifficoltaAttuale,
+      cronologia: cronologiaRisposte,
+      profiloPaziente: nomePaziente,
+    };
+
+    try {
+      const sessioniSalvate = JSON.parse(
+        localStorage.getItem("stimolazione_cognitiva_sessioni") || "[]"
+      );
+      sessioniSalvate.unshift(sessioneDaSalvare);
+      localStorage.setItem(
+        "stimolazione_cognitiva_sessioni",
+        JSON.stringify(sessioniSalvate)
+      );
+      console.log(`[COGNITIVE] 💾 Sessione salvata in localStorage: ${sessioneDaSalvare.id}`);
+    } catch (error) {
+      console.error("[COGNITIVE] Errore nel salvare la sessione:", error);
+    }
+
     console.log("═══════════════════════════════════════");
     console.log("[COGNITIVE] ■ SESSIONE TERMINATA");
     console.log(`[COGNITIVE] Punteggio finale: ${punteggioInvisibile}`);
     console.log(`[COGNITIVE] Domande rispondendo: ${indiceDomandaCorrente - 1}`);
     console.log(`[COGNITIVE] Livello finale: ${livelloDifficoltaAttuale}`);
+    console.log(`[COGNITIVE] Durata sessione: ${durata}s`);
     console.log("═══════════════════════════════════════");
-  }, [fermaTimer, punteggioInvisibile, indiceDomandaCorrente, livelloDifficoltaAttuale]);
+  }, [
+    fermaTimer,
+    punteggioInvisibile,
+    indiceDomandaCorrente,
+    livelloDifficoltaAttuale,
+    cronologiaRisposte,
+  ]);
 
   // ─── INIETTA DOMANDE AI PERSONALIZZATE ───
   const iniettaDomandeAI = useCallback(
