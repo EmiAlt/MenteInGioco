@@ -317,119 +317,95 @@ function App() {
 
       {/* ─── SCHERMATA BENVENUTO ─── */}
       {fase === "benvenuto" && (
-        <div className="flex-1 flex flex-col items-center justify-start px-3 py-2 overflow-y-auto">
-          <div className="w-full max-w-4xl space-y-2">
+        <div className="flex-1 flex flex-col items-center justify-start px-2 py-3 overflow-y-auto">
+          <div className="w-full max-w-6xl space-y-3">
             
-            {/* Categoria: Giochi di Parole */}
-            <div>
-              <h3 className="text-xs font-semibold text-slate-600 mb-1">📝 Giochi di Parole</h3>
-              <div className="flex gap-1.5 justify-center">
-                <button onClick={handleInizia} className="w-[2cm] h-[2cm] bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-lg shadow-sm hover:scale-105 transition-transform flex flex-col items-center justify-center shrink-0">
-                  <div className="text-lg">📝</div>
-                  <div className="text-[10px] font-bold mt-0.5">Quiz</div>
-                </button>
-                <button onClick={() => setGiocoAttivo("cruciverba")} className="w-[2cm] h-[2cm] bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-lg shadow-sm hover:scale-105 transition-transform flex flex-col items-center justify-center shrink-0">
-                  <div className="text-lg">🧩</div>
-                  <div className="text-[10px] font-bold mt-0.5">Cruciverba</div>
-                </button>
-                <button onClick={() => setGiocoAttivo("proverbi")} className="w-[2cm] h-[2cm] bg-gradient-to-br from-amber-600 to-yellow-700 text-white rounded-lg shadow-sm hover:scale-105 transition-transform flex flex-col items-center justify-center shrink-0">
-                  <div className="text-lg">📜</div>
-                  <div className="text-[10px] font-bold mt-0.5">Proverbi</div>
-                </button>
-              </div>
-            </div>
-
-            {/* Categoria: Memoria e Associazione */}
-            <div>
-              <h3 className="text-xs font-semibold text-slate-600 mb-1">🧠 Memoria e Associazione</h3>
-              <div className="flex gap-1.5 justify-center">
-                <button onClick={() => setGiocoAttivo("memory")} className="w-[2cm] h-[2cm] bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-lg shadow-sm hover:scale-105 transition-transform flex flex-col items-center justify-center shrink-0">
-                  <div className="text-lg">🃏</div>
-                  <div className="text-[10px] font-bold mt-0.5">Memory</div>
-                </button>
-                <button onClick={() => setGiocoAttivo("memory-vita")} className="w-[2cm] h-[2cm] bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-lg shadow-sm hover:scale-105 transition-transform flex flex-col items-center justify-center shrink-0">
-                  <div className="text-lg">📸</div>
-                  <div className="text-[10px] font-bold mt-0.5">M. Vita</div>
-                </button>
-                <button onClick={() => setGiocoAttivo("associazioni")} className="w-[2cm] h-[2cm] bg-gradient-to-br from-fuchsia-500 to-pink-600 text-white rounded-lg shadow-sm hover:scale-105 transition-transform flex flex-col items-center justify-center shrink-0">
-                  <div className="text-lg">🔗</div>
-                  <div className="text-[10px] font-bold mt-0.5">Assoc.</div>
-                </button>
-              </div>
-            </div>
-
-            {/* Categoria: Percezione Visiva */}
-            <div>
-              <h3 className="text-xs font-semibold text-slate-600 mb-1">👁️ Percezione Visiva</h3>
-              <div className="flex gap-1.5 justify-center">
-                <button onClick={() => setGiocoAttivo("intruso")} className="w-[2cm] h-[2cm] bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-lg shadow-sm hover:scale-105 transition-transform flex flex-col items-center justify-center shrink-0">
-                  <div className="text-lg">🔍</div>
-                  <div className="text-[10px] font-bold mt-0.5">Intruso</div>
-                </button>
-                <button onClick={() => setGiocoAttivo("ombre")} className="w-[2cm] h-[2cm] bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-lg shadow-sm hover:scale-105 transition-transform flex flex-col items-center justify-center shrink-0">
-                  <div className="text-lg">🌑</div>
-                  <div className="text-[10px] font-bold mt-0.5">Ombre</div>
-                </button>
-                <button onClick={() => setGiocoAttivo("puzzle")} className="w-[2cm] h-[2cm] bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-lg shadow-sm hover:scale-105 transition-transform flex flex-col items-center justify-center shrink-0">
-                  <div className="text-lg">🖼️</div>
-                  <div className="text-[10px] font-bold mt-0.5">Puzzle</div>
-                </button>
-              </div>
-            </div>
-
-            {/* Categoria: Vita Quotidiana */}
-            <div>
-              <h3 className="text-xs font-semibold text-slate-600 mb-1">🏠 Vita Quotidiana</h3>
-              <div className="flex gap-1.5 justify-center">
-                <button onClick={() => setGiocoAttivo("canzone")} className="w-[2cm] h-[2cm] bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-lg shadow-sm hover:scale-105 transition-transform flex flex-col items-center justify-center shrink-0">
-                  <div className="text-lg">🎶</div>
-                  <div className="text-[10px] font-bold mt-0.5">Canzoni</div>
-                </button>
-                <button onClick={() => setGiocoAttivo("valigia")} className="w-[2cm] h-[2cm] bg-gradient-to-br from-sky-500 to-blue-600 text-white rounded-lg shadow-sm hover:scale-105 transition-transform flex flex-col items-center justify-center shrink-0">
-                  <div className="text-lg">🧳</div>
-                  <div className="text-[10px] font-bold mt-0.5">Valigia</div>
-                </button>
-                <button onClick={() => setGiocoAttivo("orologio")} className="w-[2cm] h-[2cm] bg-gradient-to-br from-indigo-500 to-blue-600 text-white rounded-lg shadow-sm hover:scale-105 transition-transform flex flex-col items-center justify-center shrink-0">
-                  <div className="text-lg">⏰</div>
-                  <div className="text-[10px] font-bold mt-0.5">Orologio</div>
-                </button>
-              </div>
+            {/* Tutti i giochi in righe da 6 */}
+            <div className="grid grid-cols-6 gap-2">
+              <button onClick={handleInizia} className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                <div className="text-3xl mb-1">📝</div>
+                <div className="text-xs font-bold">Quiz</div>
+              </button>
+              <button onClick={() => setGiocoAttivo("cruciverba")} className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                <div className="text-3xl mb-1">🧩</div>
+                <div className="text-xs font-bold">Cruciverba</div>
+              </button>
+              <button onClick={() => setGiocoAttivo("proverbi")} className="p-3 bg-gradient-to-br from-amber-600 to-yellow-700 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                <div className="text-3xl mb-1">📜</div>
+                <div className="text-xs font-bold">Proverbi</div>
+              </button>
+              <button onClick={() => setGiocoAttivo("memory")} className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                <div className="text-3xl mb-1">🃏</div>
+                <div className="text-xs font-bold">Memory</div>
+              </button>
+              <button onClick={() => setGiocoAttivo("memory-vita")} className="p-3 bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                <div className="text-3xl mb-1">📸</div>
+                <div className="text-xs font-bold">M. Vita</div>
+              </button>
+              <button onClick={() => setGiocoAttivo("associazioni")} className="p-3 bg-gradient-to-br from-fuchsia-500 to-pink-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                <div className="text-3xl mb-1">🔗</div>
+                <div className="text-xs font-bold">Assoc.</div>
+              </button>
+              <button onClick={() => setGiocoAttivo("intruso")} className="p-3 bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                <div className="text-3xl mb-1">🔍</div>
+                <div className="text-xs font-bold">Intruso</div>
+              </button>
+              <button onClick={() => setGiocoAttivo("ombre")} className="p-3 bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                <div className="text-3xl mb-1">🌑</div>
+                <div className="text-xs font-bold">Ombre</div>
+              </button>
+              <button onClick={() => setGiocoAttivo("puzzle")} className="p-3 bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                <div className="text-3xl mb-1">🖼️</div>
+                <div className="text-xs font-bold">Puzzle</div>
+              </button>
+              <button onClick={() => setGiocoAttivo("canzone")} className="p-3 bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                <div className="text-3xl mb-1">🎶</div>
+                <div className="text-xs font-bold">Canzoni</div>
+              </button>
+              <button onClick={() => setGiocoAttivo("valigia")} className="p-3 bg-gradient-to-br from-sky-500 to-blue-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                <div className="text-3xl mb-1">🧳</div>
+                <div className="text-xs font-bold">Valigia</div>
+              </button>
+              <button onClick={() => setGiocoAttivo("orologio")} className="p-3 bg-gradient-to-br from-indigo-500 to-blue-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                <div className="text-3xl mb-1">⏰</div>
+                <div className="text-xs font-bold">Orologio</div>
+              </button>
             </div>
 
             {/* Sezione Personalizza con AI e Dati sotto */}
-            <div className="flex flex-col items-center gap-1.5 pt-1">
+            <div className="flex flex-col items-center gap-2 pt-2">
               <button
                 onClick={() => setVistaCorrente("caregiver")}
-                className="w-[6.6cm] h-[2cm] bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 text-white rounded-lg shadow-sm transition-all flex items-center justify-center gap-2"
+                className="w-full max-w-md p-4 bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 text-white rounded-lg shadow transition-all flex items-center justify-center gap-3"
               >
-                <span className="text-xl">⚙️</span>
-                <span className="text-sm font-bold">Personalizza</span>
+                <span className="text-3xl">⚙️</span>
+                <span className="text-base font-bold">Personalizza</span>
               </button>
               
-              <div className="flex gap-1.5">
+              <div className="grid grid-cols-2 gap-2 w-full max-w-md">
                 <button
                   onClick={handleGeneraAI}
                   disabled={caricamentoAI}
-                  className="w-[3.2cm] h-[2cm] bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-lg shadow-sm transition-all flex flex-col items-center justify-center gap-0.5"
+                  className="p-3 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-lg shadow transition-all flex flex-col items-center justify-center gap-1"
                 >
                   {caricamentoAI ? (
                     <>
-                      <span className="text-lg animate-spin">⚙️</span>
-                      <span className="text-[10px] font-bold">...</span>
+                      <span className="text-3xl animate-spin">⚙️</span>
+                      <span className="text-xs font-bold">Generando...</span>
                     </>
                   ) : (
                     <>
-                      <span className="text-lg">🤖</span>
-                      <span className="text-[10px] font-bold">AI</span>
+                      <span className="text-3xl">🤖</span>
+                      <span className="text-xs font-bold">AI</span>
                     </>
                   )}
                 </button>
                 <button
                   onClick={handleCaricaJSON}
-                  className="w-[3.2cm] h-[2cm] bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow-sm transition-all flex flex-col items-center justify-center gap-0.5"
+                  className="p-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow transition-all flex flex-col items-center justify-center gap-1"
                 >
-                  <span className="text-lg">📥</span>
-                  <span className="text-[10px] font-bold">Dati</span>
+                  <span className="text-3xl">📥</span>
+                  <span className="text-xs font-bold">Carica Dati</span>
                 </button>
               </div>
               <input
