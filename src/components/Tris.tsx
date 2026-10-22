@@ -14,6 +14,7 @@ export default function Tris({ onChiudi }: TrisProps) {
   const [board, setBoard] = useState<CellType[]>(Array(9).fill(null));
   const [currentPlayer, setCurrentPlayer] = useState<'X' | 'O'>('X');
   const [winner, setWinner] = useState<'X' | 'O' | 'pareggio' | null>(null);
+  const [winningCells, setWinningCells] = useState<number[]>([]);
 
   function startGame(diff: Difficolta) {
     setDifficolta(diff);
@@ -30,15 +31,17 @@ export default function Tris({ onChiudi }: TrisProps) {
     newBoard[index] = currentPlayer;
     setBoard(newBoard);
 
-    const gameWinner = checkWinner(newBoard);
-    if (gameWinner) {
-      setWinner(gameWinner);
+    const gameResult = checkWinner(newBoard);
+    if (gameResult) {
+      setWinner(gameResult.winner);
+      setWinningCells(gameResult.cells);
       setGameState('finished');
       return;
     }
 
     if (isBoardFull(newBoard)) {
       setWinner('pareggio');
+      setWinningCells([]);
       setGameState('finished');
       return;
     }
@@ -79,15 +82,17 @@ export default function Tris({ onChiudi }: TrisProps) {
     newBoard[move] = 'O';
     setBoard(newBoard);
 
-    const gameWinner = checkWinner(newBoard);
-    if (gameWinner) {
-      setWinner(gameWinner);
+    const gameResult = checkWinner(newBoard);
+    if (gameResult) {
+      setWinner(gameResult.winner);
+      setWinningCells(gameResult.cells);
       setGameState('finished');
       return;
     }
 
     if (isBoardFull(newBoard)) {
       setWinner('pareggio');
+      setWinningCells([]);
       setGameState('finished');
       return;
     }
@@ -110,7 +115,8 @@ export default function Tris({ onChiudi }: TrisProps) {
     for (const move of availableMoves) {
       const testBoard = [...board];
       testBoard[move] = player;
-      if (checkWinner(testBoard) === player) {
+      const result = checkWinner(testBoard);
+      if (result && result.winner === player) {
         return move;
       }
     }
@@ -131,7 +137,7 @@ export default function Tris({ onChiudi }: TrisProps) {
     return null;
   }
 
-  function checkWinner(board: CellType[]): 'X' | 'O' | null {
+  function checkWinner(board: CellType[]): { winner: 'X' | 'O'; cells: number[] } | null {
     const lines = [
       [0, 1, 2], [3, 4, 5], [6, 7, 8], // righe
       [0, 3, 6], [1, 4, 7], [2, 5, 8], // colonne
@@ -140,7 +146,7 @@ export default function Tris({ onChiudi }: TrisProps) {
 
     for (const [a, b, c] of lines) {
       if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        return board[a] as 'X' | 'O';
+        return { winner: board[a] as 'X' | 'O', cells: [a, b, c] };
       }
     }
     return null;
@@ -191,51 +197,9 @@ export default function Tris({ onChiudi }: TrisProps) {
     );
   }
 
-  // Schermata partita finita
-  if (gameState === 'finished') {
-    const playerSymbol = 'X';
-    const aiSymbol = 'O';
-    
-    return (
-      <div className="fixed inset-0 bg-slate-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl max-w-2xl w-full p-8 text-center space-y-6">
-          <div className="text-7xl">
-            {winner === playerSymbol ? '🎉' : winner === aiSymbol ? '😊' : '🤝'}
-          </div>
-          <h2 className="text-3xl font-bold text-slate-900">
-            {winner === playerSymbol && 'Bravissimo! Hai vinto!'}
-            {winner === aiSymbol && 'Ottima partita!'}
-            {winner === 'pareggio' && 'Pareggio!'}
-          </h2>
-          <p className="text-xl text-slate-600">
-            {winner === playerSymbol && 'Sei stato fantastico!'}
-            {winner === aiSymbol && 'La prossima volta andrà meglio!'}
-            {winner === 'pareggio' && 'Siete stati entrambi bravi!'}
-          </p>
-          
-          <div className="space-y-3">
-            <button
-              onClick={() => startGame(difficolta)}
-              className="w-full p-4 bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold rounded-xl shadow-lg transition-colors"
-            >
-              🔄 Gioca Ancora
-            </button>
-            <button
-              onClick={() => setGameState('selecting')}
-              className="w-full p-4 bg-slate-200 hover:bg-slate-300 text-slate-700 text-lg font-medium rounded-xl transition-colors"
-            >
-              ⚙️ Cambia Difficoltà
-            </button>
-            <button
-              onClick={onChiudi}
-              className="w-full py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors"
-            >
-              ← Torna ai Giochi
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+  // Funzione helper per controllare se una cella è vincente
+  function isWinningCell(index: number): boolean {
+    return winningCells.includes(index);
   }
 
   // Schermata di gioco
@@ -272,17 +236,22 @@ export default function Tris({ onChiudi }: TrisProps) {
           {/* Griglia di gioco */}
           <div className="bg-slate-800 rounded-xl p-6 shadow-xl mx-auto max-w-md">
             <div className="grid grid-cols-3 gap-3">
-              {board.map((cell, index) => (
-                <button
-                  key={index}
-                  onClick={() => makeMove(index)}
-                  disabled={cell !== null || currentPlayer !== 'X' || winner !== null}
-                  className="aspect-square bg-white rounded-lg flex items-center justify-center text-6xl md:text-7xl font-bold hover:bg-slate-100 transition-colors disabled:cursor-not-allowed"
-                >
-                  {cell === 'X' && <span className="text-red-500">❌</span>}
-                  {cell === 'O' && <span className="text-blue-500">⭕</span>}
-                </button>
-              ))}
+              {board.map((cell, index) => {
+                const isWinning = isWinningCell(index);
+                return (
+                  <button
+                    key={index}
+                    onClick={() => makeMove(index)}
+                    disabled={cell !== null || currentPlayer !== 'X' || gameState === 'finished'}
+                    className={`aspect-square bg-white rounded-lg flex items-center justify-center text-6xl md:text-7xl font-bold hover:bg-slate-100 transition-all disabled:cursor-not-allowed ${
+                      isWinning ? 'ring-4 ring-yellow-400 scale-110 animate-pulse bg-yellow-50' : ''
+                    }`}
+                  >
+                    {cell === 'X' && <span className={`text-red-500 ${isWinning ? 'text-red-600' : ''}`}>❌</span>}
+                    {cell === 'O' && <span className={`text-blue-500 ${isWinning ? 'text-blue-600' : ''}`}>⭕</span>}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -299,6 +268,51 @@ export default function Tris({ onChiudi }: TrisProps) {
           </div>
         </div>
       </div>
+
+      {/* Modale fine partita */}
+      {gameState === 'finished' && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-8 text-center space-y-6 shadow-2xl transform animate-in zoom-in-95 duration-300">
+            <div className="text-7xl">
+              {winner === 'X' ? '🎉' : winner === 'O' ? '😊' : '🤝'}
+            </div>
+            <h2 className="text-3xl font-bold text-slate-900">
+              {winner === 'X' && 'Bravissimo! Hai vinto!'}
+              {winner === 'O' && 'Ottima partita!'}
+              {winner === 'pareggio' && 'Pareggio!'}
+            </h2>
+            <p className="text-xl text-slate-600">
+              {winner === 'X' && 'Sei stato fantastico!'}
+              {winner === 'O' && 'La prossima volta andrà meglio!'}
+              {winner === 'pareggio' && 'Siete stati entrambi bravi!'}
+            </p>
+            
+            <div className="space-y-3">
+              <button
+                onClick={() => startGame(difficolta)}
+                className="w-full p-4 bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold rounded-xl shadow-lg transition-colors"
+              >
+                🔄 Riavvia Partita
+              </button>
+              <button
+                onClick={() => {
+                  setGameState('selecting');
+                  setWinningCells([]);
+                }}
+                className="w-full p-4 bg-slate-200 hover:bg-slate-300 text-slate-700 text-lg font-medium rounded-xl transition-colors"
+              >
+                ⚙️ Cambia Difficoltà
+              </button>
+              <button
+                onClick={onChiudi}
+                className="w-full py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors"
+              >
+                ← Esci
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

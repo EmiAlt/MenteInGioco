@@ -14,6 +14,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
   const [board, setBoard] = useState<CellType[][]>(createEmptyBoard());
   const [currentPlayer, setCurrentPlayer] = useState<'player' | 'ai'>('player');
   const [winner, setWinner] = useState<'player' | 'ai' | 'pareggio' | null>(null);
+  const [winningCells, setWinningCells] = useState<[number, number][]>([]);
 
   function createEmptyBoard(): CellType[][] {
     return Array(6).fill(null).map(() => Array(7).fill(null));
@@ -46,14 +47,17 @@ export default function Forza4({ onChiudi }: Forza4Props) {
     newBoard[row][col] = 'player';
     setBoard(newBoard);
 
-    if (checkWinner(newBoard, row, col, 'player')) {
+    const winCells = checkWinner(newBoard, row, col, 'player');
+    if (winCells) {
       setWinner('player');
+      setWinningCells(winCells);
       setGameState('finished');
       return;
     }
 
     if (isBoardFull(newBoard)) {
       setWinner('pareggio');
+      setWinningCells([]);
       setGameState('finished');
       return;
     }
@@ -98,14 +102,17 @@ export default function Forza4({ onChiudi }: Forza4Props) {
     newBoard[row][col] = 'ai';
     setBoard(newBoard);
 
-    if (checkWinner(newBoard, row, col, 'ai')) {
+    const winCells = checkWinner(newBoard, row, col, 'ai');
+    if (winCells) {
       setWinner('ai');
+      setWinningCells(winCells);
       setGameState('finished');
       return;
     }
 
     if (isBoardFull(newBoard)) {
       setWinner('pareggio');
+      setWinningCells([]);
       setGameState('finished');
       return;
     }
@@ -139,7 +146,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
       }
       if (row !== -1) {
         testBoard[row][col] = player;
-        if (checkWinner(testBoard, row, col, player)) {
+        if (checkWinner(testBoard, row, col, player) !== null) {
           return col;
         }
       }
@@ -161,7 +168,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
     return null;
   }
 
-  function checkWinner(board: CellType[][], row: number, col: number, player: 'player' | 'ai'): boolean {
+  function checkWinner(board: CellType[][], row: number, col: number, player: 'player' | 'ai'): [number, number][] | null {
     const directions = [
       [[0, 1], [0, -1]],   // orizzontale
       [[1, 0], [-1, 0]],   // verticale
@@ -170,13 +177,13 @@ export default function Forza4({ onChiudi }: Forza4Props) {
     ];
 
     for (const [dir1, dir2] of directions) {
-      let count = 1;
+      const cells: [number, number][] = [[row, col]];
       
       // Conta in una direzione
       let r = row + dir1[0];
       let c = col + dir1[1];
       while (r >= 0 && r < 6 && c >= 0 && c < 7 && board[r][c] === player) {
-        count++;
+        cells.push([r, c]);
         r += dir1[0];
         c += dir1[1];
       }
@@ -185,15 +192,15 @@ export default function Forza4({ onChiudi }: Forza4Props) {
       r = row + dir2[0];
       c = col + dir2[1];
       while (r >= 0 && r < 6 && c >= 0 && c < 7 && board[r][c] === player) {
-        count++;
+        cells.push([r, c]);
         r += dir2[0];
         c += dir2[1];
       }
       
-      if (count >= 4) return true;
+      if (cells.length >= 4) return cells;
     }
     
-    return false;
+    return null;
   }
 
   function isBoardFull(board: CellType[][]): boolean {
@@ -241,48 +248,9 @@ export default function Forza4({ onChiudi }: Forza4Props) {
     );
   }
 
-  // Schermata partita finita
-  if (gameState === 'finished') {
-    return (
-      <div className="fixed inset-0 bg-slate-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl max-w-2xl w-full p-8 text-center space-y-6">
-          <div className="text-7xl">
-            {winner === 'player' ? '🎉' : winner === 'ai' ? '😊' : '🤝'}
-          </div>
-          <h2 className="text-3xl font-bold text-slate-900">
-            {winner === 'player' && 'Bravissimo! Hai vinto!'}
-            {winner === 'ai' && 'Ottima partita!'}
-            {winner === 'pareggio' && 'Pareggio!'}
-          </h2>
-          <p className="text-xl text-slate-600">
-            {winner === 'player' && 'Sei stato fantastico!'}
-            {winner === 'ai' && 'La prossima volta andrà meglio!'}
-            {winner === 'pareggio' && 'Siete stati entrambi bravi!'}
-          </p>
-          
-          <div className="space-y-3">
-            <button
-              onClick={() => startGame(difficolta)}
-              className="w-full p-4 bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold rounded-xl shadow-lg transition-colors"
-            >
-              🔄 Gioca Ancora
-            </button>
-            <button
-              onClick={() => setGameState('selecting')}
-              className="w-full p-4 bg-slate-200 hover:bg-slate-300 text-slate-700 text-lg font-medium rounded-xl transition-colors"
-            >
-              ⚙️ Cambia Difficoltà
-            </button>
-            <button
-              onClick={onChiudi}
-              className="w-full py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors"
-            >
-              ← Torna ai Giochi
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+  // Funzione helper per controllare se una cella è vincente
+  function isWinningCell(row: number, col: number): boolean {
+    return winningCells.some(([r, c]) => r === row && c === col);
   }
 
   // Schermata di gioco
@@ -320,21 +288,30 @@ export default function Forza4({ onChiudi }: Forza4Props) {
           <div className="bg-blue-600 rounded-xl p-4 shadow-xl">
             <div className="grid grid-cols-7 gap-2">
               {board.map((row, rowIndex) =>
-                row.map((cell, colIndex) => (
-                  <button
-                    key={`${rowIndex}-${colIndex}`}
-                    onClick={() => dropPiece(colIndex)}
-                    disabled={currentPlayer !== 'player' || board[0][colIndex] !== null}
-                    className="aspect-square bg-blue-800 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors disabled:cursor-not-allowed"
-                  >
-                    {cell === 'player' && (
-                      <div className="w-full h-full bg-red-500 rounded-full shadow-inner" />
-                    )}
-                    {cell === 'ai' && (
-                      <div className="w-full h-full bg-yellow-400 rounded-full shadow-inner" />
-                    )}
-                  </button>
-                ))
+                row.map((cell, colIndex) => {
+                  const isWinning = isWinningCell(rowIndex, colIndex);
+                  return (
+                    <button
+                      key={`${rowIndex}-${colIndex}`}
+                      onClick={() => dropPiece(colIndex)}
+                      disabled={currentPlayer !== 'player' || board[0][colIndex] !== null || gameState === 'finished'}
+                      className={`aspect-square bg-blue-800 rounded-full flex items-center justify-center hover:bg-blue-700 transition-all disabled:cursor-not-allowed ${
+                        isWinning ? 'ring-4 ring-yellow-300 scale-110 animate-pulse' : ''
+                      }`}
+                    >
+                      {cell === 'player' && (
+                        <div className={`w-full h-full rounded-full shadow-inner ${
+                          isWinning ? 'bg-red-600' : 'bg-red-500'
+                        }`} />
+                      )}
+                      {cell === 'ai' && (
+                        <div className={`w-full h-full rounded-full shadow-inner ${
+                          isWinning ? 'bg-yellow-500' : 'bg-yellow-400'
+                        }`} />
+                      )}
+                    </button>
+                  );
+                })
               )}
             </div>
           </div>
@@ -349,6 +326,51 @@ export default function Forza4({ onChiudi }: Forza4Props) {
           </div>
         </div>
       </div>
+
+      {/* Modale fine partita */}
+      {gameState === 'finished' && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-8 text-center space-y-6 shadow-2xl transform animate-in zoom-in-95 duration-300">
+            <div className="text-7xl">
+              {winner === 'player' ? '🎉' : winner === 'ai' ? '😊' : '🤝'}
+            </div>
+            <h2 className="text-3xl font-bold text-slate-900">
+              {winner === 'player' && 'Bravissimo! Hai vinto!'}
+              {winner === 'ai' && 'Ottima partita!'}
+              {winner === 'pareggio' && 'Pareggio!'}
+            </h2>
+            <p className="text-xl text-slate-600">
+              {winner === 'player' && 'Sei stato fantastico!'}
+              {winner === 'ai' && 'La prossima volta andrà meglio!'}
+              {winner === 'pareggio' && 'Siete stati entrambi bravi!'}
+            </p>
+            
+            <div className="space-y-3">
+              <button
+                onClick={() => startGame(difficolta)}
+                className="w-full p-4 bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold rounded-xl shadow-lg transition-colors"
+              >
+                🔄 Riavvia Partita
+              </button>
+              <button
+                onClick={() => {
+                  setGameState('selecting');
+                  setWinningCells([]);
+                }}
+                className="w-full p-4 bg-slate-200 hover:bg-slate-300 text-slate-700 text-lg font-medium rounded-xl transition-colors"
+              >
+                ⚙️ Cambia Difficoltà
+              </button>
+              <button
+                onClick={onChiudi}
+                className="w-full py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors"
+              >
+                ← Esci
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
