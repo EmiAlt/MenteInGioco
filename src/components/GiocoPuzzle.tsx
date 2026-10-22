@@ -95,23 +95,38 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
   const [mosse, setMosse] = useState(0);
   const [completato, setCompletato] = useState(false);
   const [dimensioniImmagine, setDimensioniImmagine] = useState<{ width: number; height: number } | null>(null);
-
+  const [formatoRilevato, setFormatoRilevato] = useState<"quadrato" | "panoramico" | "verticale" | null>(null);
+  
   // Salva immagini nel localStorage
   useEffect(() => {
     localStorage.setItem("stimolazione_cognitiva_puzzle_immagini", JSON.stringify(immaginiPuzzle));
   }, [immaginiPuzzle]);
 
-  // Carica l'immagine e calcola le dimensioni
+  // Carica l'immagine e calcola le dimensioni e il formato
   useEffect(() => {
     if (immagineSelezionata) {
       const img = new Image();
       img.onload = () => {
-        setDimensioniImmagine({ width: img.width, height: img.height });
+        const width = img.width;
+        const height = img.height;
+        setDimensioniImmagine({ width, height });
+        
+        // Rileva il formato dell'immagine
+        const aspectRatio = width / height;
+        if (Math.abs(aspectRatio - 1) < 0.1) {
+          setFormatoRilevato("quadrato");
+        } else if (aspectRatio > 1) {
+          setFormatoRilevato("panoramico");
+        } else {
+          setFormatoRilevato("verticale");
+        }
       };
       img.src = immagineSelezionata;
+    } else {
+      setDimensioniImmagine(null);
+      setFormatoRilevato(null);
     }
   }, [immagineSelezionata]);
-
   const aggiungiImmagine = (url: string) => {
     setImmaginiPuzzle([...immaginiPuzzle, url]);
   };
@@ -121,8 +136,60 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
   };
 
   /**
-   * Calcola il numero di righe e colonne in base all'aspect ratio dell'immagine
-   * e alla difficoltà selezionata
+   * Suggerisce le griglie più adatte in base al formato dell'immagine
+   */
+  const suggerisciGriglie = () => {
+    if (!formatoRilevato || !dimensioniImmagine) {
+      return [{ righe: 3, colonne: 3, label: "3×3" }];
+    }
+
+    const aspectRatio = dimensioniImmagine.width / dimensioniImmagine.height;
+    
+    if (formatoRilevato === "quadrato") {
+      return [
+        { righe: 3, colonne: 3, label: "3×3 (Facile)" },
+        { righe: 4, colonne: 4, label: "4×4 (Medio)" },
+        { righe: 5, colonne: 5, label: "5×5 (Difficile)" },
+      ];
+    } else if (formatoRilevato === "panoramico") {
+      // Per immagini panoramiche, suggerisci griglie rettangolari
+      if (aspectRatio > 1.5) {
+        // Molto panoramica (es. 16:9, 2:1)
+        return [
+          { righe: 2, colonne: 4, label: "4×2 (Facile)" },
+          { righe: 3, colonne: 5, label: "5×3 (Medio)" },
+          { righe: 3, colonne: 6, label: "6×3 (Difficile)" },
+        ];
+      } else {
+        // Leggermente panoramica (es. 4:3)
+        return [
+          { righe: 3, colonne: 4, label: "4×3 (Facile)" },
+          { righe: 4, colonne: 5, label: "5×4 (Medio)" },
+          { righe: 4, colonne: 6, label: "6×4 (Difficile)" },
+        ];
+      }
+    } else {
+      // Verticale
+      if (aspectRatio < 0.67) {
+        // Molto verticale (es. 9:16, 1:2)
+        return [
+          { righe: 4, colonne: 2, label: "2×4 (Facile)" },
+          { righe: 5, colonne: 3, label: "3×5 (Medio)" },
+          { righe: 6, colonne: 3, label: "3×6 (Difficile)" },
+        ];
+      } else {
+        // Leggermente verticale (es. 3:4)
+        return [
+          { righe: 4, colonne: 3, label: "3×4 (Facile)" },
+          { righe: 5, colonne: 4, label: "4×5 (Medio)" },
+          { righe: 6, colonne: 4, label: "4×6 (Difficile)" },
+        ];
+      }
+    }
+  };
+
+  /**
+   * Calcola il numero di righe e colonne in base alla griglia selezionata
    */
   const calcolaGriglia = () => {
     if (!dimensioniImmagine) return { righe: 3, colonne: 3 };
@@ -170,14 +237,16 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
     return arr;
   };
 
-  const iniziaPuzzle = (immagine: string, diff: number) => {
+  const iniziaPuzzle = (immagine: string, righe: number, colonne: number) => {
     setImmagineSelezionata(immagine);
+    
+    // Calcola la difficoltà come il massimo tra righe e colonne
+    const diff = Math.max(righe, colonne);
     setDifficolta(diff);
     
     // Aspetta che le dimensioni dell'immagine siano caricate
     setTimeout(() => {
-      const griglia = calcolaGriglia();
-      const totalePezzi = griglia.righe * griglia.colonne;
+      const totalePezzi = righe * colonne;
       setOrdineAttuale(mescolaArray(totalePezzi));
       setPezzoSelezionato(null);
       setMosse(0);
@@ -239,17 +308,27 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
                         setImmagineSelezionata(img);
                       }}
                     />
-                    {immagineSelezionata === img && (
+                    {immagineSelezionata === img && formatoRilevato && dimensioniImmagine && (
                       <div className="space-y-2">
-                        <p className="text-sm font-medium text-slate-700 text-center">Difficoltà:</p>
-                        <div className="flex gap-2">
-                          {[3, 4, 5].map((dim) => (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-xs text-blue-900">
+                          <div className="font-semibold">
+                            {formatoRilevato === "quadrato" && "📐 Formato: Quadrato"}
+                            {formatoRilevato === "panoramico" && "🖼️ Formato: Panoramico"}
+                            {formatoRilevato === "verticale" && "📱 Formato: Verticale"}
+                          </div>
+                          <div className="text-blue-700">
+                            {dimensioniImmagine.width}×{dimensioniImmagine.height}px
+                          </div>
+                        </div>
+                        <p className="text-sm font-medium text-slate-700 text-center">Scegli la griglia:</p>
+                        <div className="flex flex-col gap-2">
+                          {suggerisciGriglie().map((griglia, gIdx) => (
                             <button
-                              key={dim}
-                              onClick={() => iniziaPuzzle(img, dim)}
-                              className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors"
+                              key={gIdx}
+                              onClick={() => iniziaPuzzle(img, griglia.righe, griglia.colonne)}
+                              className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors"
                             >
-                              {dim}
+                              {griglia.label}
                             </button>
                           ))}
                         </div>
@@ -315,11 +394,11 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
     <div className="fixed inset-0 bg-slate-100 overflow-auto z-50">
       <div className="max-w-4xl mx-auto p-4 md:p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900">🧩 Puzzle</h2>
             <p className="text-slate-600 text-sm mt-1">
-              Mosse: {mosse} | Clicca su due tessere per scambiarle
+              Mosse: {mosse} | Griglia: {griglia.colonne}×{griglia.righe}
             </p>
           </div>
           <button
@@ -329,6 +408,27 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
             ← Chiudi
           </button>
         </div>
+
+        {/* Info formato immagine */}
+        {formatoRilevato && dimensioniImmagine && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-900">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="font-semibold">
+                  {formatoRilevato === "quadrato" && "📐 Quadrato"}
+                  {formatoRilevato === "panoramico" && "🖼️ Panoramico"}
+                  {formatoRilevato === "verticale" && "📱 Verticale"}
+                </span>
+                <span className="ml-2 text-blue-700">
+                  ({dimensioniImmagine.width}×{dimensioniImmagine.height}px)
+                </span>
+              </div>
+              <div className="text-blue-700">
+                Tessere: {griglia.righe * griglia.colonne}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Puzzle completato */}
         {completato && (
@@ -342,14 +442,14 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
         )}
 
         {/* Griglia puzzle */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 md:p-6">
           <div
             className="grid gap-1 mx-auto"
             style={{
               gridTemplateColumns: `repeat(${griglia.colonne}, 1fr)`,
               gridTemplateRows: `repeat(${griglia.righe}, 1fr)`,
               maxWidth: "100%",
-              aspectRatio: `${aspectRatio}`,
+              aspectRatio: `${dimensioniImmagine?.width || 1} / ${dimensioniImmagine?.height || 1}`,
               overflow: "hidden",
             }}
           >
@@ -359,6 +459,9 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
               const colOrig = idPezzo % griglia.colonne;
 
               // Calcola la posizione del background per questa tessera
+              // Ogni tessera mostra 1/colonne dell'immagine in orizzontale e 1/righe in verticale
+              const bgSizeX = griglia.colonne * 100;
+              const bgSizeY = griglia.righe * 100;
               const bgPosX = griglia.colonne > 1 ? (colOrig / (griglia.colonne - 1)) * 100 : 0;
               const bgPosY = griglia.righe > 1 ? (rigaOrig / (griglia.righe - 1)) * 100 : 0;
 
@@ -376,7 +479,7 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
                     className="w-full h-full bg-no-repeat"
                     style={{
                       backgroundImage: `url(${immagineSelezionata})`,
-                      backgroundSize: `${griglia.colonne * 100}% ${griglia.righe * 100}%`,
+                      backgroundSize: `${bgSizeX}% ${bgSizeY}%`,
                       backgroundPosition: `${bgPosX}% ${bgPosY}%`,
                     }}
                   />
@@ -408,7 +511,7 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
         {/* Controlli */}
         <div className="mt-6 flex gap-3">
           <button
-            onClick={() => immagineSelezionata && iniziaPuzzle(immagineSelezionata, difficolta)}
+            onClick={() => immagineSelezionata && iniziaPuzzle(immagineSelezionata, griglia.righe, griglia.colonne)}
             className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
           >
             🔄 Ricomincia
