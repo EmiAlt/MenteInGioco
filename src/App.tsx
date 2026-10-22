@@ -354,83 +354,80 @@ function App() {
 
       {/* ─── SCHERMATA BENVENUTO ─── */}
       {fase === "benvenuto" && (
-        <div className="flex-1 flex flex-col items-center justify-start px-3 py-4 overflow-y-auto">
-          <div className="w-full max-w-6xl space-y-6">
+        <div className="flex-1 flex flex-col items-center justify-start px-4 py-6 overflow-y-auto">
+          <div className="w-full max-w-6xl space-y-8">
             
             {/* Categoria 1: Giochi di Parole & Linguaggio */}
-            <section className="bg-gray-50 rounded-xl p-4 md:p-6">
-              <h2 className="text-lg md:text-xl font-extrabold text-slate-900 mb-4 flex items-center gap-2">
-                <span className="text-2xl md:text-3xl">📝</span>
-                <span>Giochi di Parole & Linguaggio</span>
+            <section>
+              <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-4">
+                📝 Giochi di Parole & Linguaggio
               </h2>
-              <div className="flex flex-wrap gap-4 justify-start">
-                <button onClick={handleInizia} className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                  <div className="text-3xl mb-1">📝</div>
-                  <div className="text-xs font-bold">Quiz</div>
+              <div className="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                <button onClick={handleInizia} className="p-6 bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                  <div className="text-5xl md:text-6xl mb-2">📝</div>
+                  <div className="text-base md:text-lg font-bold">Quiz</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("cruciverba")} className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                  <div className="text-3xl mb-1">🧩</div>
-                  <div className="text-xs font-bold">Cruciverba</div>
+                <button onClick={() => setGiocoAttivo("cruciverba")} className="p-6 bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                  <div className="text-5xl md:text-6xl mb-2">🧩</div>
+                  <div className="text-base md:text-lg font-bold">Cruciverba</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("proverbi")} className="p-3 bg-gradient-to-br from-amber-600 to-yellow-700 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                  <div className="text-3xl mb-1">📜</div>
-                  <div className="text-xs font-bold">Proverbi</div>
+                <button onClick={() => setGiocoAttivo("proverbi")} className="p-6 bg-gradient-to-br from-amber-600 to-yellow-700 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                  <div className="text-5xl md:text-6xl mb-2">📜</div>
+                  <div className="text-base md:text-lg font-bold">Proverbi</div>
                 </button>
               </div>
             </section>
 
             {/* Categoria 2: Memoria & Reminiscenza */}
-            <section className="bg-gray-50 rounded-xl p-4 md:p-6">
-              <h2 className="text-lg md:text-xl font-extrabold text-slate-900 mb-4 flex items-center gap-2">
-                <span className="text-2xl md:text-3xl">🧠</span>
-                <span>Memoria & Reminiscenza</span>
+            <section>
+              <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-4">
+                🧠 Memoria & Reminiscenza
               </h2>
-              <div className="flex flex-wrap gap-4 justify-start">
-                <button onClick={() => setGiocoAttivo("memory")} className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                  <div className="text-3xl mb-1">🃏</div>
-                  <div className="text-xs font-bold">Memory</div>
+              <div className="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                <button onClick={() => setGiocoAttivo("memory")} className="p-6 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                  <div className="text-5xl md:text-6xl mb-2">🃏</div>
+                  <div className="text-base md:text-lg font-bold">Memory</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("memory-vita")} className="p-3 bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                  <div className="text-3xl mb-1">📸</div>
-                  <div className="text-xs font-bold">Memorie</div>
+                <button onClick={() => setGiocoAttivo("memory-vita")} className="p-6 bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                  <div className="text-5xl md:text-6xl mb-2">📸</div>
+                  <div className="text-base md:text-lg font-bold">Memorie</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("associazioni")} className="p-3 bg-gradient-to-br from-fuchsia-500 to-pink-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                  <div className="text-3xl mb-1">🔗</div>
-                  <div className="text-xs font-bold">Assoc.</div>
+                <button onClick={() => setGiocoAttivo("associazioni")} className="p-6 bg-gradient-to-br from-fuchsia-500 to-pink-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                  <div className="text-5xl md:text-6xl mb-2">🔗</div>
+                  <div className="text-base md:text-lg font-bold">Assoc.</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("canzone")} className="p-3 bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                  <div className="text-3xl mb-1">🎶</div>
-                  <div className="text-xs font-bold">Canzoni</div>
+                <button onClick={() => setGiocoAttivo("canzone")} className="p-6 bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                  <div className="text-5xl md:text-6xl mb-2">🎶</div>
+                  <div className="text-base md:text-lg font-bold">Canzoni</div>
                 </button>
               </div>
             </section>
 
             {/* Categoria 3: Logica & Osservazione */}
-            <section className="bg-gray-50 rounded-xl p-4 md:p-6">
-              <h2 className="text-lg md:text-xl font-extrabold text-slate-900 mb-4 flex items-center gap-2">
-                <span className="text-2xl md:text-3xl">👁️</span>
-                <span>Logica & Osservazione</span>
+            <section>
+              <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-4">
+                👁️ Logica & Osservazione
               </h2>
-              <div className="flex flex-wrap gap-4 justify-start">
-                <button onClick={() => setGiocoAttivo("intruso")} className="p-3 bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                  <div className="text-3xl mb-1">🔍</div>
-                  <div className="text-xs font-bold">Intruso</div>
+              <div className="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                <button onClick={() => setGiocoAttivo("intruso")} className="p-6 bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                  <div className="text-5xl md:text-6xl mb-2">🔍</div>
+                  <div className="text-base md:text-lg font-bold">Intruso</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("ombre")} className="p-3 bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                  <div className="text-3xl mb-1">🌑</div>
-                  <div className="text-xs font-bold">Ombre</div>
+                <button onClick={() => setGiocoAttivo("ombre")} className="p-6 bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                  <div className="text-5xl md:text-6xl mb-2">🌑</div>
+                  <div className="text-base md:text-lg font-bold">Ombre</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("puzzle")} className="p-3 bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                  <div className="text-3xl mb-1">🖼️</div>
-                  <div className="text-xs font-bold">Puzzle</div>
+                <button onClick={() => setGiocoAttivo("puzzle")} className="p-6 bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                  <div className="text-5xl md:text-6xl mb-2">🖼️</div>
+                  <div className="text-base md:text-lg font-bold">Puzzle</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("valigia")} className="p-3 bg-gradient-to-br from-sky-500 to-blue-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                  <div className="text-3xl mb-1">🧳</div>
-                  <div className="text-xs font-bold">Valigia</div>
+                <button onClick={() => setGiocoAttivo("valigia")} className="p-6 bg-gradient-to-br from-sky-500 to-blue-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                  <div className="text-5xl md:text-6xl mb-2">🧳</div>
+                  <div className="text-base md:text-lg font-bold">Valigia</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("orologio")} className="p-3 bg-gradient-to-br from-indigo-500 to-blue-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                  <div className="text-3xl mb-1">⏰</div>
-                  <div className="text-xs font-bold">Orologio</div>
+                <button onClick={() => setGiocoAttivo("orologio")} className="p-6 bg-gradient-to-br from-indigo-500 to-blue-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                  <div className="text-5xl md:text-6xl mb-2">⏰</div>
+                  <div className="text-base md:text-lg font-bold">Orologio</div>
                 </button>
               </div>
             </section>
