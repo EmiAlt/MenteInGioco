@@ -52,6 +52,10 @@ export function useCognitiveSession() {
   const [sessioneCompletata, setSessioneCompletata] = useState<boolean>(false);
   const [cronologiaRisposte, setCronologiaRisposte] = useState<CronologiaEntry[]>([]);
 
+  // ─── DOMANDE PERSONALIZZATE AI ───
+  const [domandeAI, setDomandeAI] = useState<Domanda[]>([]);
+  const [domandeAIGenerate, setDomandeAIGenerate] = useState<boolean>(false);
+
   // ─── RIFERIMENTI PER IL TIMER ───
   const timerInizioRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -97,6 +101,29 @@ export function useCognitiveSession() {
     (livello?: 1 | 2) => {
       const livelloTarget = livello ?? livelloDifficoltaAttuale;
 
+      // ─── PRIORITÀ: DOMANDE AI PERSONALIZZATE ───
+      if (domandeAI.length > 0) {
+        // Prende la prima domanda AI dalla coda
+        const prossimaDomandaAI = domandeAI[0];
+        const rimanenti = domandeAI.slice(1);
+
+        console.log(
+          `[COGNITIVE] 🤖 Domanda AI caricata: "${prossimaDomandaAI.testoDomanda}" (Personalizzata, Categoria: ${prossimaDomandaAI.categoria})`
+        );
+        console.log(
+          `[COGNITIVE] 🤖 Domande AI rimanenti in coda: ${rimanenti.length}`
+        );
+
+        setDomandeAI(rimanenti);
+        setDomandaCorrente(prossimaDomandaAI);
+        setIndiceDomandaCorrente((prev) => prev + 1);
+
+        // Avvia il timer
+        avviaTimer();
+        return;
+      }
+
+      // ─── FALLBACK: DOMANDE STANDARD ───
       const domandeFiltrate = domande.filter(
         (d) => d.livelloDifficolta === livelloTarget
       );
@@ -135,7 +162,7 @@ export function useCognitiveSession() {
       // Avvia il timer
       avviaTimer();
     },
-    [domandaCorrente, livelloDifficoltaAttuale, avviaTimer]
+    [domandaCorrente, livelloDifficoltaAttuale, domandeAI, avviaTimer]
   );
 
   // ─── AVVIA SESSIONE ───
@@ -152,6 +179,8 @@ export function useCognitiveSession() {
     setSessioneCompletata(false);
     setIndiceDomandaCorrente(0);
     setCronologiaRisposte([]);
+    setDomandeAI([]);
+    setDomandeAIGenerate(false);
 
     // Seleziona prima domanda (livello 1)
     const domandeLivello1 = domande.filter((d) => d.livelloDifficolta === 1);
@@ -287,6 +316,29 @@ export function useCognitiveSession() {
     console.log("═══════════════════════════════════════");
   }, [fermaTimer, punteggioInvisibile, indiceDomandaCorrente, livelloDifficoltaAttuale]);
 
+  // ─── INIETTA DOMANDE AI PERSONALIZZATE ───
+  const iniettaDomandeAI = useCallback(
+    (nuoveDomande: Domanda[]) => {
+      console.log("═══════════════════════════════════════");
+      console.log("[COGNITIVE] 🤖 DOMANDE AI INIETTATE NEL FLUSSO");
+      console.log("═══════════════════════════════════════");
+      console.log(`[COGNITIVE] Numero domande ricevute: ${nuoveDomande.length}`);
+      
+      nuoveDomande.forEach((d, idx) => {
+        console.log(`[COGNITIVE]   ${idx + 1}. "${d.testoDomanda}" [ID: ${d.id}]`);
+      });
+
+      // Inserisce le domande AI nella coda (dopo la domanda corrente se presente)
+      setDomandeAI((prev) => [...prev, ...nuoveDomande]);
+      setDomandeAIGenerate(true);
+
+      console.log(`[COGNITIVE] Totale domande AI in coda: ${domandeAI.length + nuoveDomande.length}`);
+      console.log("[COGNITIVE] Le domande AI hanno PRIORITÀ sulle domande standard");
+      console.log("═══════════════════════════════════════");
+    },
+    [domandeAI.length]
+  );
+
   // ─── CLEANUP ───
   useEffect(() => {
     return () => {
@@ -308,11 +360,14 @@ export function useCognitiveSession() {
     sessioneCompletata,
     risposteConsecutiveCorrette,
     cronologiaRisposte,
+    domandeAI,
+    domandeAIGenerate,
 
     // Azioni
     avviaSessione,
     rispondi,
     caricaProssimaDomanda,
     terminaSessione,
+    iniettaDomandeAI,
   };
 }

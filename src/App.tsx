@@ -1,5 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useCognitiveSession } from "./hooks/useCognitiveSession";
+import { profiloPaziente } from "./data/profiloPaziente";
+import { simulaChiamataAI } from "./services/aiSimulator";
 
 /** Numero massimo di domande per sessione */
 const MAX_DOMANDE = 5;
@@ -19,12 +21,15 @@ function App() {
     rispondi,
     caricaProssimaDomanda,
     terminaSessione,
+    iniettaDomandeAI,
+    domandeAIGenerate,
   } = useCognitiveSession();
 
   const [fase, setFase] = useState<FaseSessione>("benvenuto");
   const [feedbackTipo, setFeedbackTipo] = useState<"corretto" | "errato" | null>(null);
   const [rispostaSelezionata, setRispostaSelezionata] = useState<number | null>(null);
   const [disabilitaBottoni, setDisabilitaBottoni] = useState(false);
+  const [caricamentoAI, setCaricamentoAI] = useState(false);
 
   const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -45,6 +50,31 @@ function App() {
     setRispostaSelezionata(null);
     setDisabilitaBottoni(false);
   }, [avviaSessione]);
+
+  // ─── GENERA ESERCIZIO PERSONALIZZATO AI ───
+  const handleGeneraAI = useCallback(async () => {
+    console.log("═══════════════════════════════════════");
+    console.log("[UI] 🤖 PULSANTE AI CLICCATO");
+    console.log(`[UI] Profilo paziente: ${profiloPaziente.nome}`);
+    console.log("═══════════════════════════════════════");
+
+    setCaricamentoAI(true);
+
+    try {
+      // Simula chiamata API
+      const domandePersonalizzate = await simulaChiamataAI(profiloPaziente);
+
+      // Inietta le domande nel flusso di gioco
+      iniettaDomandeAI(domandePersonalizzate);
+
+      console.log("[UI] ✅ Domande AI iniettate con successo nel flusso");
+      console.log(`[UI] 📊 Totale domande AI disponibili: ${domandePersonalizzate.length}`);
+    } catch (error) {
+      console.error("[UI] ❌ Errore durante la generazione AI:", error);
+    } finally {
+      setCaricamentoAI(false);
+    }
+  }, [iniettaDomandeAI]);
 
   // ─── GESTISCE RISPOSTA ───
   const handleRispondi = useCallback(
@@ -141,6 +171,36 @@ function App() {
             >
               Iniziamo! ☀️
             </button>
+
+            {/* Pulsante Genera Esercizio Personalizzato AI */}
+            <div className="pt-4 border-t border-slate-200">
+              <button
+                onClick={handleGeneraAI}
+                disabled={caricamentoAI}
+                className="w-full max-w-md mx-auto py-4 px-6 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 active:from-purple-700 active:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 text-white text-lg md:text-xl font-semibold rounded-2xl shadow-lg shadow-purple-500/20 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-purple-300 flex items-center justify-center gap-3"
+                aria-label="Genera esercizio personalizzato con intelligenza artificiale"
+              >
+                {caricamentoAI ? (
+                  <>
+                    <span className="animate-spin text-2xl">⚙️</span>
+                    <span>Generazione in corso...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-2xl">🤖</span>
+                    <span>Genera Esercizio Personalizzato AI</span>
+                  </>
+                )}
+              </button>
+              <p className="text-sm text-slate-500 mt-3 text-center">
+                Crea domande basate sui ricordi e gli hobby di <strong>{profiloPaziente.nome}</strong>
+              </p>
+              {domandeAIGenerate && (
+                <p className="text-sm text-emerald-600 mt-2 text-center font-medium">
+                  ✅ Esercizio personalizzato pronto!
+                </p>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -154,9 +214,16 @@ function App() {
               <span className="text-slate-500 text-sm font-medium">
                 Domanda {Math.min(indiceDomandaCorrente, MAX_DOMANDE)} di {MAX_DOMANDE}
               </span>
-              <span className="text-slate-400 text-sm">
-                {domandaCorrente.categoria}
-              </span>
+              <div className="flex items-center gap-2">
+                {domandaCorrente.id.startsWith("ai-") && (
+                  <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                    🤖 Personalizzata
+                  </span>
+                )}
+                <span className="text-slate-400 text-sm">
+                  {domandaCorrente.categoria}
+                </span>
+              </div>
             </div>
             <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
               <div
