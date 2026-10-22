@@ -4,6 +4,7 @@ export type ThemeType = 'light' | 'gradient' | 'dark';
 
 interface ThemeConfig {
   background: string;
+  backgroundStyle?: React.CSSProperties;
   textPrimary: string;
   textSecondary: string;
   cardBg: string;
@@ -11,19 +12,24 @@ interface ThemeConfig {
 
 const themes: Record<ThemeType, ThemeConfig> = {
   light: {
-    background: 'bg-slate-100',
+    background: '',
+    backgroundStyle: { backgroundColor: '#f1f5f9' },
     textPrimary: 'text-slate-900',
     textSecondary: 'text-slate-600',
     cardBg: 'bg-white',
   },
   gradient: {
-    background: 'bg-gradient-to-b from-indigo-50 to-slate-50',
+    background: '',
+    backgroundStyle: {
+      background: 'linear-gradient(135deg, #e0e7ff 0%, #fae8ff 50%, #f0fdf4 100%)',
+    },
     textPrimary: 'text-slate-900',
-    textSecondary: 'text-slate-600',
+    textSecondary: 'text-slate-700',
     cardBg: 'bg-white/80 backdrop-blur-sm',
   },
   dark: {
-    background: 'bg-slate-900',
+    background: '',
+    backgroundStyle: { backgroundColor: '#0f172a' },
     textPrimary: 'text-slate-50',
     textSecondary: 'text-slate-300',
     cardBg: 'bg-slate-800',

@@ -273,7 +273,13 @@ function App() {
 
   // Vista Paziente
   return (
-    <div className={`min-h-screen flex flex-col relative transition-colors duration-300 ${themeConfig.background}`}>
+    <div 
+      className="min-h-screen flex flex-col relative"
+      style={{
+        ...themeConfig.backgroundStyle,
+        transition: 'background 0.4s ease, background-color 0.4s ease, color 0.4s ease',
+      }}
+    >
       {/* Header fisso */}
       <header className={`fixed top-0 left-0 right-0 z-40 backdrop-blur-sm border-b shadow-sm transition-colors duration-300 ${
         theme === 'dark' 
@@ -369,20 +375,26 @@ function App() {
             {/* Categoria 1: Giochi di Parole & Linguaggio */}
             <section>
               <h2 className={`text-xl md:text-2xl font-bold mb-4 transition-colors duration-300 ${
-                theme === 'dark' ? 'text-slate-50' : 'text-slate-800'
+                theme === 'dark' ? 'text-slate-50' : 'text-slate-900'
               }`}>
                 📝 Giochi di Parole & Linguaggio
               </h2>
               <div className="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                <button onClick={handleInizia} className="p-6 bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                <button onClick={handleInizia} className={`p-6 bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
                   <div className="text-5xl md:text-6xl mb-2">📝</div>
                   <div className="text-base md:text-lg font-bold">Quiz</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("cruciverba")} className="p-6 bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                <button onClick={() => setGiocoAttivo("cruciverba")} className={`p-6 bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
                   <div className="text-5xl md:text-6xl mb-2">🧩</div>
                   <div className="text-base md:text-lg font-bold">Cruciverba</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("proverbi")} className="p-6 bg-gradient-to-br from-amber-600 to-yellow-700 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                <button onClick={() => setGiocoAttivo("proverbi")} className={`p-6 bg-gradient-to-br from-amber-600 to-yellow-700 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
                   <div className="text-5xl md:text-6xl mb-2">📜</div>
                   <div className="text-base md:text-lg font-bold">Proverbi</div>
                 </button>
@@ -392,24 +404,32 @@ function App() {
             {/* Categoria 2: Memoria & Reminiscenza */}
             <section>
               <h2 className={`text-xl md:text-2xl font-bold mb-4 transition-colors duration-300 ${
-                theme === 'dark' ? 'text-slate-50' : 'text-slate-800'
+                theme === 'dark' ? 'text-slate-50' : 'text-slate-900'
               }`}>
                 🧠 Memoria & Reminiscenza
               </h2>
               <div className="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                <button onClick={() => setGiocoAttivo("memory")} className="p-6 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                <button onClick={() => setGiocoAttivo("memory")} className={`p-6 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
                   <div className="text-5xl md:text-6xl mb-2">🃏</div>
                   <div className="text-base md:text-lg font-bold">Memory</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("memory-vita")} className="p-6 bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                <button onClick={() => setGiocoAttivo("memory-vita")} className={`p-6 bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
                   <div className="text-5xl md:text-6xl mb-2">📸</div>
                   <div className="text-base md:text-lg font-bold">Memorie</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("associazioni")} className="p-6 bg-gradient-to-br from-fuchsia-500 to-pink-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                <button onClick={() => setGiocoAttivo("associazioni")} className={`p-6 bg-gradient-to-br from-fuchsia-500 to-pink-600 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
                   <div className="text-5xl md:text-6xl mb-2">🔗</div>
                   <div className="text-base md:text-lg font-bold">Assoc.</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("canzone")} className="p-6 bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                <button onClick={() => setGiocoAttivo("canzone")} className={`p-6 bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
                   <div className="text-5xl md:text-6xl mb-2">🎶</div>
                   <div className="text-base md:text-lg font-bold">Canzoni</div>
                 </button>
@@ -419,28 +439,38 @@ function App() {
             {/* Categoria 3: Logica & Osservazione */}
             <section>
               <h2 className={`text-xl md:text-2xl font-bold mb-4 transition-colors duration-300 ${
-                theme === 'dark' ? 'text-slate-50' : 'text-slate-800'
+                theme === 'dark' ? 'text-slate-50' : 'text-slate-900'
               }`}>
                 👁️ Logica & Osservazione
               </h2>
               <div className="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                <button onClick={() => setGiocoAttivo("intruso")} className="p-6 bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                <button onClick={() => setGiocoAttivo("intruso")} className={`p-6 bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
                   <div className="text-5xl md:text-6xl mb-2">🔍</div>
                   <div className="text-base md:text-lg font-bold">Intruso</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("ombre")} className="p-6 bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                <button onClick={() => setGiocoAttivo("ombre")} className={`p-6 bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
                   <div className="text-5xl md:text-6xl mb-2">🌑</div>
                   <div className="text-base md:text-lg font-bold">Ombre</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("puzzle")} className="p-6 bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                <button onClick={() => setGiocoAttivo("puzzle")} className={`p-6 bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
                   <div className="text-5xl md:text-6xl mb-2">🖼️</div>
                   <div className="text-base md:text-lg font-bold">Puzzle</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("valigia")} className="p-6 bg-gradient-to-br from-sky-500 to-blue-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                <button onClick={() => setGiocoAttivo("valigia")} className={`p-6 bg-gradient-to-br from-sky-500 to-blue-600 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
                   <div className="text-5xl md:text-6xl mb-2">🧳</div>
                   <div className="text-base md:text-lg font-bold">Valigia</div>
                 </button>
-                <button onClick={() => setGiocoAttivo("orologio")} className="p-6 bg-gradient-to-br from-indigo-500 to-blue-600 text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex flex-col items-center justify-center min-h-[140px]">
+                <button onClick={() => setGiocoAttivo("orologio")} className={`p-6 bg-gradient-to-br from-indigo-500 to-blue-600 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
                   <div className="text-5xl md:text-6xl mb-2">⏰</div>
                   <div className="text-base md:text-lg font-bold">Orologio</div>
                 </button>
