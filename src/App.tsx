@@ -225,19 +225,19 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex flex-col relative">
       {/* Header fisso */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200/60 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-center relative">
+        <div className="max-w-7xl mx-auto px-3 py-2 md:px-4 md:py-4 flex items-center justify-center relative">
           {/* Logo e titolo centrati */}
           <div className="flex flex-col items-center">
-            <div className="flex items-center gap-3">
-              <span className="text-4xl" aria-hidden="true">🧠</span>
+            <div className="flex items-center gap-2 md:gap-3">
+              <span className="text-3xl md:text-4xl" aria-hidden="true">🧠</span>
               <h1 
-                className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
                 style={{ fontFamily: "'Nunito', 'Quicksand', 'Comic Sans MS', sans-serif" }}
               >
                 MenteInGioco
               </h1>
             </div>
-            <p className="text-sm text-slate-500 mt-1 font-medium">
+            <p className="text-xs md:text-sm text-slate-500 mt-0.5 md:mt-1 font-medium">
               La tua ginnastica mentale quotidiana
             </p>
           </div>
@@ -265,12 +265,12 @@ function App() {
       </header>
 
       {/* Spacer per l'header fisso */}
-      <div className="h-24"></div>
+      <div className="h-16 md:h-24"></div>
 
       {/* ─── SCHERMATA BENVENUTO ─── */}
       {fase === "benvenuto" && (
-        <div className="flex-1 flex flex-col items-center justify-center px-4 py-4 max-h-screen overflow-hidden">
-          <div className="max-w-5xl w-full text-center space-y-3">
+        <div className="flex-1 flex flex-col items-center justify-start px-4 py-4 overflow-y-auto">
+          <div className="max-w-5xl w-full text-center space-y-3 my-auto">
             {/* Sezione: Quiz e Giochi di Parole */}
             <div className="space-y-2">
               <h3 className="text-sm font-semibold text-slate-700 text-left">📝 Quiz e Giochi di Parole</h3>
@@ -404,9 +404,9 @@ function App() {
 
       {/* ─── SCHERMATA DOMANDA ─── */}
       {(fase === "domanda" || fase === "feedback") && domandaCorrente && (
-        <div className="flex-1 flex flex-col px-4 py-6 md:px-8 md:py-10">
+        <div className="flex-1 flex flex-col px-4 py-4 md:px-8 md:py-10 overflow-y-auto">
           {/* Timer e progresso */}
-          <div className="max-w-2xl w-full mx-auto mb-6">
+          <div className="max-w-2xl w-full mx-auto mb-4 md:mb-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-slate-500 text-sm font-medium">
                 Domanda {Math.min(indiceDomandaCorrente, numeroDomande)} di {numeroDomande}
@@ -466,11 +466,11 @@ function App() {
           </div>
 
           {/* Contenuto principale */}
-          <div className="flex-1 flex flex-col items-center justify-center max-w-2xl w-full mx-auto">
+          <div className="flex-1 flex flex-col items-center justify-start max-w-2xl w-full mx-auto">
             {/* Testo della domanda con pulsante altoparlante */}
-            <div className="w-full flex items-start gap-4 mb-10 md:mb-14">
+            <div className="w-full flex items-start gap-3 mb-6 md:mb-10">
               <h2
-                className="flex-1 text-3xl md:text-4xl font-bold text-slate-900 text-center leading-snug"
+                className="flex-1 text-2xl md:text-4xl font-bold text-slate-900 text-center leading-snug"
                 aria-live="polite"
               >
                 {domandaCorrente.testoDomanda}
@@ -478,7 +478,7 @@ function App() {
               <button
                 onClick={handleLeggiDomanda}
                 disabled={staLeggendo}
-                className={`shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center text-4xl md:text-5xl shadow-lg transition-all ${
+                className={`shrink-0 w-14 h-14 md:w-20 md:h-20 rounded-full flex items-center justify-center text-3xl md:text-5xl shadow-lg transition-all ${
                   staLeggendo
                     ? "bg-blue-500 text-white animate-pulse"
                     : "bg-blue-100 hover:bg-blue-200 text-blue-600"
@@ -491,7 +491,7 @@ function App() {
             </div>
 
             {/* Opzioni di risposta */}
-            <div className="w-full space-y-4" role="group" aria-label="Opzioni di risposta">
+            <div className="w-full space-y-3 md:space-y-4" role="group" aria-label="Opzioni di risposta">
               {domandaCorrente.opzioni.map((opzione, idx) => {
                 // Stili per il feedback
                 let buttonStyle = "bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white";
@@ -514,7 +514,7 @@ function App() {
                     key={idx}
                     onClick={() => handleRispondi(idx)}
                     disabled={disabilitaBottoni}
-                    className={`w-full py-6 px-6 md:py-7 md:px-8 text-xl md:text-2xl font-semibold rounded-2xl shadow-md transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300 ${buttonStyle} ${extraClasses}`}
+                    className={`w-full py-4 px-4 md:py-7 md:px-8 text-lg md:text-2xl font-semibold rounded-2xl shadow-md transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300 ${buttonStyle} ${extraClasses}`}
                     aria-label={`Opzione ${String.fromCharCode(65 + idx)}: ${opzione}`}
                   >
                     <span className="flex items-center gap-4">
@@ -556,19 +556,19 @@ function App() {
 
       {/* ─── SCHERMATA FINALE ─── */}
       {fase === "fine" && (
-        <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
-          <div className="max-w-xl w-full text-center space-y-8">
+        <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 md:px-6 md:py-12 overflow-y-auto">
+          <div className="max-w-xl w-full text-center space-y-6 md:space-y-8 my-auto">
             {/* Icona celebrativa ma sobria */}
-            <div className="text-7xl" aria-hidden="true">
+            <div className="text-6xl md:text-7xl" aria-hidden="true">
               🌟
             </div>
 
             {/* Messaggio caloroso */}
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
+            <h2 className="text-2xl md:text-4xl font-bold text-slate-900 leading-tight">
               Grazie per aver allenato la tua mente oggi!
             </h2>
 
-            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed">
+            <p className="text-lg md:text-2xl text-slate-600 leading-relaxed">
               Hai fatto un ottimo lavoro.
               <br />
               <span className="text-slate-500">
@@ -577,8 +577,8 @@ function App() {
             </p>
 
             {/* Messaggio motivazionale */}
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
-              <p className="text-lg text-amber-800 font-medium">
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 md:p-6">
+              <p className="text-base md:text-lg text-amber-800 font-medium">
                 🌻 Torna quando vuoi, saremo felici di allenarci ancora insieme!
               </p>
             </div>
@@ -586,7 +586,7 @@ function App() {
             {/* Pulsante per tornare all'inizio */}
             <button
               onClick={handleTornaAllInizio}
-              className="w-full max-w-md mx-auto py-6 px-8 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-2xl md:text-3xl font-bold rounded-2xl shadow-lg shadow-blue-500/20 transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300"
+              className="w-full max-w-md mx-auto py-5 px-6 md:py-6 md:px-8 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-xl md:text-3xl font-bold rounded-2xl shadow-lg shadow-blue-500/20 transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300"
               aria-label="Torna alla schermata iniziale"
             >
               Torna all'inizio 🏠
