@@ -273,28 +273,28 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex flex-col relative">
       {/* Header fisso */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200/60 shadow-sm">
-        <div className="max-w-7xl mx-auto px-3 py-2 md:px-4 md:py-4 flex items-center justify-center relative">
-          {/* Logo e titolo centrati */}
-          <div className="flex flex-col items-center">
-            <div className="flex items-center gap-2 md:gap-3">
-              <span className="text-3xl md:text-4xl" aria-hidden="true">🧠</span>
+        <div className="max-w-7xl mx-auto px-3 py-2 md:px-4 md:py-3 flex items-center justify-between flex-wrap gap-2">
+          {/* Logo e titolo a sinistra */}
+          <div className="flex items-center gap-2 md:gap-3">
+            <span className="text-2xl md:text-4xl" aria-hidden="true">🧠</span>
+            <div>
               <h1 
-                className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                className="text-xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight"
                 style={{ fontFamily: "'Nunito', 'Quicksand', 'Comic Sans MS', sans-serif" }}
               >
                 MenteInGioco
               </h1>
+              <p className="text-[10px] md:text-xs text-slate-500 font-medium hidden sm:block">
+                La tua ginnastica mentale quotidiana
+              </p>
             </div>
-            <p className="text-xs md:text-sm text-slate-500 mt-0.5 md:mt-1 font-medium">
-              La tua ginnastica mentale quotidiana
-            </p>
           </div>
 
-          {/* Pulsanti admin (nascosti) */}
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+          {/* Pulsanti admin a destra */}
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setVistaCorrente("test")}
-              className="w-10 h-10 rounded-full bg-indigo-100 hover:bg-indigo-200 text-indigo-600 hover:text-indigo-700 text-sm font-bold flex items-center justify-center transition-all opacity-50 hover:opacity-100 focus:opacity-100"
+              className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-indigo-100 hover:bg-indigo-200 text-indigo-600 hover:text-indigo-700 text-sm font-bold flex items-center justify-center transition-all opacity-50 hover:opacity-100 focus:opacity-100"
               aria-label="Test Dati Paziente JSON"
               title="Test Dati JSON"
             >
@@ -302,7 +302,7 @@ function App() {
             </button>
             <button
               onClick={() => setVistaCorrente("caregiver")}
-              className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 text-sm font-bold flex items-center justify-center transition-all opacity-50 hover:opacity-100 focus:opacity-100"
+              className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 text-sm font-bold flex items-center justify-center transition-all opacity-50 hover:opacity-100 focus:opacity-100"
               aria-label="Accedi al Pannello Caregiver"
               title="Pannello Caregiver"
             >
@@ -317,95 +317,120 @@ function App() {
 
       {/* ─── SCHERMATA BENVENUTO ─── */}
       {fase === "benvenuto" && (
-        <div className="flex-1 flex flex-col items-center justify-start px-2 py-3 overflow-y-auto">
-          <div className="w-full max-w-6xl space-y-3">
+        <div className="flex-1 flex flex-col items-center justify-start px-3 py-4 overflow-y-auto">
+          <div className="w-full max-w-6xl space-y-6">
             
-            {/* Tutti i giochi in righe da 6 */}
-            <div className="grid grid-cols-6 gap-2">
-              <button onClick={handleInizia} className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                <div className="text-3xl mb-1">📝</div>
-                <div className="text-xs font-bold">Quiz</div>
-              </button>
-              <button onClick={() => setGiocoAttivo("cruciverba")} className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                <div className="text-3xl mb-1">🧩</div>
-                <div className="text-xs font-bold">Cruciverba</div>
-              </button>
-              <button onClick={() => setGiocoAttivo("proverbi")} className="p-3 bg-gradient-to-br from-amber-600 to-yellow-700 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                <div className="text-3xl mb-1">📜</div>
-                <div className="text-xs font-bold">Proverbi</div>
-              </button>
-              <button onClick={() => setGiocoAttivo("memory")} className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                <div className="text-3xl mb-1">🃏</div>
-                <div className="text-xs font-bold">Memory</div>
-              </button>
-              <button onClick={() => setGiocoAttivo("memory-vita")} className="p-3 bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                <div className="text-3xl mb-1">📸</div>
-                <div className="text-xs font-bold">M. Vita</div>
-              </button>
-              <button onClick={() => setGiocoAttivo("associazioni")} className="p-3 bg-gradient-to-br from-fuchsia-500 to-pink-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                <div className="text-3xl mb-1">🔗</div>
-                <div className="text-xs font-bold">Assoc.</div>
-              </button>
-              <button onClick={() => setGiocoAttivo("intruso")} className="p-3 bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                <div className="text-3xl mb-1">🔍</div>
-                <div className="text-xs font-bold">Intruso</div>
-              </button>
-              <button onClick={() => setGiocoAttivo("ombre")} className="p-3 bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                <div className="text-3xl mb-1">🌑</div>
-                <div className="text-xs font-bold">Ombre</div>
-              </button>
-              <button onClick={() => setGiocoAttivo("puzzle")} className="p-3 bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                <div className="text-3xl mb-1">🖼️</div>
-                <div className="text-xs font-bold">Puzzle</div>
-              </button>
-              <button onClick={() => setGiocoAttivo("canzone")} className="p-3 bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                <div className="text-3xl mb-1">🎶</div>
-                <div className="text-xs font-bold">Canzoni</div>
-              </button>
-              <button onClick={() => setGiocoAttivo("valigia")} className="p-3 bg-gradient-to-br from-sky-500 to-blue-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                <div className="text-3xl mb-1">🧳</div>
-                <div className="text-xs font-bold">Valigia</div>
-              </button>
-              <button onClick={() => setGiocoAttivo("orologio")} className="p-3 bg-gradient-to-br from-indigo-500 to-blue-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
-                <div className="text-3xl mb-1">⏰</div>
-                <div className="text-xs font-bold">Orologio</div>
-              </button>
-            </div>
+            {/* Categoria 1: Giochi di Parole & Linguaggio */}
+            <section>
+              <h2 className="text-base md:text-lg font-bold text-slate-800 mb-3 px-1">
+                📝 Giochi di Parole & Linguaggio
+              </h2>
+              <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
+                <button onClick={handleInizia} className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                  <div className="text-3xl mb-1">📝</div>
+                  <div className="text-xs font-bold">Quiz</div>
+                </button>
+                <button onClick={() => setGiocoAttivo("cruciverba")} className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                  <div className="text-3xl mb-1">🧩</div>
+                  <div className="text-xs font-bold">Cruciverba</div>
+                </button>
+                <button onClick={() => setGiocoAttivo("proverbi")} className="p-3 bg-gradient-to-br from-amber-600 to-yellow-700 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                  <div className="text-3xl mb-1">📜</div>
+                  <div className="text-xs font-bold">Proverbi</div>
+                </button>
+              </div>
+            </section>
 
-            {/* Sezione Personalizza con AI e Dati sotto */}
-            <div className="flex flex-col items-center gap-2 pt-2">
-              <button
-                onClick={() => setVistaCorrente("caregiver")}
-                className="w-full max-w-md p-4 bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 text-white rounded-lg shadow transition-all flex items-center justify-center gap-3"
-              >
-                <span className="text-3xl">⚙️</span>
-                <span className="text-base font-bold">Personalizza</span>
-              </button>
-              
-              <div className="grid grid-cols-2 gap-2 w-full max-w-md">
+            {/* Categoria 2: Memoria & Reminiscenza */}
+            <section>
+              <h2 className="text-base md:text-lg font-bold text-slate-800 mb-3 px-1">
+                🧠 Memoria & Reminiscenza
+              </h2>
+              <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
+                <button onClick={() => setGiocoAttivo("memory")} className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                  <div className="text-3xl mb-1">🃏</div>
+                  <div className="text-xs font-bold">Memory</div>
+                </button>
+                <button onClick={() => setGiocoAttivo("memory-vita")} className="p-3 bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                  <div className="text-3xl mb-1">📸</div>
+                  <div className="text-xs font-bold">M. Vita</div>
+                </button>
+                <button onClick={() => setGiocoAttivo("associazioni")} className="p-3 bg-gradient-to-br from-fuchsia-500 to-pink-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                  <div className="text-3xl mb-1">🔗</div>
+                  <div className="text-xs font-bold">Assoc.</div>
+                </button>
+                <button onClick={() => setGiocoAttivo("canzone")} className="p-3 bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                  <div className="text-3xl mb-1">🎶</div>
+                  <div className="text-xs font-bold">Canzoni</div>
+                </button>
+              </div>
+            </section>
+
+            {/* Categoria 3: Logica & Osservazione */}
+            <section>
+              <h2 className="text-base md:text-lg font-bold text-slate-800 mb-3 px-1">
+                👁️ Logica & Osservazione
+              </h2>
+              <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
+                <button onClick={() => setGiocoAttivo("intruso")} className="p-3 bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                  <div className="text-3xl mb-1">🔍</div>
+                  <div className="text-xs font-bold">Intruso</div>
+                </button>
+                <button onClick={() => setGiocoAttivo("ombre")} className="p-3 bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                  <div className="text-3xl mb-1">🌑</div>
+                  <div className="text-xs font-bold">Ombre</div>
+                </button>
+                <button onClick={() => setGiocoAttivo("puzzle")} className="p-3 bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                  <div className="text-3xl mb-1">🖼️</div>
+                  <div className="text-xs font-bold">Puzzle</div>
+                </button>
+                <button onClick={() => setGiocoAttivo("valigia")} className="p-3 bg-gradient-to-br from-sky-500 to-blue-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                  <div className="text-3xl mb-1">🧳</div>
+                  <div className="text-xs font-bold">Valigia</div>
+                </button>
+                <button onClick={() => setGiocoAttivo("orologio")} className="p-3 bg-gradient-to-br from-indigo-500 to-blue-600 text-white rounded-lg shadow hover:scale-105 transition-transform flex flex-col items-center justify-center">
+                  <div className="text-3xl mb-1">⏰</div>
+                  <div className="text-xs font-bold">Orologio</div>
+                </button>
+              </div>
+            </section>
+
+            {/* Categoria 4: Impostazioni & Strumenti */}
+            <section>
+              <h2 className="text-base md:text-lg font-bold text-slate-800 mb-3 px-1">
+                ⚙️ Impostazioni & Strumenti
+              </h2>
+              <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
+                <button
+                  onClick={() => setVistaCorrente("caregiver")}
+                  className="p-3 bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 text-white rounded-lg shadow transition-all flex flex-col items-center justify-center"
+                >
+                  <div className="text-3xl mb-1">⚙️</div>
+                  <div className="text-xs font-bold">Personalizza</div>
+                </button>
                 <button
                   onClick={handleGeneraAI}
                   disabled={caricamentoAI}
-                  className="p-3 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-lg shadow transition-all flex flex-col items-center justify-center gap-1"
+                  className="p-3 bg-gradient-to-br from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-lg shadow transition-all flex flex-col items-center justify-center"
                 >
                   {caricamentoAI ? (
                     <>
-                      <span className="text-3xl animate-spin">⚙️</span>
-                      <span className="text-xs font-bold">Generando...</span>
+                      <div className="text-3xl mb-1 animate-spin">⚙️</div>
+                      <div className="text-xs font-bold">Generando...</div>
                     </>
                   ) : (
                     <>
-                      <span className="text-3xl">🤖</span>
-                      <span className="text-xs font-bold">AI</span>
+                      <div className="text-3xl mb-1">🤖</div>
+                      <div className="text-xs font-bold">AI</div>
                     </>
                   )}
                 </button>
                 <button
                   onClick={handleCaricaJSON}
-                  className="p-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow transition-all flex flex-col items-center justify-center gap-1"
+                  className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow transition-all flex flex-col items-center justify-center"
                 >
-                  <span className="text-3xl">📥</span>
-                  <span className="text-xs font-bold">Carica Dati</span>
+                  <div className="text-3xl mb-1">📥</div>
+                  <div className="text-xs font-bold">Carica Dati</div>
                 </button>
               </div>
               <input
@@ -415,7 +440,7 @@ function App() {
                 onChange={handleFileSelect}
                 className="hidden"
               />
-            </div>
+            </section>
           </div>
         </div>
       )}
