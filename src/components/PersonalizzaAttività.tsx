@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import EmojiPicker from "./EmojiPicker";
 
 type AttivitàTipo = "intruso" | "canzoni" | "orologio" | "valigia";
 
@@ -246,22 +247,18 @@ function EditorIntruso({ rounds, setRounds }: { rounds: any[]; setRounds: (r: an
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {round.elementi.map((elem: any, elemIdx: number) => (
               <div key={elemIdx} className="bg-slate-50 rounded p-3 space-y-2">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={elem.emoji}
-                    onChange={(e) => aggiornaElemento(roundIdx, elemIdx, "emoji", e.target.value)}
-                    className="w-16 text-2xl text-center border border-slate-300 rounded"
-                    placeholder="📦"
-                  />
-                  <input
-                    type="text"
-                    value={elem.testo}
-                    onChange={(e) => aggiornaElemento(roundIdx, elemIdx, "testo", e.target.value)}
-                    className="flex-1 border border-slate-300 rounded px-2 py-1"
-                    placeholder="Testo elemento"
-                  />
-                </div>
+                <EmojiPicker
+                  valore={elem.emoji}
+                  onChange={(emoji) => aggiornaElemento(roundIdx, elemIdx, "emoji", emoji)}
+                  label={`Emoji elemento ${elemIdx + 1}`}
+                />
+                <input
+                  type="text"
+                  value={elem.testo}
+                  onChange={(e) => aggiornaElemento(roundIdx, elemIdx, "testo", e.target.value)}
+                  className="w-full border border-slate-300 rounded px-2 py-1"
+                  placeholder="Testo elemento"
+                />
                 <label className="flex items-center gap-2 text-sm">
                   <input
                     type="checkbox"
@@ -612,16 +609,14 @@ function EditorValigia({ rounds, setRounds }: { rounds: any[]; setRounds: (r: an
               className="border border-slate-300 rounded px-3 py-2"
               placeholder="Titolo scenario"
             />
-            <input
-              type="text"
-              value={round.emoji}
-              onChange={(e) => {
+            <EmojiPicker
+              valore={round.emoji}
+              onChange={(emoji) => {
                 const nuoviRounds = [...rounds];
-                nuoviRounds[roundIdx].emoji = e.target.value;
+                nuoviRounds[roundIdx].emoji = emoji;
                 setRounds(nuoviRounds);
               }}
-              className="border border-slate-300 rounded px-3 py-2 text-2xl text-center"
-              placeholder="📦"
+              label="Emoji scenario"
             />
             <input
               type="text"
@@ -639,17 +634,14 @@ function EditorValigia({ rounds, setRounds }: { rounds: any[]; setRounds: (r: an
           <div className="space-y-2">
             <p className="text-sm font-medium text-slate-700">Oggetti (6 totali):</p>
             {round.oggetti.map((oggetto: any, oggettoIdx: number) => (
-              <div key={oggettoIdx} className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={oggetto.emoji}
-                  onChange={(e) => {
+              <div key={oggettoIdx} className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
+                <EmojiPicker
+                  valore={oggetto.emoji}
+                  onChange={(emoji) => {
                     const nuoviRounds = [...rounds];
-                    nuoviRounds[roundIdx].oggetti[oggettoIdx].emoji = e.target.value;
+                    nuoviRounds[roundIdx].oggetti[oggettoIdx].emoji = emoji;
                     setRounds(nuoviRounds);
                   }}
-                  className="w-16 text-xl text-center border border-slate-300 rounded"
-                  placeholder="📦"
                 />
                 <input
                   type="text"
@@ -659,7 +651,7 @@ function EditorValigia({ rounds, setRounds }: { rounds: any[]; setRounds: (r: an
                     nuoviRounds[roundIdx].oggetti[oggettoIdx].nome = e.target.value;
                     setRounds(nuoviRounds);
                   }}
-                  className="flex-1 border border-slate-300 rounded px-3 py-2"
+                  className="border border-slate-300 rounded px-3 py-2"
                   placeholder="Nome oggetto"
                 />
                 <label className="flex items-center gap-1 text-sm whitespace-nowrap">
@@ -671,6 +663,7 @@ function EditorValigia({ rounds, setRounds }: { rounds: any[]; setRounds: (r: an
                       nuoviRounds[roundIdx].oggetti[oggettoIdx].èCorretto = e.target.checked;
                       setRounds(nuoviRounds);
                     }}
+                    className="w-5 h-5"
                   />
                   <span className={oggetto.èCorretto ? "text-emerald-600 font-semibold" : "text-slate-600"}>
                     ✓
