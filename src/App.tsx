@@ -4,17 +4,21 @@ import { simulaChiamataAI } from "./services/aiSimulator";
 import { useProfiloPaziente } from "./hooks/useProfiloPaziente";
 import { useImpostazioniSessione } from "./hooks/useImpostazioniSessione";
 import PannelloCaregiver from "./components/PannelloCaregiver";
+import GiocoCruciverba from "./components/GiocoCruciverba";
+import GiocoPuzzle from "./components/GiocoPuzzle";
 
 /** Durata del feedback visivo in millisecondi */
 const FEEDBACK_DURATION_MS = 2500;
 
 type FaseSessione = "benvenuto" | "domanda" | "feedback" | "fine";
 type VistaApp = "paziente" | "caregiver";
+type GiocoAttivo = "quiz" | "cruciverba" | "puzzle" | null;
 
 function App() {
   const [profiloPaziente] = useProfiloPaziente();
   const [impostazioni] = useImpostazioniSessione();
   const [vistaCorrente, setVistaCorrente] = useState<VistaApp>("paziente");
+  const [giocoAttivo, setGiocoAttivo] = useState<GiocoAttivo>(null);
   
   // Numero di domande per sessione (configurabile dal caregiver)
   const numeroDomande = impostazioni.numeroDomande;
@@ -159,7 +163,7 @@ function App() {
       {/* ─── SCHERMATA BENVENUTO ─── */}
       {fase === "benvenuto" && (
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
-          <div className="max-w-xl w-full text-center space-y-8">
+          <div className="max-w-2xl w-full text-center space-y-8">
             {/* Icona gentile */}
             <div className="text-7xl" aria-hidden="true">
               🧠
@@ -172,29 +176,59 @@ function App() {
 
             {/* Sottotitolo rassicurante */}
             <p className="text-xl md:text-2xl text-slate-600 leading-relaxed">
-              Rispondi a qualche domanda semplice per tenere la mente attiva.
+              Scegli un'attività per tenere la mente attiva.
               <br />
               <span className="text-slate-500">Non c'è fretta, prenditi il tuo tempo.</span>
             </p>
 
-            {/* Info sessione */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-2">
-              <p className="text-slate-700 text-lg">
-                📝 <strong>{numeroDomande} domande</strong> semplici e divertenti
-              </p>
+            {/* Menu giochi */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Quiz */}
+              <button
+                onClick={handleInizia}
+                className="p-6 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-2xl shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                aria-label="Inizia il quiz con domande"
+              >
+                <div className="text-5xl mb-3">📝</div>
+                <div className="text-xl font-bold mb-2">Quiz</div>
+                <div className="text-sm opacity-90">
+                  {numeroDomande} domande semplici
+                </div>
+              </button>
+
+              {/* Cruciverba */}
+              <button
+                onClick={() => setGiocoAttivo("cruciverba")}
+                className="p-6 bg-gradient-to-br from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-2xl shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-purple-300"
+                aria-label="Inizia il cruciverba"
+              >
+                <div className="text-5xl mb-3">🧩</div>
+                <div className="text-xl font-bold mb-2">Cruciverba</div>
+                <div className="text-sm opacity-90">
+                  Parole e definizioni
+                </div>
+              </button>
+
+              {/* Puzzle */}
+              <button
+                onClick={() => setGiocoAttivo("puzzle")}
+                className="p-6 bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-2xl shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-amber-300"
+                aria-label="Inizia il puzzle"
+              >
+                <div className="text-5xl mb-3">🖼️</div>
+                <div className="text-xl font-bold mb-2">Puzzle</div>
+                <div className="text-sm opacity-90">
+                  Componi l'immagine
+                </div>
+              </button>
+            </div>
+
+            {/* Info generica */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
               <p className="text-slate-500">
                 Nessuna pressione, nessun voto. Solo un momento per te.
               </p>
             </div>
-
-            {/* Pulsante inizia */}
-            <button
-              onClick={handleInizia}
-              className="w-full max-w-md mx-auto py-6 px-8 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-2xl md:text-3xl font-bold rounded-2xl shadow-lg shadow-blue-500/20 transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300"
-              aria-label="Inizia la sessione di allenamento"
-            >
-              Iniziamo! ☀️
-            </button>
 
             {/* Pulsante Genera Esercizio Personalizzato AI */}
             <div className="pt-4 border-t border-slate-200">
@@ -405,6 +439,15 @@ function App() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* ─── GIOCHI EXTRA ─── */}
+      {giocoAttivo === "cruciverba" && (
+        <GiocoCruciverba onChiudi={() => setGiocoAttivo(null)} />
+      )}
+
+      {giocoAttivo === "puzzle" && (
+        <GiocoPuzzle onChiudi={() => setGiocoAttivo(null)} />
       )}
     </div>
   );
