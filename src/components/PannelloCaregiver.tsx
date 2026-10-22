@@ -4,6 +4,7 @@ import { useCronologiaSessioni, SessioneSalvata } from "../hooks/useCronologiaSe
 import { useImpostazioniSessione } from "../hooks/useImpostazioniSessione";
 import ImportaDomande from "./ImportaDomande";
 import PersonalizzaAttività from "./PersonalizzaAttività";
+import ReportMedico from "./ReportMedico";
 import { Domanda } from "../data/questions";
 
 type TabAttiva = "profilo" | "statistiche" | "domande" | "impostazioni";
@@ -38,6 +39,9 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
 
   // Stato per personalizzazione attività
   const [mostraPersonalizza, setMostraPersonalizza] = useState(false);
+
+  // Stato per report medico
+  const [mostraReportMedico, setMostraReportMedico] = useState(false);
 
   // Salva profilo
   const handleSalvaProfilo = (e: React.FormEvent) => {
@@ -451,7 +455,35 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
                 </div>
               </div>
             )}
+
+            {/* Card Report Medico */}
+            <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600">
+                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <span>📋</span>
+                  Report per il Medico
+                </h2>
+              </div>
+
+              <div className="p-6">
+                <p className="text-slate-600 mb-4">
+                  Genera un report professionale degli ultimi 7 giorni di attività cognitiva, pronto per essere stampato e condiviso con il medico curante.
+                </p>
+                <button
+                  onClick={() => setMostraReportMedico(true)}
+                  className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>📊</span>
+                  <span>Genera Report per il Medico</span>
+                </button>
+              </div>
+            </div>
           </div>
+        )}
+
+        {/* Modal Report Medico */}
+        {mostraReportMedico && (
+          <ReportMedico onChiudi={() => setMostraReportMedico(false)} />
         )}
 
         {/* Tab: Importa Domande */}

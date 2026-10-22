@@ -60,6 +60,7 @@ function App() {
   const [rispostaSelezionata, setRispostaSelezionata] = useState<number | null>(null);
   const [disabilitaBottoni, setDisabilitaBottoni] = useState(false);
   const [caricamentoAI, setCaricamentoAI] = useState(false);
+  const [staLeggendo, setStaLeggendo] = useState(false);
 
   const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -155,6 +156,44 @@ function App() {
     setRispostaSelezionata(null);
     setDisabilitaBottoni(false);
   }, []);
+
+  // ─── Leggi domanda ad alta voce ───
+  const handleLeggiDomanda = useCallback(() => {
+    if (!domandaCorrente) return;
+
+    // Ferma eventuali sintesi vocali in corso
+    window.speechSynthesis.cancel();
+
+    // Costruisci il testo da leggere
+    const lettere = ["A", "B", "C"];
+    const testoCompleto = `${domandaCorrente.testoDomanda}. ${domandaCorrente.opzioni
+      .map((opzione, idx) => `Opzione ${lettere[idx]}: ${opzione}`)
+      .join(". ")}.`;
+
+    // Crea l'utterance
+    const utterance = new SpeechSynthesisUtterance(testoCompleto);
+    
+    // Configura la voce italiana
+    utterance.lang = "it-IT";
+    utterance.rate = 0.8; // Velocità leggermente più lenta
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+
+    // Cerca una voce italiana
+    const voci = window.speechSynthesis.getVoices();
+    const voceItaliana = voci.find(voce => voce.lang.startsWith("it"));
+    if (voceItaliana) {
+      utterance.voice = voceItaliana;
+    }
+
+    // Gestisci inizio e fine
+    utterance.onstart = () => setStaLeggendo(true);
+    utterance.onend = () => setStaLeggendo(false);
+    utterance.onerror = () => setStaLeggendo(false);
+
+    // Avvia la sintesi vocale
+    window.speechSynthesis.speak(utterance);
+  }, [domandaCorrente]);
 
   // ═══════════════════════════════════════════
   // RENDER
@@ -391,13 +430,28 @@ function App() {
 
           {/* Contenuto principale */}
           <div className="flex-1 flex flex-col items-center justify-center max-w-2xl w-full mx-auto">
-            {/* Testo della domanda */}
-            <h2
-              className="text-3xl md:text-4xl font-bold text-slate-900 text-center leading-snug mb-10 md:mb-14"
-              aria-live="polite"
-            >
-              {domandaCorrente.testoDomanda}
-            </h2>
+            {/* Testo della domanda con pulsante altoparlante */}
+            <div className="w-full flex items-start gap-4 mb-10 md:mb-14">
+              <h2
+                className="flex-1 text-3xl md:text-4xl font-bold text-slate-900 text-center leading-snug"
+                aria-live="polite"
+              >
+                {domandaCorrente.testoDomanda}
+              </h2>
+              <button
+                onClick={handleLeggiDomanda}
+                disabled={staLeggendo}
+                className={`shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center text-4xl md:text-5xl shadow-lg transition-all ${
+                  staLeggendo
+                    ? "bg-blue-500 text-white animate-pulse"
+                    : "bg-blue-100 hover:bg-blue-200 text-blue-600"
+                }`}
+                aria-label="Leggi domanda ad alta voce"
+                title="Leggi domanda ad alta voce"
+              >
+                🔊
+              </button>
+            </div>
 
             {/* Opzioni di risposta */}
             <div className="w-full space-y-4" role="group" aria-label="Opzioni di risposta">
