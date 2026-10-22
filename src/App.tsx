@@ -3,6 +3,7 @@ import { useCognitiveSession } from "./hooks/useCognitiveSession";
 import { simulaChiamataAI } from "./services/aiSimulator";
 import { useProfiloPaziente } from "./hooks/useProfiloPaziente";
 import { useImpostazioniSessione } from "./hooks/useImpostazioniSessione";
+import { useTheme } from "./hooks/useTheme";
 import PannelloCaregiver from "./components/PannelloCaregiver";
 import GiocoCruciverba from "./components/GiocoCruciverba";
 import GiocoPuzzle from "./components/GiocoPuzzle";
@@ -17,6 +18,7 @@ import TestDatiPaziente from "./components/TestDatiPaziente";
 import PannelloRicordi from "./components/PannelloRicordi";
 import MemoryVita from "./components/MemoryVita";
 import AssociazioniTematiche from "./components/AssociazioniTematiche";
+import FooterThemeSelector from "./components/FooterThemeSelector";
 
 /** Durata del feedback visivo in millisecondi */
 const FEEDBACK_DURATION_MS = 2500;
@@ -43,6 +45,7 @@ function App() {
   const [impostazioni] = useImpostazioniSessione();
   const [vistaCorrente, setVistaCorrente] = useState<VistaApp>("paziente");
   const [giocoAttivo, setGiocoAttivo] = useState<GiocoAttivo>(null);
+  const { theme, setTheme, themeConfig } = useTheme();
   
   // Numero di domande per sessione (configurabile dal caregiver)
   const numeroDomande = impostazioni.numeroDomande;
@@ -270,21 +273,27 @@ function App() {
 
   // Vista Paziente
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex flex-col relative">
+    <div className={`min-h-screen flex flex-col relative transition-colors duration-300 ${themeConfig.background}`}>
       {/* Header fisso */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200/60 shadow-sm">
+      <header className={`fixed top-0 left-0 right-0 z-40 backdrop-blur-sm border-b shadow-sm transition-colors duration-300 ${
+        theme === 'dark' 
+          ? 'bg-slate-800/95 border-slate-700' 
+          : 'bg-white/95 border-slate-200/60'
+      }`}>
         <div className="max-w-7xl mx-auto px-3 py-2 md:px-4 md:py-3 flex items-center justify-between flex-wrap gap-2">
           {/* Logo e titolo a sinistra */}
           <div className="flex items-center gap-2 md:gap-3">
             <span className="text-2xl md:text-4xl" aria-hidden="true">🧠</span>
             <div>
               <h1 
-                className="text-xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight"
+                className={`text-xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight`}
                 style={{ fontFamily: "'Nunito', 'Quicksand', 'Comic Sans MS', sans-serif" }}
               >
                 MenteInGioco
               </h1>
-              <p className="text-[10px] md:text-xs text-slate-500 font-medium hidden sm:block">
+              <p className={`text-[10px] md:text-xs font-medium hidden sm:block transition-colors duration-300 ${
+                theme === 'dark' ? 'text-slate-300' : 'text-slate-500'
+              }`}>
                 La tua ginnastica mentale quotidiana
               </p>
             </div>
@@ -359,7 +368,9 @@ function App() {
             
             {/* Categoria 1: Giochi di Parole & Linguaggio */}
             <section>
-              <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-4">
+              <h2 className={`text-xl md:text-2xl font-bold mb-4 transition-colors duration-300 ${
+                theme === 'dark' ? 'text-slate-50' : 'text-slate-800'
+              }`}>
                 📝 Giochi di Parole & Linguaggio
               </h2>
               <div className="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -380,7 +391,9 @@ function App() {
 
             {/* Categoria 2: Memoria & Reminiscenza */}
             <section>
-              <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-4">
+              <h2 className={`text-xl md:text-2xl font-bold mb-4 transition-colors duration-300 ${
+                theme === 'dark' ? 'text-slate-50' : 'text-slate-800'
+              }`}>
                 🧠 Memoria & Reminiscenza
               </h2>
               <div className="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -405,7 +418,9 @@ function App() {
 
             {/* Categoria 3: Logica & Osservazione */}
             <section>
-              <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-4">
+              <h2 className={`text-xl md:text-2xl font-bold mb-4 transition-colors duration-300 ${
+                theme === 'dark' ? 'text-slate-50' : 'text-slate-800'
+              }`}>
                 👁️ Logica & Osservazione
               </h2>
               <div className="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -432,6 +447,11 @@ function App() {
               </div>
             </section>
           </div>
+          
+          {/* Footer con selettore temi */}
+          {fase === "benvenuto" && (
+            <FooterThemeSelector currentTheme={theme} onThemeChange={setTheme} />
+          )}
         </div>
       )}
 
