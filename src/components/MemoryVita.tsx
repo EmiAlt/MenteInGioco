@@ -5,157 +5,93 @@ interface MemoryVitaProps {
   onChiudi: () => void;
 }
 
-type TipoAbbinamento = "foto-descrizione" | "foto-foto";
-
-interface Carta {
-  id: string;
-  tipo: "foto" | "descrizione";
-  contenuto: string;
-  ricordoId: string;
-  girata: boolean;
-  trovata: boolean;
+interface DomandaQuiz {
+  ricordo: Ricordo;
+  opzioni: { testo: string; èCorretta: boolean }[];
 }
 
 export default function MemoryVita({ onChiudi }: MemoryVitaProps) {
   const { ricordi } = useRicordi();
-  const [carte, setCarte] = useState<Carta[]>([]);
-  const [cartaSelezionata, setCartaSelezionata] = useState<string | null>(null);
-  const [staConfrontando, setStaConfrontando] = useState(false);
-  const [mosse, setMosse] = useState(0);
+  const [domandaCorrente, setDomandaCorrente] = useState<DomandaQuiz | null>(null);
+  const [indiceDomanda, setIndiceDomanda] = useState(0);
+  const [rispostaSelezionata, setRispostaSelezionata] = useState<number | null>(null);
+  const [punteggio, setPunteggio] = useState(0);
   const [completato, setCompletato] = useState(false);
-  const [tipoAbbinamento, setTipoAbbinamento] = useState<TipoAbbinamento>("foto-descrizione");
-  const [numeroCoppie, setNumeroCoppie] = useState(3);
+  const [feedback, setFeedback] = useState<"corretto" | "sbagliato" | null>(null);
 
-  // Inizializza il gioco quando cambiano i ricordi o le impostazioni
+  // Genera le domande mescolando i ricordi
   useEffect(() => {
-    if (ricordi.length >= numeroCoppie) {
-      generaCarte();
+    if (ricordi.length > 0 && !domandaCorrente) {
+      generaProssimaDomanda();
     }
-  }, [ricordi, tipoAbbinamento, numeroCoppie]);
+  }, [ricordi]);
 
-  const generaCarte = () => {
-    // Seleziona un numero casuale di ricordi
-    const ricordiSelezionati = [...ricordi]
-      .sort(() => Math.random() - 0.5)
-      .slice(0, numeroCoppie);
+  const generaProssimaDomanda = () => {
+    if (ricordi.length === 0) return;
 
-    const nuoveCarte: Carta[] = [];
+    // Seleziona un ricordo casuale
+    const ricordoCasuale = ricordi[Math.floor(Math.random() * ricordi.length)];
 
-    ricordiSelezionati.forEach((ricordo) => {
-      if (tipoAbbinamento === "foto-descrizione") {
-        // Crea una coppia foto-descrizione
-        nuoveCarte.push({
-          id: `${ricordo.id}-foto`,
-          tipo: "foto",
-          contenuto: ricordo.foto,
-          ricordoId: ricordo.id,
-          girata: false,
-          trovata: false,
-        });
-        nuoveCarte.push({
-          id: `${ricordo.id}-desc`,
-          tipo: "descrizione",
-          contenuto: ricordo.descrizione,
-          ricordoId: ricordo.id,
-          girata: false,
-          trovata: false,
-        });
-      } else {
-        // Crea due carte con foto diverse dello stesso ricordo (se disponibili)
-        // Per ora usiamo la stessa foto due volte (da migliorare in futuro)
-        nuoveCarte.push({
-          id: `${ricordo.id}-foto1`,
-          tipo: "foto",
-          contenuto: ricordo.foto,
-          ricordoId: ricordo.id,
-          girata: false,
-          trovata: false,
-        });
-        nuoveCarte.push({
-          id: `${ricordo.id}-foto2`,
-          tipo: "foto",
-          contenuto: ricordo.foto,
-          ricordoId: ricordo.id,
-          girata: false,
-          trovata: false,
-        });
-      }
+    // Crea le 3 opzioni e mescolale
+    const opzioni = [
+      { testo: ricordoCasuale.descrizioneCorretta, èCorretta: true },
+      { testo: ricordoCasuale.descrizioneSbagliata1, èCorretta: false },
+      { testo: ricordoCasuale.descrizioneSbagliata2, èCorretta: false },
+    ].sort(() => Math.random() - 0.5);
+
+    setDomandaCorrente({
+      ricordo: ricordoCasuale,
+      opzioni,
     });
-
-    // Mescola le carte
-    const carteMescolate = nuoveCarte.sort(() => Math.random() - 0.5);
-    setCarte(carteMescolate);
-    setCartaSelezionata(null);
-    setStaConfrontando(false);
-    setMosse(0);
-    setCompletato(false);
   };
 
-  const gestisciClickCarta = (cartaId: string) => {
-    if (staConfrontando) return;
+  const gestisciRisposta = (indice: number) => {
+    if (rispostaSelezionata !== null) return; // Evita double-click
 
-    const carta = carte.find(c => c.id === cartaId);
-    if (!carta || carta.girata || carta.trovata) return;
+    setRispostaSelezionata(indice);
+    const èCorretta = domandaCorrente?.opzioni[indice].èCorretta;
 
-    // Gira la carta
-    const nuoveCarte = carte.map(c =>
-      c.id === cartaId ? { ...c, girata: true } : c
-    );
-    setCarte(nuoveCarte);
-
-    if (cartaSelezionata === null) {
-      // Prima carta selezionata
-      setCartaSelezionata(cartaId);
+    if (èCorretta) {
+      setFeedback("corretto");
+      setPunteggio(punteggio + 1);
     } else {
-      // Seconda carta selezionata
-      setStaConfrontando(true);
-      setMosse(mosse + 1);
-
-      const primaCarta = carte.find(c => c.id === cartaSelezionata);
-      if (!primaCarta) return;
-
-      // Controlla se è una coppia corretta
-      if (primaCarta.ricordoId === carta.ricordoId && primaCarta.id !== carta.id) {
-        // Coppia corretta!
-        setTimeout(() => {
-          const carteAggiornate = nuoveCarte.map(c =>
-            c.ricordoId === carta.ricordoId ? { ...c, trovata: true, girata: false } : c
-          );
-          setCarte(carteAggiornate);
-          setCartaSelezionata(null);
-          setStaConfrontando(false);
-
-          // Controlla se il gioco è completato
-          if (carteAggiornate.every(c => c.trovata)) {
-            setCompletato(true);
-          }
-        }, 1000);
-      } else {
-        // Coppia errata
-        setTimeout(() => {
-          const carteAggiornate = nuoveCarte.map(c =>
-            c.girata && !c.trovata ? { ...c, girata: false } : c
-          );
-          setCarte(carteAggiornate);
-          setCartaSelezionata(null);
-          setStaConfrontando(false);
-        }, 1500);
-      }
+      setFeedback("sbagliato");
     }
+
+    // Passa alla prossima domanda dopo 2 secondi
+    setTimeout(() => {
+      if (indiceDomanda + 1 >= ricordi.length) {
+        setCompletato(true);
+      } else {
+        setIndiceDomanda(indiceDomanda + 1);
+        setRispostaSelezionata(null);
+        setFeedback(null);
+        generaProssimaDomanda();
+      }
+    }, 2000);
   };
 
-  // Schermata configurazione iniziale
-  if (carte.length === 0 && ricordi.length < 2) {
+  const ricomincia = () => {
+    setIndiceDomanda(0);
+    setPunteggio(0);
+    setCompletato(false);
+    setRispostaSelezionata(null);
+    setFeedback(null);
+    generaProssimaDomanda();
+  };
+
+  // Schermata iniziale - nessun ricordo disponibile
+  if (ricordi.length === 0) {
     return (
       <div className="fixed inset-0 bg-slate-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-2xl max-w-2xl w-full p-8 text-center space-y-6">
           <div className="text-7xl">📸</div>
           <h2 className="text-3xl font-bold text-slate-900">Memory di Vita</h2>
           <p className="text-xl text-slate-600">
-            Non ci sono ancora abbastanza ricordi salvati.
+            Non ci sono ancora ricordi salvati.
           </p>
           <p className="text-lg text-slate-500">
-            Il caregiver deve caricare almeno 2 foto con descrizioni.
+            Il caregiver deve caricare almeno una foto con le 3 descrizioni.
           </p>
           <button
             onClick={onChiudi}
@@ -163,82 +99,6 @@ export default function MemoryVita({ onChiudi }: MemoryVitaProps) {
           >
             ← Torna al Menu
           </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Schermata configurazione
-  if (carte.length === 0) {
-    return (
-      <div className="fixed inset-0 bg-slate-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl max-w-2xl w-full p-8 space-y-6">
-          <h2 className="text-3xl font-bold text-slate-900 text-center">📸 Memory di Vita</h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-lg font-semibold text-slate-700 mb-2">
-                Tipo di Abbinamento
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => setTipoAbbinamento("foto-descrizione")}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    tipoAbbinamento === "foto-descrizione"
-                      ? "bg-blue-100 border-blue-500"
-                      : "bg-white border-slate-300 hover:border-blue-300"
-                  }`}
-                >
-                  <div className="text-3xl mb-2">📷📝</div>
-                  <div className="font-bold">Foto + Descrizione</div>
-                </button>
-                <button
-                  onClick={() => setTipoAbbinamento("foto-foto")}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    tipoAbbinamento === "foto-foto"
-                      ? "bg-blue-100 border-blue-500"
-                      : "bg-white border-slate-300 hover:border-blue-300"
-                  }`}
-                >
-                  <div className="text-3xl mb-2">📷📷</div>
-                  <div className="font-bold">Foto + Foto</div>
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-lg font-semibold text-slate-700 mb-2">
-                Numero di Coppie: {numeroCoppie}
-              </label>
-              <input
-                type="range"
-                min="2"
-                max={Math.min(ricordi.length, 6)}
-                value={numeroCoppie}
-                onChange={(e) => setNumeroCoppie(parseInt(e.target.value))}
-                className="w-full"
-              />
-              <div className="flex justify-between text-sm text-slate-600 mt-1">
-                <span>2 coppie</span>
-                <span>{Math.min(ricordi.length, 6)} coppie</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={generaCarte}
-              className="flex-1 py-4 bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold rounded-xl"
-            >
-              🎮 Inizia Gioco
-            </button>
-            <button
-              onClick={onChiudi}
-              className="flex-1 py-4 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xl font-bold rounded-xl"
-            >
-              ← Annulla
-            </button>
-          </div>
         </div>
       </div>
     );
@@ -252,11 +112,20 @@ export default function MemoryVita({ onChiudi }: MemoryVitaProps) {
           <div className="text-7xl">🎉</div>
           <h2 className="text-3xl font-bold text-slate-900">Complimenti!</h2>
           <p className="text-xl text-slate-600">
-            Hai trovato tutte le coppie in {mosse} mosse!
+            Hai indovinato {punteggio} foto su {ricordi.length}
           </p>
+          <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-4">
+            <p className="text-lg text-emerald-800 font-medium">
+              {punteggio === ricordi.length
+                ? "🌟 Perfetto! Le hai riconosciute tutte!"
+                : punteggio >= ricordi.length * 0.7
+                ? "👏 Ottimo lavoro!"
+                : "💪 Continua ad allenarti!"}
+            </p>
+          </div>
           <div className="flex gap-4">
             <button
-              onClick={generaCarte}
+              onClick={ricomincia}
               className="flex-1 py-4 bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold rounded-xl"
             >
               🔄 Gioca Ancora
@@ -273,9 +142,14 @@ export default function MemoryVita({ onChiudi }: MemoryVitaProps) {
     );
   }
 
-  // Calcola il numero di colonne in base al numero di carte
-  const totaleCarte = carte.length;
-  const colonne = totaleCarte <= 6 ? 3 : totaleCarte <= 10 ? 4 : 5;
+  // Schermata di gioco
+  if (!domandaCorrente) {
+    return (
+      <div className="fixed inset-0 bg-slate-50 flex items-center justify-center z-50">
+        <div className="text-2xl text-slate-600">Caricamento...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-slate-50 flex flex-col z-50 overflow-y-auto">
@@ -284,7 +158,9 @@ export default function MemoryVita({ onChiudi }: MemoryVitaProps) {
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-slate-900">📸 Memory di Vita</h2>
-            <p className="text-sm text-slate-500">Mosse: {mosse} | Coppie: {numeroCoppie}</p>
+            <p className="text-sm text-slate-500">
+              Foto {indiceDomanda + 1} di {ricordi.length} | Punteggio: {punteggio}
+            </p>
           </div>
           <button
             onClick={onChiudi}
@@ -301,55 +177,63 @@ export default function MemoryVita({ onChiudi }: MemoryVitaProps) {
           {/* Istruzioni */}
           <div className="text-center">
             <p className="text-2xl text-slate-700 font-medium mb-2">
-              Trova le coppie!
-            </p>
-            <p className="text-lg text-slate-500">
-              {tipoAbbinamento === "foto-descrizione"
-                ? "Abbina ogni foto alla sua descrizione"
-                : "Abbina le foto uguali"}
+              Quale descrizione è corretta per questa foto?
             </p>
           </div>
 
-          {/* Griglia carte */}
-          <div
-            className="grid gap-4 max-w-4xl mx-auto"
-            style={{
-              gridTemplateColumns: `repeat(${colonne}, 1fr)`,
-            }}
-          >
-            {carte.map((carta) => (
-              <button
-                key={carta.id}
-                onClick={() => gestisciClickCarta(carta.id)}
-                disabled={carta.girata || carta.trovata || staConfrontando}
-                className={`aspect-square rounded-2xl border-4 transition-all ${
-                  carta.trovata
-                    ? "bg-emerald-100 border-emerald-500"
-                    : carta.girata
-                    ? "bg-white border-blue-500"
-                    : "bg-blue-500 border-blue-600 hover:bg-blue-400 hover:scale-105 cursor-pointer"
-                }`}
-              >
-                {carta.girata || carta.trovata ? (
-                  carta.tipo === "foto" ? (
-                    <img
-                      src={carta.contenuto}
-                      alt="Ricordo"
-                      className="w-full h-full object-cover rounded-xl"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center p-2">
-                      <p className="text-lg md:text-xl font-bold text-slate-900 text-center">
-                        {carta.contenuto}
-                      </p>
-                    </div>
-                  )
-                ) : (
-                  <span className="text-white text-5xl">?</span>
-                )}
-              </button>
-            ))}
+          {/* Foto */}
+          <div className="bg-white rounded-2xl shadow-lg border-4 border-blue-300 p-4">
+            <img
+              src={domandaCorrente.ricordo.foto}
+              alt="Foto da riconoscere"
+              className="w-full max-h-96 object-contain rounded-xl"
+            />
           </div>
+
+          {/* Opzioni */}
+          <div className="space-y-3">
+            {domandaCorrente.opzioni.map((opzione, idx) => {
+              let buttonStyle = "bg-white border-slate-300 hover:border-blue-400 hover:bg-blue-50";
+              
+              if (rispostaSelezionata !== null) {
+                if (opzione.èCorretta) {
+                  buttonStyle = "bg-emerald-100 border-emerald-500";
+                } else if (idx === rispostaSelezionata && !opzione.èCorretta) {
+                  buttonStyle = "bg-red-100 border-red-500";
+                } else {
+                  buttonStyle = "bg-slate-100 border-slate-300 opacity-50";
+                }
+              }
+
+              return (
+                <button
+                  key={idx}
+                  onClick={() => gestisciRisposta(idx)}
+                  disabled={rispostaSelezionata !== null}
+                  className={`w-full p-6 rounded-2xl border-4 text-left transition-all ${buttonStyle}`}
+                >
+                  <p className="text-xl md:text-2xl font-semibold text-slate-900">
+                    {opzione.testo}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Feedback */}
+          {feedback && (
+            <div
+              className={`text-center p-4 rounded-xl ${
+                feedback === "corretto"
+                  ? "bg-emerald-100 border-2 border-emerald-300"
+                  : "bg-amber-100 border-2 border-amber-300"
+              }`}
+            >
+              <p className="text-2xl font-bold">
+                {feedback === "corretto" ? "✅ Corretto!" : "❌ Non è corretto"}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

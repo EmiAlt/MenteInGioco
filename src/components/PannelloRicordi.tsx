@@ -9,7 +9,9 @@ interface PannelloRicordiProps {
 export default function PannelloRicordi({ onChiudi }: PannelloRicordiProps) {
   const { ricordi, salvaRicordo, eliminaRicordo, modificaRicordo } = useRicordi();
   const [fotoBase64, setFotoBase64] = useState<string | null>(null);
-  const [descrizione, setDescrizione] = useState("");
+  const [descrizioneCorretta, setDescrizioneCorretta] = useState("");
+  const [descrizioneSbagliata1, setDescrizioneSbagliata1] = useState("");
+  const [descrizioneSbagliata2, setDescrizioneSbagliata2] = useState("");
   const [categoria, setCategoria] = useState("");
   const [ricordoDaModificare, setRicordoDaModificare] = useState<string | null>(null);
   const [messaggioSuccesso, setMessaggioSuccesso] = useState<string | null>(null);
@@ -44,7 +46,9 @@ export default function PannelloRicordi({ onChiudi }: PannelloRicordiProps) {
 
   const resetForm = () => {
     setFotoBase64(null);
-    setDescrizione("");
+    setDescrizioneCorretta("");
+    setDescrizioneSbagliata1("");
+    setDescrizioneSbagliata2("");
     setCategoria("");
     setRicordoDaModificare(null);
     setMessaggioSuccesso(null);
@@ -58,18 +62,30 @@ export default function PannelloRicordi({ onChiudi }: PannelloRicordiProps) {
   };
 
   const handleSalva = async () => {
-    if (!fotoBase64 || !descrizione.trim()) {
-      alert("Inserisci una foto e una descrizione");
+    if (!fotoBase64 || !descrizioneCorretta.trim() || !descrizioneSbagliata1.trim() || !descrizioneSbagliata2.trim()) {
+      alert("Inserisci una foto e tutte e 3 le descrizioni");
       return;
     }
 
     try {
       if (ricordoDaModificare) {
-        modificaRicordo(ricordoDaModificare, descrizione, categoria || undefined);
+        modificaRicordo(
+          ricordoDaModificare, 
+          descrizioneCorretta, 
+          descrizioneSbagliata1, 
+          descrizioneSbagliata2,
+          categoria || undefined
+        );
         setMessaggioSuccesso("✅ Ricordo modificato con successo!");
       } else {
         setMessaggioSuccesso("🗜️ Compressione immagine in corso...");
-        await salvaRicordo(fotoBase64, descrizione, categoria || undefined);
+        await salvaRicordo(
+          fotoBase64, 
+          descrizioneCorretta, 
+          descrizioneSbagliata1, 
+          descrizioneSbagliata2,
+          categoria || undefined
+        );
         setMessaggioSuccesso("✅ Ricordo salvato con successo!");
       }
 
@@ -91,7 +107,9 @@ export default function PannelloRicordi({ onChiudi }: PannelloRicordiProps) {
     const ricordo = ricordi.find(r => r.id === id);
     if (ricordo) {
       setFotoBase64(ricordo.foto);
-      setDescrizione(ricordo.descrizione);
+      setDescrizioneCorretta(ricordo.descrizioneCorretta);
+      setDescrizioneSbagliata1(ricordo.descrizioneSbagliata1);
+      setDescrizioneSbagliata2(ricordo.descrizioneSbagliata2);
       setCategoria(ricordo.categoria || "");
       setRicordoDaModificare(id);
     }
@@ -171,15 +189,41 @@ export default function PannelloRicordi({ onChiudi }: PannelloRicordiProps) {
             {/* Dettagli */}
             <div className="space-y-4">
               <div>
-                <label className="block text-lg font-semibold text-slate-700 mb-2">
-                  Descrizione *
+                <label className="block text-lg font-semibold text-emerald-700 mb-2">
+                  ✓ Descrizione Corretta *
                 </label>
                 <input
                   type="text"
-                  value={descrizione}
-                  onChange={(e) => setDescrizione(e.target.value)}
-                  placeholder="Es: Foto Matrimonio, Lago del Turano 1980..."
-                  className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
+                  value={descrizioneCorretta}
+                  onChange={(e) => setDescrizioneCorretta(e.target.value)}
+                  placeholder="Es: Foto del matrimonio con Anna"
+                  className="w-full px-4 py-3 border-2 border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-lg bg-emerald-50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-lg font-semibold text-amber-700 mb-2">
+                  ✗ Descrizione Sbagliata 1 *
+                </label>
+                <input
+                  type="text"
+                  value={descrizioneSbagliata1}
+                  onChange={(e) => setDescrizioneSbagliata1(e.target.value)}
+                  placeholder="Es: Foto delle vacanze al mare"
+                  className="w-full px-4 py-3 border-2 border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-lg bg-amber-50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-lg font-semibold text-amber-700 mb-2">
+                  ✗ Descrizione Sbagliata 2 *
+                </label>
+                <input
+                  type="text"
+                  value={descrizioneSbagliata2}
+                  onChange={(e) => setDescrizioneSbagliata2(e.target.value)}
+                  placeholder="Es: Foto della festa di compleanno"
+                  className="w-full px-4 py-3 border-2 border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-lg bg-amber-50"
                 />
               </div>
 
@@ -241,13 +285,21 @@ export default function PannelloRicordi({ onChiudi }: PannelloRicordiProps) {
                 >
                   <img
                     src={ricordo.foto}
-                    alt={ricordo.descrizione}
+                    alt={ricordo.descrizioneCorretta}
                     className="w-full h-48 object-cover"
                   />
                   <div className="p-4">
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">
-                      {ricordo.descrizione}
-                    </h3>
+                    <div className="space-y-1 mb-2">
+                      <p className="text-sm font-semibold text-emerald-700">
+                        ✓ {ricordo.descrizioneCorretta}
+                      </p>
+                      <p className="text-xs text-amber-700">
+                        ✗ {ricordo.descrizioneSbagliata1}
+                      </p>
+                      <p className="text-xs text-amber-700">
+                        ✗ {ricordo.descrizioneSbagliata2}
+                      </p>
+                    </div>
                     {ricordo.categoria && (
                       <p className="text-sm text-slate-600 mb-3">
                         📁 {ricordo.categoria}

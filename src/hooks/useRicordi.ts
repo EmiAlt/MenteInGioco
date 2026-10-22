@@ -4,7 +4,9 @@ import { comprimiImmagine, verificaSpazioLocalStorage, formattaDimensione } from
 export interface Ricordo {
   id: string;
   foto: string; // base64 compresso
-  descrizione: string;
+  descrizioneCorretta: string;
+  descrizioneSbagliata1: string;
+  descrizioneSbagliata2: string;
   categoria?: string;
   dataCreazione: string;
 }
@@ -34,7 +36,13 @@ export function useRicordi() {
     console.log("[RICORDI] 📂 Ricordi caricati dal localStorage:", ricordiCaricati.length);
   }, []);
 
-  const salvaRicordo = async (foto: string, descrizione: string, categoria?: string): Promise<Ricordo | null> => {
+  const salvaRicordo = async (
+    foto: string, 
+    descrizioneCorretta: string,
+    descrizioneSbagliata1: string,
+    descrizioneSbagliata2: string,
+    categoria?: string
+  ): Promise<Ricordo | null> => {
     try {
       // Comprimi l'immagine prima di salvarla
       console.log("[RICORDI] 🗜️ Compressione immagine in corso...");
@@ -43,7 +51,9 @@ export function useRicordi() {
       const nuovoRicordo: Ricordo = {
         id: `ricordo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         foto: fotoCompressa,
-        descrizione,
+        descrizioneCorretta,
+        descrizioneSbagliata1,
+        descrizioneSbagliata2,
         categoria,
         dataCreazione: new Date().toISOString(),
       };
@@ -62,7 +72,7 @@ export function useRicordi() {
           try {
             // Salva immediatamente in localStorage
             localStorage.setItem(STORAGE_KEY, JSON.stringify(nuoviRicordi));
-            console.log("[RICORDI] 💾 Ricordo salvato:", descrizione, "| Totale:", nuoviRicordi.length);
+            console.log("[RICORDI] 💾 Ricordo salvato:", descrizioneCorretta, "| Totale:", nuoviRicordi.length);
             console.log("[RICORDI] 📊 Dimensione immagine:", formattaDimensione(dimensioneDatiKB));
             resolve(nuovoRicordo);
           } catch (error) {
@@ -95,10 +105,16 @@ export function useRicordi() {
     });
   };
 
-  const modificaRicordo = (id: string, descrizione: string, categoria?: string) => {
+  const modificaRicordo = (
+    id: string, 
+    descrizioneCorretta: string,
+    descrizioneSbagliata1: string,
+    descrizioneSbagliata2: string,
+    categoria?: string
+  ) => {
     setRicordi(prev => {
       const nuoviRicordi = prev.map(r =>
-        r.id === id ? { ...r, descrizione, categoria } : r
+        r.id === id ? { ...r, descrizioneCorretta, descrizioneSbagliata1, descrizioneSbagliata2, categoria } : r
       );
       localStorage.setItem(STORAGE_KEY, JSON.stringify(nuoviRicordi));
       console.log("[RICORDI] ✏️ Ricordo modificato | Totale:", nuoviRicordi.length);
