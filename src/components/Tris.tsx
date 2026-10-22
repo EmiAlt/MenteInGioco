@@ -21,6 +21,7 @@ export default function Tris({ onChiudi }: TrisProps) {
     setBoard(Array(9).fill(null));
     setCurrentPlayer('X');
     setWinner(null);
+    setWinningCells([]);
     setGameState('playing');
   }
 

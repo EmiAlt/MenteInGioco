@@ -25,6 +25,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
     setBoard(createEmptyBoard());
     setCurrentPlayer('player');
     setWinner(null);
+    setWinningCells([]);
     setGameState('playing');
   }
 
