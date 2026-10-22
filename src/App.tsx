@@ -325,27 +325,24 @@ function App() {
               <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={handleInizia}
-                  className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-lg shadow transition-all duration-200"
+                  className="p-2 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-md shadow transition-all duration-200"
                 >
-                  <div className="text-3xl mb-1">📝</div>
-                  <div className="text-sm font-bold">Quiz</div>
-                  <div className="text-xs opacity-90">{numeroDomande} domande</div>
+                  <div className="text-2xl mb-1">📝</div>
+                  <div className="text-xs font-bold">Quiz</div>
                 </button>
                 <button
                   onClick={() => setGiocoAttivo("cruciverba")}
-                  className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-lg shadow transition-all duration-200"
+                  className="p-2 bg-gradient-to-br from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-md shadow transition-all duration-200"
                 >
-                  <div className="text-3xl mb-1">🧩</div>
-                  <div className="text-sm font-bold">Cruciverba</div>
-                  <div className="text-xs opacity-90">Parole</div>
+                  <div className="text-2xl mb-1">🧩</div>
+                  <div className="text-xs font-bold">Cruciverba</div>
                 </button>
                 <button
                   onClick={() => setGiocoAttivo("proverbi")}
-                  className="p-3 bg-gradient-to-br from-amber-600 to-yellow-700 hover:from-amber-700 hover:to-yellow-800 text-white rounded-lg shadow transition-all duration-200"
+                  className="p-2 bg-gradient-to-br from-amber-600 to-yellow-700 hover:from-amber-700 hover:to-yellow-800 text-white rounded-md shadow transition-all duration-200"
                 >
-                  <div className="text-3xl mb-1">📜</div>
-                  <div className="text-sm font-bold">Proverbi</div>
-                  <div className="text-xs opacity-90">Modi di dire</div>
+                  <div className="text-2xl mb-1">📜</div>
+                  <div className="text-xs font-bold">Proverbi</div>
                 </button>
               </div>
             </div>
@@ -356,27 +353,24 @@ function App() {
               <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={() => setGiocoAttivo("memory")}
-                  className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow transition-all duration-200"
+                  className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-md shadow transition-all duration-200"
                 >
-                  <div className="text-3xl mb-1">🃏</div>
-                  <div className="text-sm font-bold">Memory</div>
-                  <div className="text-xs opacity-90">Coppie</div>
+                  <div className="text-2xl mb-1">🃏</div>
+                  <div className="text-xs font-bold">Memory</div>
                 </button>
                 <button
                   onClick={() => setGiocoAttivo("intruso")}
-                  className="p-3 bg-gradient-to-br from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white rounded-lg shadow transition-all duration-200"
+                  className="p-2 bg-gradient-to-br from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white rounded-md shadow transition-all duration-200"
                 >
-                  <div className="text-3xl mb-1">🔍</div>
-                  <div className="text-sm font-bold">Intruso</div>
-                  <div className="text-xs opacity-90">Diverso</div>
+                  <div className="text-2xl mb-1">🔍</div>
+                  <div className="text-xs font-bold">Intruso</div>
                 </button>
                 <button
                   onClick={() => setGiocoAttivo("ombre")}
-                  className="p-3 bg-gradient-to-br from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black text-white rounded-lg shadow transition-all duration-200"
+                  className="p-2 bg-gradient-to-br from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black text-white rounded-md shadow transition-all duration-200"
                 >
-                  <div className="text-3xl mb-1">🌑</div>
-                  <div className="text-sm font-bold">Ombre</div>
-                  <div className="text-xs opacity-90">Sagome</div>
+                  <div className="text-2xl mb-1">🌑</div>
+                  <div className="text-xs font-bold">Ombre</div>
                 </button>
               </div>
             </div>
@@ -387,27 +381,24 @@ function App() {
               <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={() => setGiocoAttivo("canzone")}
-                  className="p-3 bg-gradient-to-br from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-lg shadow transition-all duration-200"
+                  className="p-2 bg-gradient-to-br from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-md shadow transition-all duration-200"
                 >
-                  <div className="text-3xl mb-1">🎶</div>
-                  <div className="text-sm font-bold">Canzoni</div>
-                  <div className="text-xs opacity-90">Testo</div>
+                  <div className="text-2xl mb-1">🎶</div>
+                  <div className="text-xs font-bold">Canzoni</div>
                 </button>
                 <button
                   onClick={() => setGiocoAttivo("puzzle")}
-                  className="p-3 bg-gradient-to-br from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-lg shadow transition-all duration-200"
+                  className="p-2 bg-gradient-to-br from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-md shadow transition-all duration-200"
                 >
-                  <div className="text-3xl mb-1">🖼️</div>
-                  <div className="text-sm font-bold">Puzzle</div>
-                  <div className="text-xs opacity-90">Immagini</div>
+                  <div className="text-2xl mb-1">🖼️</div>
+                  <div className="text-xs font-bold">Puzzle</div>
                 </button>
                 <button
                   onClick={() => setGiocoAttivo("valigia")}
-                  className="p-3 bg-gradient-to-br from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg shadow transition-all duration-200"
+                  className="p-2 bg-gradient-to-br from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-md shadow transition-all duration-200"
                 >
-                  <div className="text-3xl mb-1">🧳</div>
-                  <div className="text-sm font-bold">Valigia</div>
-                  <div className="text-xs opacity-90">Oggetti</div>
+                  <div className="text-2xl mb-1">🧳</div>
+                  <div className="text-xs font-bold">Valigia</div>
                 </button>
               </div>
             </div>
@@ -418,27 +409,24 @@ function App() {
               <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={() => setGiocoAttivo("memory-vita")}
-                  className="p-3 bg-gradient-to-br from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white rounded-lg shadow transition-all duration-200"
+                  className="p-2 bg-gradient-to-br from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white rounded-md shadow transition-all duration-200"
                 >
-                  <div className="text-3xl mb-1">📸</div>
-                  <div className="text-sm font-bold">Memory Vita</div>
-                  <div className="text-xs opacity-90">Foto personali</div>
+                  <div className="text-2xl mb-1">📸</div>
+                  <div className="text-xs font-bold">Memory Vita</div>
                 </button>
                 <button
                   onClick={() => setGiocoAttivo("associazioni")}
-                  className="p-3 bg-gradient-to-br from-fuchsia-500 to-pink-600 hover:from-fuchsia-600 hover:to-pink-700 text-white rounded-lg shadow transition-all duration-200"
+                  className="p-2 bg-gradient-to-br from-fuchsia-500 to-pink-600 hover:from-fuchsia-600 hover:to-pink-700 text-white rounded-md shadow transition-all duration-200"
                 >
-                  <div className="text-3xl mb-1">🔗</div>
-                  <div className="text-sm font-bold">Associazioni</div>
-                  <div className="text-xs opacity-90">Concetti</div>
+                  <div className="text-2xl mb-1">🔗</div>
+                  <div className="text-xs font-bold">Associazioni</div>
                 </button>
                 <button
                   onClick={() => setVistaCorrente("ricordi")}
-                  className="p-3 bg-gradient-to-br from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white rounded-lg shadow transition-all duration-200"
+                  className="p-2 bg-gradient-to-br from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white rounded-md shadow transition-all duration-200"
                 >
-                  <div className="text-3xl mb-1">📚</div>
-                  <div className="text-sm font-bold">Gestisci</div>
-                  <div className="text-xs opacity-90">I tuoi ricordi</div>
+                  <div className="text-2xl mb-1">📚</div>
+                  <div className="text-xs font-bold">Gestisci</div>
                 </button>
               </div>
             </div>
@@ -449,11 +437,10 @@ function App() {
                 <h3 className="text-sm font-semibold text-slate-700 text-left">⏰ Orientamento</h3>
                 <button
                   onClick={() => setGiocoAttivo("orologio")}
-                  className="w-full p-3 bg-gradient-to-br from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white rounded-lg shadow transition-all duration-200"
+                  className="w-full p-2 bg-gradient-to-br from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white rounded-md shadow transition-all duration-200"
                 >
-                  <div className="text-3xl mb-1">⏰</div>
-                  <div className="text-sm font-bold">Orologio</div>
-                  <div className="text-xs opacity-90">Che ore sono?</div>
+                  <div className="text-2xl mb-1">⏰</div>
+                  <div className="text-xs font-bold">Orologio</div>
                 </button>
               </div>
               <div className="space-y-2">
@@ -461,18 +448,15 @@ function App() {
                 <button
                   onClick={handleGeneraAI}
                   disabled={caricamentoAI}
-                  className="w-full p-3 bg-gradient-to-br from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-lg shadow transition-all duration-200"
+                  className="w-full p-2 bg-gradient-to-br from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-md shadow transition-all duration-200"
                 >
                   {caricamentoAI ? (
-                    <div className="text-3xl mb-1 animate-spin">⚙️</div>
+                    <div className="text-2xl mb-1 animate-spin">⚙️</div>
                   ) : (
-                    <div className="text-3xl mb-1">🤖</div>
+                    <div className="text-2xl mb-1">🤖</div>
                   )}
-                  <div className="text-sm font-bold">
+                  <div className="text-xs font-bold">
                     {caricamentoAI ? "Generando..." : "Personalizza"}
-                  </div>
-                  <div className="text-xs opacity-90">
-                    {caricamentoAI ? "Attendi..." : `Per ${profiloPaziente.nome}`}
                   </div>
                 </button>
               </div>
@@ -483,11 +467,10 @@ function App() {
               <h3 className="text-sm font-semibold text-slate-700 text-left">💾 Dati</h3>
               <button
                 onClick={handleCaricaJSON}
-                className="w-full p-3 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow transition-all duration-200"
+                className="w-full p-2 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-md shadow transition-all duration-200"
               >
-                <div className="text-3xl mb-1">📥</div>
-                <div className="text-sm font-bold">Carica Dati Paziente</div>
-                <div className="text-xs opacity-90">Importa file JSON</div>
+                <div className="text-2xl mb-1">📥</div>
+                <div className="text-xs font-bold">Carica Dati Paziente</div>
               </button>
               <input
                 ref={fileInputRef}
