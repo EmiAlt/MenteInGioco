@@ -317,161 +317,107 @@ function App() {
 
       {/* ─── SCHERMATA BENVENUTO ─── */}
       {fase === "benvenuto" && (
-        <div className="flex-1 flex flex-col items-center justify-start px-4 py-4 overflow-y-auto">
-          <div className="max-w-5xl w-full text-center space-y-3 my-auto">
+        <div className="flex-1 flex flex-col items-center justify-start px-3 py-3 overflow-y-auto">
+          <div className="w-full max-w-md space-y-2">
             {/* Sezione: Quiz e Giochi di Parole */}
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-slate-700 text-left">📝 Quiz e Giochi di Parole</h3>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  onClick={handleInizia}
-                  className="p-2 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-md shadow transition-all duration-200"
-                >
-                  <div className="text-2xl mb-1">📝</div>
-                  <div className="text-xs font-bold">Quiz</div>
+            <div>
+              <h3 className="text-xs font-semibold text-slate-700 mb-1">📝 Quiz e Parole</h3>
+              <div className="grid grid-cols-3 gap-1">
+                <button onClick={handleInizia} className="aspect-square p-1 bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded shadow-sm flex flex-col items-center justify-center">
+                  <div className="text-xl">📝</div>
+                  <div className="text-[10px] font-bold mt-0.5">Quiz</div>
                 </button>
-                <button
-                  onClick={() => setGiocoAttivo("cruciverba")}
-                  className="p-2 bg-gradient-to-br from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-md shadow transition-all duration-200"
-                >
-                  <div className="text-2xl mb-1">🧩</div>
-                  <div className="text-xs font-bold">Cruciverba</div>
+                <button onClick={() => setGiocoAttivo("cruciverba")} className="aspect-square p-1 bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded shadow-sm flex flex-col items-center justify-center">
+                  <div className="text-xl">🧩</div>
+                  <div className="text-[10px] font-bold mt-0.5">Cruciverba</div>
                 </button>
-                <button
-                  onClick={() => setGiocoAttivo("proverbi")}
-                  className="p-2 bg-gradient-to-br from-amber-600 to-yellow-700 hover:from-amber-700 hover:to-yellow-800 text-white rounded-md shadow transition-all duration-200"
-                >
-                  <div className="text-2xl mb-1">📜</div>
-                  <div className="text-xs font-bold">Proverbi</div>
+                <button onClick={() => setGiocoAttivo("proverbi")} className="aspect-square p-1 bg-gradient-to-br from-amber-600 to-yellow-700 text-white rounded shadow-sm flex flex-col items-center justify-center">
+                  <div className="text-xl">📜</div>
+                  <div className="text-[10px] font-bold mt-0.5">Proverbi</div>
                 </button>
               </div>
             </div>
 
             {/* Sezione: Memoria e Associazione */}
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-slate-700 text-left">🧠 Memoria e Associazione</h3>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  onClick={() => setGiocoAttivo("memory")}
-                  className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-md shadow transition-all duration-200"
-                >
-                  <div className="text-2xl mb-1">🃏</div>
-                  <div className="text-xs font-bold">Memory</div>
+            <div>
+              <h3 className="text-xs font-semibold text-slate-700 mb-1">🧠 Memoria</h3>
+              <div className="grid grid-cols-3 gap-1">
+                <button onClick={() => setGiocoAttivo("memory")} className="aspect-square p-1 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded shadow-sm flex flex-col items-center justify-center">
+                  <div className="text-xl">🃏</div>
+                  <div className="text-[10px] font-bold mt-0.5">Memory</div>
                 </button>
-                <button
-                  onClick={() => setGiocoAttivo("intruso")}
-                  className="p-2 bg-gradient-to-br from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white rounded-md shadow transition-all duration-200"
-                >
-                  <div className="text-2xl mb-1">🔍</div>
-                  <div className="text-xs font-bold">Intruso</div>
+                <button onClick={() => setGiocoAttivo("intruso")} className="aspect-square p-1 bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded shadow-sm flex flex-col items-center justify-center">
+                  <div className="text-xl">🔍</div>
+                  <div className="text-[10px] font-bold mt-0.5">Intruso</div>
                 </button>
-                <button
-                  onClick={() => setGiocoAttivo("ombre")}
-                  className="p-2 bg-gradient-to-br from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black text-white rounded-md shadow transition-all duration-200"
-                >
-                  <div className="text-2xl mb-1">🌑</div>
-                  <div className="text-xs font-bold">Ombre</div>
+                <button onClick={() => setGiocoAttivo("ombre")} className="aspect-square p-1 bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded shadow-sm flex flex-col items-center justify-center">
+                  <div className="text-xl">🌑</div>
+                  <div className="text-[10px] font-bold mt-0.5">Ombre</div>
                 </button>
               </div>
             </div>
 
             {/* Sezione: Musica e Ricordi */}
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-slate-700 text-left">🎵 Musica e Ricordi</h3>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  onClick={() => setGiocoAttivo("canzone")}
-                  className="p-2 bg-gradient-to-br from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-md shadow transition-all duration-200"
-                >
-                  <div className="text-2xl mb-1">🎶</div>
-                  <div className="text-xs font-bold">Canzoni</div>
+            <div>
+              <h3 className="text-xs font-semibold text-slate-700 mb-1">🎵 Musica e Ricordi</h3>
+              <div className="grid grid-cols-3 gap-1">
+                <button onClick={() => setGiocoAttivo("canzone")} className="aspect-square p-1 bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded shadow-sm flex flex-col items-center justify-center">
+                  <div className="text-xl">🎶</div>
+                  <div className="text-[10px] font-bold mt-0.5">Canzoni</div>
                 </button>
-                <button
-                  onClick={() => setGiocoAttivo("puzzle")}
-                  className="p-2 bg-gradient-to-br from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-md shadow transition-all duration-200"
-                >
-                  <div className="text-2xl mb-1">🖼️</div>
-                  <div className="text-xs font-bold">Puzzle</div>
+                <button onClick={() => setGiocoAttivo("puzzle")} className="aspect-square p-1 bg-gradient-to-br from-orange-500 to-red-600 text-white rounded shadow-sm flex flex-col items-center justify-center">
+                  <div className="text-xl">🖼️</div>
+                  <div className="text-[10px] font-bold mt-0.5">Puzzle</div>
                 </button>
-                <button
-                  onClick={() => setGiocoAttivo("valigia")}
-                  className="p-2 bg-gradient-to-br from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-md shadow transition-all duration-200"
-                >
-                  <div className="text-2xl mb-1">🧳</div>
-                  <div className="text-xs font-bold">Valigia</div>
+                <button onClick={() => setGiocoAttivo("valigia")} className="aspect-square p-1 bg-gradient-to-br from-sky-500 to-blue-600 text-white rounded shadow-sm flex flex-col items-center justify-center">
+                  <div className="text-xl">🧳</div>
+                  <div className="text-[10px] font-bold mt-0.5">Valigia</div>
                 </button>
               </div>
             </div>
 
             {/* Sezione: Terapia della Reminiscenza */}
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-slate-700 text-left">💭 Terapia della Reminiscenza</h3>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  onClick={() => setGiocoAttivo("memory-vita")}
-                  className="p-2 bg-gradient-to-br from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white rounded-md shadow transition-all duration-200"
-                >
-                  <div className="text-2xl mb-1">📸</div>
-                  <div className="text-xs font-bold">Memory Vita</div>
+            <div>
+              <h3 className="text-xs font-semibold text-slate-700 mb-1">💭 Reminiscenza</h3>
+              <div className="grid grid-cols-3 gap-1">
+                <button onClick={() => setGiocoAttivo("memory-vita")} className="aspect-square p-1 bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded shadow-sm flex flex-col items-center justify-center">
+                  <div className="text-xl">📸</div>
+                  <div className="text-[10px] font-bold mt-0.5">Memory Vita</div>
                 </button>
-                <button
-                  onClick={() => setGiocoAttivo("associazioni")}
-                  className="p-2 bg-gradient-to-br from-fuchsia-500 to-pink-600 hover:from-fuchsia-600 hover:to-pink-700 text-white rounded-md shadow transition-all duration-200"
-                >
-                  <div className="text-2xl mb-1">🔗</div>
-                  <div className="text-xs font-bold">Associazioni</div>
+                <button onClick={() => setGiocoAttivo("associazioni")} className="aspect-square p-1 bg-gradient-to-br from-fuchsia-500 to-pink-600 text-white rounded shadow-sm flex flex-col items-center justify-center">
+                  <div className="text-xl">🔗</div>
+                  <div className="text-[10px] font-bold mt-0.5">Associazioni</div>
                 </button>
-                <button
-                  onClick={() => setVistaCorrente("ricordi")}
-                  className="p-2 bg-gradient-to-br from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white rounded-md shadow transition-all duration-200"
-                >
-                  <div className="text-2xl mb-1">📚</div>
-                  <div className="text-xs font-bold">Gestisci</div>
+                <button onClick={() => setVistaCorrente("ricordi")} className="aspect-square p-1 bg-gradient-to-br from-teal-500 to-cyan-600 text-white rounded shadow-sm flex flex-col items-center justify-center">
+                  <div className="text-xl">📚</div>
+                  <div className="text-[10px] font-bold mt-0.5">Gestisci</div>
                 </button>
               </div>
             </div>
 
-            {/* Sezione: Orientamento + AI */}
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-slate-700 text-left">⏰ Orientamento</h3>
-                <button
-                  onClick={() => setGiocoAttivo("orologio")}
-                  className="w-full p-2 bg-gradient-to-br from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white rounded-md shadow transition-all duration-200"
-                >
-                  <div className="text-2xl mb-1">⏰</div>
-                  <div className="text-xs font-bold">Orologio</div>
+            {/* Sezione: Orientamento + AI + Dati */}
+            <div>
+              <h3 className="text-xs font-semibold text-slate-700 mb-1">⏰ Altro</h3>
+              <div className="grid grid-cols-3 gap-1">
+                <button onClick={() => setGiocoAttivo("orologio")} className="aspect-square p-1 bg-gradient-to-br from-indigo-500 to-blue-600 text-white rounded shadow-sm flex flex-col items-center justify-center">
+                  <div className="text-xl">⏰</div>
+                  <div className="text-[10px] font-bold mt-0.5">Orologio</div>
                 </button>
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-slate-700 text-left">🤖 AI</h3>
-                <button
-                  onClick={handleGeneraAI}
-                  disabled={caricamentoAI}
-                  className="w-full p-2 bg-gradient-to-br from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-md shadow transition-all duration-200"
-                >
+                <button onClick={handleGeneraAI} disabled={caricamentoAI} className="aspect-square p-1 bg-gradient-to-br from-purple-500 to-indigo-500 disabled:from-slate-400 disabled:to-slate-500 text-white rounded shadow-sm flex flex-col items-center justify-center">
                   {caricamentoAI ? (
-                    <div className="text-2xl mb-1 animate-spin">⚙️</div>
+                    <div className="text-xl animate-spin">⚙️</div>
                   ) : (
-                    <div className="text-2xl mb-1">🤖</div>
+                    <div className="text-xl">🤖</div>
                   )}
-                  <div className="text-xs font-bold">
-                    {caricamentoAI ? "Generando..." : "Personalizza"}
+                  <div className="text-[10px] font-bold mt-0.5">
+                    {caricamentoAI ? "..." : "AI"}
                   </div>
                 </button>
+                <button onClick={handleCaricaJSON} className="aspect-square p-1 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded shadow-sm flex flex-col items-center justify-center">
+                  <div className="text-xl">📥</div>
+                  <div className="text-[10px] font-bold mt-0.5">Dati</div>
+                </button>
               </div>
-            </div>
-
-            {/* Sezione: Carica Dati */}
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-slate-700 text-left">💾 Dati</h3>
-              <button
-                onClick={handleCaricaJSON}
-                className="w-full p-2 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-md shadow transition-all duration-200"
-              >
-                <div className="text-2xl mb-1">📥</div>
-                <div className="text-xs font-bold">Carica Dati Paziente</div>
-              </button>
               <input
                 ref={fileInputRef}
                 type="file"
