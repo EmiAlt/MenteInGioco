@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { profiloPaziente } from "../data/profiloPaziente";
+import { getProfiloPaziente } from "../data/profiloPaziente";
 
 interface CellaCruciverba {
   lettera: string;
@@ -138,33 +138,95 @@ function generaCruciverba(parole: { parola: string; definizione: string }[]): {
  * Parole predefinite basate sul profilo del paziente
  */
 function generaParoleDaProfilo(): { parola: string; definizione: string }[] {
-  const profilo = profiloPaziente;
+  const profilo = getProfiloPaziente();
   const parole: { parola: string; definizione: string }[] = [];
 
   // Parole basate sul mestiere
   if (profilo.exMestiere.toLowerCase().includes("falegname")) {
     parole.push(
-      { parola: "LEGNO", definizione: "Materiale con cui lavorava Mario" },
+      { parola: "LEGNO", definizione: `Materiale con cui lavorava ${profilo.nome}` },
       { parola: "SEGA", definizione: "Attrezzo per tagliare il legno" },
       { parola: "MARTELLO", definizione: "Attrezzo per battere i chiodi" },
       { parola: "NOCE", definizione: "Tipo di legno pregiato" }
     );
+  } else if (profilo.exMestiere.toLowerCase().includes("insegn")) {
+    parole.push(
+      { parola: "SCUOLA", definizione: `Dove lavorava ${profilo.nome}` },
+      { parola: "LIBRO", definizione: "Si legge per imparare" },
+      { parola: "ALUNNO", definizione: "Chi va a scuola" },
+      { parola: "MAESTRA", definizione: "Chi insegna ai bambini" }
+    );
+  } else if (profilo.exMestiere.toLowerCase().includes("medic") || profilo.exMestiere.toLowerCase().includes("dottor")) {
+    parole.push(
+      { parola: "OSPEDALE", definizione: `Dove lavorava ${profilo.nome}` },
+      { parola: "DOTTORE", definizione: "Chi cura i malati" },
+      { parola: "MEDICINA", definizione: "Si prende per guarire" },
+      { parola: "PAZIENTE", definizione: "Chi viene curato" }
+    );
+  } else if (profilo.exMestiere) {
+    // Parole generiche basate sul mestiere
+    parole.push(
+      { parola: "LAVORO", definizione: `Il mestiere di ${profilo.nome}` },
+      { parola: "UFFICIO", definizione: "Dove si lavora" },
+      { parola: "COLLEGA", definizione: "Chi lavora con te" }
+    );
   }
 
   // Parole basate sugli hobby
-  if (profilo.hobby.some((h) => h.toLowerCase().includes("inter"))) {
+  if (profilo.hobby.some((h: string) => h.toLowerCase().includes("inter"))) {
     parole.push(
       { parola: "INTER", definizione: "Squadra di calcio del cuore" },
       { parola: "SAN SIRO", definizione: "Stadio dove gioca l'Inter" },
       { parola: "NERAZZURRI", definizione: "Soprannome dei tifosi dell'Inter" }
     );
+  } else if (profilo.hobby.some((h: string) => h.toLowerCase().includes("milan"))) {
+    parole.push(
+      { parola: "MILAN", definizione: "Squadra di calcio" },
+      { parola: "ROSSONERI", definizione: "Soprannome dei tifosi del Milan" },
+      { parola: "SAN SIRO", definizione: "Stadio dove gioca il Milan" }
+    );
+  } else if (profilo.hobby.some((h: string) => h.toLowerCase().includes("juve"))) {
+    parole.push(
+      { parola: "JUVENTUS", definizione: "Squadra di calcio" },
+      { parola: "BIANCONERI", definizione: "Soprannome dei tifosi della Juve" }
+    );
   }
 
-  if (profilo.hobby.some((h) => h.toLowerCase().includes("orto"))) {
+  if (profilo.hobby.some((h: string) => h.toLowerCase().includes("orto"))) {
     parole.push(
       { parola: "ORTO", definizione: "Dove si coltivano le verdure" },
       { parola: "POMODORO", definizione: "Verdura rossa estiva" },
       { parola: "ZAPPA", definizione: "Attrezzo per lavorare la terra" }
+    );
+  }
+
+  if (profilo.hobby.some((h: string) => h.toLowerCase().includes("giardin"))) {
+    parole.push(
+      { parola: "FIORE", definizione: "Cresce nel giardino" },
+      { parola: "ROSA", definizione: "Fiore con le spine" },
+      { parola: "POTATORE", definizione: "Attrezzo per il giardino" }
+    );
+  }
+
+  if (profilo.hobby.some((h: string) => h.toLowerCase().includes("pesca") || h.toLowerCase().includes("caccia"))) {
+    parole.push(
+      { parola: "LAGO", definizione: "Dove si pesca" },
+      { parola: "CANN", definizione: "Attrezzo per pescare" }
+    );
+  }
+
+  if (profilo.hobby.some((h: string) => h.toLowerCase().includes("cucin"))) {
+    parole.push(
+      { parola: "CUCINA", definizione: "Dove si preparano i pasti" },
+      { parola: "PENTOLA", definizione: "Contenitore per cucinare" },
+      { parola: "RICETTA", definizione: "Istruzioni per cucinare" }
+    );
+  }
+
+  if (profilo.hobby.some((h: string) => h.toLowerCase().includes("musica") || h.toLowerCase().includes("cantar"))) {
+    parole.push(
+      { parola: "MUSICA", definizione: "Si ascolta con le orecchie" },
+      { parola: "CANTARE", definizione: "Fare musica con la voce" }
     );
   }
 
@@ -230,7 +292,7 @@ export default function GiocoCruciverba({ onChiudi }: CruciverbaProps) {
             >
               <div className="text-4xl mb-2">👤</div>
               <div className="font-bold text-lg mb-1">Basato sul Profilo</div>
-              <div className="text-sm opacity-90">Parole legate ai ricordi di {profiloPaziente.nome}</div>
+              <div className="text-sm opacity-90">Parole legate ai ricordi di {getProfiloPaziente().nome}</div>
             </button>
 
             <button

@@ -14,14 +14,42 @@ export interface ProfiloPaziente {
 }
 
 /**
- * Costante con i dati del paziente Mario
+ * Profilo di default (usato come fallback se non c'è nulla nel localStorage)
  */
-export const profiloPaziente: ProfiloPaziente = {
+export const profiloDefault: ProfiloPaziente = {
   nome: "Mario",
   annoNascita: 1950,
   exMestiere: "Falegname",
   hobby: ["Inter", "Orto"],
 };
+
+/**
+ * Costante con i dati del paziente (DEPRECATO - usa getProfiloPaziente())
+ * Mantenuta per retrocompatibilità
+ */
+export const profiloPaziente: ProfiloPaziente = profiloDefault;
+
+/**
+ * Chiave localStorage per il profilo paziente
+ */
+const PROFILO_STORAGE_KEY = "stimolazione_cognitiva_profilo_paziente";
+
+/**
+ * Legge il profilo paziente dal localStorage (sempre aggiornato)
+ * 
+ * @returns Profilo paziente corrente (da localStorage o default)
+ */
+export function getProfiloPaziente(): ProfiloPaziente {
+  try {
+    const profiloJSON = localStorage.getItem(PROFILO_STORAGE_KEY);
+    if (profiloJSON) {
+      return JSON.parse(profiloJSON);
+    }
+  } catch (error) {
+    console.error("[PROFILO] Errore nel leggere il profilo dal localStorage:", error);
+  }
+  return profiloDefault;
+}
 
 /**
  * Genera un prompt strutturato da inviare a un'API AI (LLM)
