@@ -206,16 +206,40 @@ function App() {
 
   // Vista Paziente
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col relative">
-      {/* Pulsante nascosto per accedere al Pannello Caregiver */}
-      <button
-        onClick={() => setVistaCorrente("caregiver")}
-        className="fixed top-3 right-3 z-50 w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-700 text-xs font-bold flex items-center justify-center transition-colors opacity-30 hover:opacity-100 focus:opacity-100"
-        aria-label="Accedi al Pannello Caregiver"
-        title="Pannello Caregiver"
-      >
-        ⚙
-      </button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex flex-col relative">
+      {/* Header fisso */}
+      <header className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200/60 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-center relative">
+          {/* Logo e titolo centrati */}
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-3">
+              <span className="text-4xl" aria-hidden="true">🧠</span>
+              <h1 
+                className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                style={{ fontFamily: "'Nunito', 'Quicksand', 'Comic Sans MS', sans-serif" }}
+              >
+                MenteInGioco
+              </h1>
+            </div>
+            <p className="text-sm text-slate-500 mt-1 font-medium">
+              La tua ginnastica mentale quotidiana
+            </p>
+          </div>
+
+          {/* Pulsante Caregiver */}
+          <button
+            onClick={() => setVistaCorrente("caregiver")}
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 text-sm font-bold flex items-center justify-center transition-all opacity-50 hover:opacity-100 focus:opacity-100"
+            aria-label="Accedi al Pannello Caregiver"
+            title="Pannello Caregiver"
+          >
+            ⚙️
+          </button>
+        </div>
+      </header>
+
+      {/* Spacer per l'header fisso */}
+      <div className="h-24"></div>
 
       {/* ─── SCHERMATA BENVENUTO ─── */}
       {fase === "benvenuto" && (

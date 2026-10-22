@@ -139,18 +139,25 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
   }, [sessioni]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 shadow-sm">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+      {/* Header con branding MenteInGioco */}
+      <header className="bg-white/95 backdrop-blur-sm border-b border-slate-200/60 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">
-                Pannello Caregiver
-              </h1>
-              <p className="text-sm text-slate-500 mt-1">
-                Gestione profilo paziente e statistiche
-              </p>
+            {/* Logo e titolo */}
+            <div className="flex items-center gap-3">
+              <span className="text-4xl" aria-hidden="true">🧠</span>
+              <div>
+                <h1 
+                  className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                  style={{ fontFamily: "'Nunito', 'Quicksand', 'Comic Sans MS', sans-serif" }}
+                >
+                  MenteInGioco
+                </h1>
+                <p className="text-xs text-slate-500 font-medium">
+                  Pannello Caregiver
+                </p>
+              </div>
             </div>
             <button
               onClick={onTornaAlGioco}
