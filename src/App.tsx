@@ -245,19 +245,6 @@ function App() {
       {fase === "benvenuto" && (
         <div className="flex-1 flex flex-col items-center justify-center px-4 py-4 max-h-screen overflow-hidden">
           <div className="max-w-5xl w-full text-center space-y-3">
-            {/* Header compatto */}
-            <div className="flex items-center justify-center gap-3 mb-2">
-              <div className="text-5xl" aria-hidden="true">🧠</div>
-              <div className="text-left">
-                <h1 className="text-2xl md:text-3xl font-bold text-slate-900 leading-tight">
-                  Allenamento della mente
-                </h1>
-                <p className="text-sm text-slate-600">
-                  Scegli un'attività • Prenditi il tuo tempo
-                </p>
-              </div>
-            </div>
-
             {/* Sezione: Quiz e Giochi di Parole */}
             <div className="space-y-2">
               <h3 className="text-sm font-semibold text-slate-700 text-left">📝 Quiz e Giochi di Parole</h3>
