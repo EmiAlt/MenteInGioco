@@ -64,6 +64,7 @@ function App() {
   const [staLeggendo, setStaLeggendo] = useState(false);
 
   const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Cleanup timer al unmount
   useEffect(() => {
@@ -82,6 +83,43 @@ function App() {
     setRispostaSelezionata(null);
     setDisabilitaBottoni(false);
   }, [avviaSessione]);
+
+  // ─── CARICA FILE JSON ───
+  const handleCaricaJSON = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const dati = JSON.parse(event.target?.result as string);
+        
+        // Salva in localStorage
+        localStorage.setItem("menteingioco_dati_paziente", JSON.stringify(dati));
+        
+        console.log("[UI] ✅ File JSON caricato con successo");
+        console.log("[UI] 👤 Paziente:", dati.profilo?.nome);
+        console.log("[UI] 📝 Ricordi:", dati.ricordi?.length);
+        console.log("[UI] 📊 Sessioni:", dati.storicoSessioni?.length);
+        
+        alert(`✅ Dati caricati con successo!\n\nPaziente: ${dati.profilo?.nome || "Sconosciuto"}\nRicordi: ${dati.ricordi?.length || 0}\nSessioni: ${dati.storicoSessioni?.length || 0}`);
+        
+        // Ricarica la pagina per applicare i nuovi dati
+        window.location.reload();
+      } catch (error) {
+        console.error("[UI] ❌ Errore nel parsing del file JSON:", error);
+        alert("❌ Errore nel caricamento del file. Assicurati che sia un file JSON valido.");
+      }
+    };
+    reader.readAsText(file);
+    
+    // Reset input per permettere di caricare lo stesso file di nuovo
+    e.target.value = "";
+  }, []);
 
   // ─── GENERA ESERCIZIO PERSONALIZZATO AI ───
   const handleGeneraAI = useCallback(async () => {
@@ -397,6 +435,26 @@ function App() {
                   </div>
                 </button>
               </div>
+            </div>
+
+            {/* Sezione: Carica Dati */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-slate-700 text-left">💾 Dati</h3>
+              <button
+                onClick={handleCaricaJSON}
+                className="w-full p-3 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow transition-all duration-200"
+              >
+                <div className="text-3xl mb-1">📥</div>
+                <div className="text-sm font-bold">Carica Dati Paziente</div>
+                <div className="text-xs opacity-90">Importa file JSON</div>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
             </div>
           </div>
         </div>
