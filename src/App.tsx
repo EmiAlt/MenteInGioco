@@ -14,12 +14,15 @@ import ProverbiPopolari from "./components/ProverbiPopolari";
 import ValigiaSpesa from "./components/ValigiaSpesa";
 import OrologioDigitale from "./components/OrologioDigitale";
 import TestDatiPaziente from "./components/TestDatiPaziente";
+import PannelloRicordi from "./components/PannelloRicordi";
+import MemoryVita from "./components/MemoryVita";
+import AssociazioniTematiche from "./components/AssociazioniTematiche";
 
 /** Durata del feedback visivo in millisecondi */
 const FEEDBACK_DURATION_MS = 2500;
 
 type FaseSessione = "benvenuto" | "domanda" | "feedback" | "fine";
-type VistaApp = "paziente" | "caregiver" | "test";
+type VistaApp = "paziente" | "caregiver" | "test" | "ricordi";
 type GiocoAttivo = 
   | "quiz" 
   | "cruciverba" 
@@ -30,7 +33,9 @@ type GiocoAttivo =
   | "canzone" 
   | "proverbi" 
   | "valigia" 
-  | "orologio" 
+  | "orologio"
+  | "memory-vita"
+  | "associazioni"
   | null;
 
 function App() {
@@ -258,6 +263,11 @@ function App() {
     );
   }
 
+  // Vista Pannello Ricordi
+  if (vistaCorrente === "ricordi") {
+    return <PannelloRicordi onChiudi={() => setVistaCorrente("paziente")} />;
+  }
+
   // Vista Paziente
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 flex flex-col relative">
@@ -398,6 +408,37 @@ function App() {
                   <div className="text-3xl mb-1">🧳</div>
                   <div className="text-sm font-bold">Valigia</div>
                   <div className="text-xs opacity-90">Oggetti</div>
+                </button>
+              </div>
+            </div>
+
+            {/* Sezione: Terapia della Reminiscenza */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-slate-700 text-left">💭 Terapia della Reminiscenza</h3>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => setGiocoAttivo("memory-vita")}
+                  className="p-3 bg-gradient-to-br from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white rounded-lg shadow transition-all duration-200"
+                >
+                  <div className="text-3xl mb-1">📸</div>
+                  <div className="text-sm font-bold">Memory Vita</div>
+                  <div className="text-xs opacity-90">Foto personali</div>
+                </button>
+                <button
+                  onClick={() => setGiocoAttivo("associazioni")}
+                  className="p-3 bg-gradient-to-br from-fuchsia-500 to-pink-600 hover:from-fuchsia-600 hover:to-pink-700 text-white rounded-lg shadow transition-all duration-200"
+                >
+                  <div className="text-3xl mb-1">🔗</div>
+                  <div className="text-sm font-bold">Associazioni</div>
+                  <div className="text-xs opacity-90">Concetti</div>
+                </button>
+                <button
+                  onClick={() => setVistaCorrente("ricordi")}
+                  className="p-3 bg-gradient-to-br from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white rounded-lg shadow transition-all duration-200"
+                >
+                  <div className="text-3xl mb-1">📚</div>
+                  <div className="text-sm font-bold">Gestisci</div>
+                  <div className="text-xs opacity-90">I tuoi ricordi</div>
                 </button>
               </div>
             </div>
@@ -688,6 +729,14 @@ function App() {
 
       {giocoAttivo === "orologio" && (
         <OrologioDigitale onChiudi={() => setGiocoAttivo(null)} />
+      )}
+
+      {giocoAttivo === "memory-vita" && (
+        <MemoryVita onChiudi={() => setGiocoAttivo(null)} />
+      )}
+
+      {giocoAttivo === "associazioni" && (
+        <AssociazioniTematiche onChiudi={() => setGiocoAttivo(null)} />
       )}
     </div>
   );
