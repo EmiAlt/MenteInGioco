@@ -1,11 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { getProfiloPaziente } from "../data/profiloPaziente";
 
 interface CellaCruciverba {
   lettera: string;
   numero?: number;
-  attiva: boolean; // true = casella bianca (fa parte di una parola), false = casella nera
-  rivelata: boolean;
+  attiva: boolean;
+}
+
+interface ParolaInserita {
+  parola: string;
+  definizione: string;
+  direzione: "orizzontale" | "verticale";
+  riga: number;
+  colonna: number;
+  numero?: number;
 }
 
 interface CruciverbaProps {
@@ -13,161 +21,254 @@ interface CruciverbaProps {
 }
 
 /**
- * Genera un cruciverba semplice basato su parole e definizioni
+ * Genera un cruciverba con algoritmo migliorato:
+ * 1. Ordina parole per lunghezza (decrescente)
+ * 2. Posiziona la più lunga al centro
+ * 3. Per ogni parola successiva, cerca intersezioni ottimali
+ * 4. Numera correttamente da sinistra a destra, alto in basso
  */
-function generaCruciverba(parole: { parola: string; definizione: string }[]): {
+function generaCruciverba(paroleInput: { parola: string; definizione: string }[]): {
   griglia: CellaCruciverba[][];
-  paroleInserite: { parola: string; definizione: string; direzione: "orizzontale" | "verticale"; riga: number; colonna: number }[];
+  paroleInserite: ParolaInserita[];
+  boundingBox: { minRiga: number; maxRiga: number; minCol: number; maxCol: number };
 } {
   const dimensione = 15;
   
-  // Inizializza griglia con tutte caselle nere (attiva: false)
+  // Inizializza griglia con tutte caselle nere
   const griglia: CellaCruciverba[][] = Array(dimensione)
     .fill(null)
     .map(() =>
       Array(dimensione)
         .fill(null)
-        .map(() => ({ lettera: "", attiva: false, rivelata: false }))
+        .map(() => ({ lettera: "", attiva: false }))
     );
 
-  const paroleInserite: any[] = [];
-  let numeroProgressivo = 1;
+  const paroleInserite: ParolaInserita[] = [];
 
-  // Funzione helper per verificare se una parola può essere inserita
-  const puoInserireParola = (
-    riga: number, 
-    colonna: number, 
-    parola: string, 
-    direzione: "orizzontale" | "verticale"
-  ): boolean => {
-    const lunghezza = parola.length;
-    
-    // Controlla bounds
-    if (direzione === "orizzontale") {
-      if (colonna < 0 || colonna + lunghezza > dimensione) return false;
-    } else {
-      if (riga < 0 || riga + lunghezza > dimensione) return false;
-    }
+  // Ordina parole per lunghezza (decrescente) per massimizzare incroci
+  const paroleOrdinate = [...paroleInput]
+    .map(p => ({ ...p, parola: p.parola.toUpperCase() }))
+    .sort((a, b) => b.parola.length - a.parola.length)
+    .slice(0, 10); // Max 10 parole
 
-    // Controlla ogni casella della parola
-    for (let k = 0; k < lunghezza; k++) {
-      const r = direzione === "verticale" ? riga + k : riga;
-      const c = direzione === "orizzontale" ? colonna + k : colonna;
-      const cella = griglia[r][c];
-      
-      // Se la casella è già attiva e ha una lettera diversa, non va bene
-      if (cella.attiva && cella.lettera !== "" && cella.lettera !== parola[k]) {
-        return false;
-      }
-      
-      // Se la casella è attiva e la lettera è vuota, controlla che non ci siano conflitti
-      if (cella.attiva && cella.lettera === "") {
-        return false;
-      }
-    }
-
-    // Controlla caselle adiacenti (devono essere nere o fuori bounds)
-    // Casella prima dell'inizio
-    if (direzione === "orizzontale") {
-      if (colonna > 0 && griglia[riga][colonna - 1].attiva) return false;
-      if (colonna + lunghezza < dimensione && griglia[riga][colonna + lunghezza].attiva) return false;
-    } else {
-      if (riga > 0 && griglia[riga - 1][colonna].attiva) return false;
-      if (riga + lunghezza < dimensione && griglia[riga + lunghezza][colonna].attiva) return false;
-    }
-
-    return true;
-  };
-
-  // Funzione helper per inserire una parola
-  const inserisciParola = (
-    riga: number, 
-    colonna: number, 
-    parola: string, 
-    direzione: "orizzontale" | "verticale"
-  ) => {
-    for (let k = 0; k < parola.length; k++) {
-      const r = direzione === "verticale" ? riga + k : riga;
-      const c = direzione === "orizzontale" ? colonna + k : colonna;
-      griglia[r][c].lettera = parola[k];
-      griglia[r][c].attiva = true;
-    }
-  };
-
-  // Inserisci la prima parola in orizzontale al centro
-  if (parole.length > 0) {
-    const primaParola = parole[0];
-    const parolaUpper = primaParola.parola.toUpperCase();
+  // Posiziona la prima parola (la più lunga) al centro orizzontalmente
+  if (paroleOrdinate.length > 0) {
+    const primaParola = paroleOrdinate[0];
     const riga = Math.floor(dimensione / 2);
-    const colonna = Math.floor((dimensione - parolaUpper.length) / 2);
+    const colonna = Math.floor((dimensione - primaParola.parola.length) / 2);
 
-    inserisciParola(riga, colonna, parolaUpper, "orizzontale");
-    griglia[riga][colonna].numero = numeroProgressivo;
-    
+    for (let i = 0; i < primaParola.parola.length; i++) {
+      griglia[riga][colonna + i].lettera = primaParola.parola[i];
+      griglia[riga][colonna + i].attiva = true;
+    }
+
     paroleInserite.push({
-      ...primaParola,
-      parola: parolaUpper,
+      parola: primaParola.parola,
+      definizione: primaParola.definizione,
       direzione: "orizzontale",
       riga,
       colonna,
-      numero: numeroProgressivo,
     });
-    numeroProgressivo++;
   }
 
-  // Prova a inserire le altre parole
-  for (let idx = 1; idx < parole.length && idx < 10; idx++) {
-    const parolaObj = parole[idx];
-    const parola = parolaObj.parola.toUpperCase();
-    let inserita = false;
+  // Per ogni parola successiva, cerca la migliore intersezione
+  for (let idx = 1; idx < paroleOrdinate.length; idx++) {
+    const parolaObj = paroleOrdinate[idx];
+    const parola = parolaObj.parola;
+    
+    let migliorPosizionamento: {
+      riga: number;
+      colonna: number;
+      direzione: "orizzontale" | "verticale";
+      punteggio: number;
+    } | null = null;
 
-    // Cerca intersezioni con parole già inserite
+    // Prova tutte le combinazioni con parole già inserite
     for (const parolaGia of paroleInserite) {
-      if (inserita) break;
-
-      const parolaGiaTesto = parolaGia.parola;
-      const nuovaDirezione = parolaGia.direzione === "orizzontale" ? "verticale" : "orizzontale";
+      const direzioneNuova = parolaGia.direzione === "orizzontale" ? "verticale" : "orizzontale";
 
       // Prova ogni possibile intersezione
-      for (let i = 0; i < parola.length && !inserita; i++) {
-        for (let j = 0; j < parolaGiaTesto.length && !inserita; j++) {
-          if (parola[i] === parolaGiaTesto[j]) {
-            let nuovaRiga, nuovaColonna;
+      for (let i = 0; i < parola.length; i++) {
+        for (let j = 0; j < parolaGia.parola.length; j++) {
+          // Controlla se le lettere coincidono
+          if (parola[i] !== parolaGia.parola[j]) continue;
 
-            if (nuovaDirezione === "verticale") {
-              nuovaRiga = parolaGia.riga - i;
-              nuovaColonna = parolaGia.colonna + j;
-            } else {
-              nuovaRiga = parolaGia.riga + j;
-              nuovaColonna = parolaGia.colonna - i;
-            }
+          let rigaNuova, colNuova;
 
-            if (puoInserireParola(nuovaRiga, nuovaColonna, parola, nuovaDirezione)) {
-              inserisciParola(nuovaRiga, nuovaColonna, parola, nuovaDirezione);
+          if (direzioneNuova === "verticale") {
+            rigaNuova = parolaGia.riga - i;
+            colNuova = parolaGia.colonna + j;
+          } else {
+            rigaNuova = parolaGia.riga + j;
+            colNuova = parolaGia.colonna - i;
+          }
 
-              if (!griglia[nuovaRiga][nuovaColonna].numero) {
-                griglia[nuovaRiga][nuovaColonna].numero = numeroProgressivo;
-                numeroProgressivo++;
-              }
+          // Verifica se il posizionamento è valido
+          if (!puoInserire(griglia, rigaNuova, colNuova, parola, direzioneNuova, dimensione)) {
+            continue;
+          }
 
-              paroleInserite.push({
-                ...parolaObj,
-                parola: parola,
-                direzione: nuovaDirezione,
-                riga: nuovaRiga,
-                colonna: nuovaColonna,
-                numero: griglia[nuovaRiga][nuovaColonna].numero,
-              });
+          // Calcola punteggio (numero di intersezioni)
+          const punteggio = calcolaPunteggio(griglia, rigaNuova, colNuova, parola, direzioneNuova);
 
-              inserita = true;
-            }
+          if (!migliorPosizionamento || punteggio > migliorPosizionamento.punteggio) {
+            migliorPosizionamento = {
+              riga: rigaNuova,
+              colonna: colNuova,
+              direzione: direzioneNuova,
+              punteggio,
+            };
           }
         }
       }
     }
+
+    // Inserisci la parola nel miglior posizionamento trovato
+    if (migliorPosizionamento) {
+      const { riga, colonna, direzione } = migliorPosizionamento;
+      
+      for (let k = 0; k < parola.length; k++) {
+        const r = direzione === "verticale" ? riga + k : riga;
+        const c = direzione === "orizzontale" ? colonna + k : colonna;
+        griglia[r][c].lettera = parola[k];
+        griglia[r][c].attiva = true;
+      }
+
+      paroleInserite.push({
+        parola,
+        definizione: parolaObj.definizione,
+        direzione,
+        riga,
+        colonna,
+      });
+    }
   }
 
-  return { griglia, paroleInserite };
+  // Numera le caselle da sinistra a destra, dall'alto in basso
+  let numeroProgressivo = 1;
+  for (let r = 0; r < dimensione; r++) {
+    for (let c = 0; c < dimensione; c++) {
+      if (!griglia[r][c].attiva) continue;
+
+      const èInizioOrizzontale = 
+        (c === 0 || !griglia[r][c - 1].attiva) && 
+        (c + 1 < dimensione && griglia[r][c + 1].attiva);
+      
+      const èInizioVerticale = 
+        (r === 0 || !griglia[r - 1][c].attiva) && 
+        (r + 1 < dimensione && griglia[r + 1][c].attiva);
+
+      if (èInizioOrizzontale || èInizioVerticale) {
+        griglia[r][c].numero = numeroProgressivo;
+        
+        // Aggiorna le parole inserite con il numero corretto
+        for (const parola of paroleInserite) {
+          if (parola.riga === r && parola.colonna === c) {
+            parola.numero = numeroProgressivo;
+          }
+        }
+        
+        numeroProgressivo++;
+      }
+    }
+  }
+
+  // Calcola bounding box
+  let minRiga = dimensione, maxRiga = 0, minCol = dimensione, maxCol = 0;
+  for (let r = 0; r < dimensione; r++) {
+    for (let c = 0; c < dimensione; c++) {
+      if (griglia[r][c].attiva) {
+        minRiga = Math.min(minRiga, r);
+        maxRiga = Math.max(maxRiga, r);
+        minCol = Math.min(minCol, c);
+        maxCol = Math.max(maxCol, c);
+      }
+    }
+  }
+
+  return { 
+    griglia, 
+    paroleInserite,
+    boundingBox: { minRiga, maxRiga, minCol, maxCol }
+  };
+}
+
+/**
+ * Verifica se una parola può essere inserita nella posizione specificata
+ */
+function puoInserire(
+  griglia: CellaCruciverba[][],
+  riga: number,
+  colonna: number,
+  parola: string,
+  direzione: "orizzontale" | "verticale",
+  dimensione: number
+): boolean {
+  const lunghezza = parola.length;
+
+  // Controlla bounds
+  if (direzione === "orizzontale") {
+    if (colonna < 0 || colonna + lunghezza > dimensione) return false;
+  } else {
+    if (riga < 0 || riga + lunghezza > dimensione) return false;
+  }
+
+  // Controlla ogni casella della parola
+  for (let k = 0; k < lunghezza; k++) {
+    const r = direzione === "verticale" ? riga + k : riga;
+    const c = direzione === "orizzontale" ? colonna + k : colonna;
+    const cella = griglia[r][c];
+
+    // Se la casella è attiva e ha una lettera diversa, non va bene
+    if (cella.attiva && cella.lettera !== parola[k]) {
+      return false;
+    }
+
+    // Se la casella è attiva e la lettera è vuota, non va bene
+    if (cella.attiva && cella.lettera === "") {
+      return false;
+    }
+  }
+
+  // Controlla caselle adiacenti (devono essere nere)
+  if (direzione === "orizzontale") {
+    // Casella prima dell'inizio
+    if (colonna > 0 && griglia[riga][colonna - 1].attiva) return false;
+    // Casella dopo la fine
+    if (colonna + lunghezza < dimensione && griglia[riga][colonna + lunghezza].attiva) return false;
+  } else {
+    // Casella sopra l'inizio
+    if (riga > 0 && griglia[riga - 1][colonna].attiva) return false;
+    // Casella sotto la fine
+    if (riga + lunghezza < dimensione && griglia[riga + lunghezza][colonna].attiva) return false;
+  }
+
+  return true;
+}
+
+/**
+ * Calcola il punteggio di un posizionamento (numero di intersezioni)
+ */
+function calcolaPunteggio(
+  griglia: CellaCruciverba[][],
+  riga: number,
+  colonna: number,
+  parola: string,
+  direzione: "orizzontale" | "verticale"
+): number {
+  let punteggio = 0;
+
+  for (let k = 0; k < parola.length; k++) {
+    const r = direzione === "verticale" ? riga + k : riga;
+    const c = direzione === "orizzontale" ? colonna + k : colonna;
+
+    // Se la casella è già attiva, è un'intersezione
+    if (griglia[r][c].attiva) {
+      punteggio += 2; // Bonus per intersezione
+    }
+  }
+
+  return punteggio;
 }
 
 /**
@@ -200,7 +301,6 @@ function generaParoleDaProfilo(): { parola: string; definizione: string }[] {
       { parola: "PAZIENTE", definizione: "Chi viene curato" }
     );
   } else if (profilo.exMestiere) {
-    // Parole generiche basate sul mestiere
     parole.push(
       { parola: "LAVORO", definizione: `Il mestiere di ${profilo.nome}` },
       { parola: "UFFICIO", definizione: "Dove si lavora" },
@@ -215,17 +315,6 @@ function generaParoleDaProfilo(): { parola: string; definizione: string }[] {
       { parola: "SAN SIRO", definizione: "Stadio dove gioca l'Inter" },
       { parola: "NERAZZURRI", definizione: "Soprannome dei tifosi dell'Inter" }
     );
-  } else if (profilo.hobby.some((h: string) => h.toLowerCase().includes("milan"))) {
-    parole.push(
-      { parola: "MILAN", definizione: "Squadra di calcio" },
-      { parola: "ROSSONERI", definizione: "Soprannome dei tifosi del Milan" },
-      { parola: "SAN SIRO", definizione: "Stadio dove gioca il Milan" }
-    );
-  } else if (profilo.hobby.some((h: string) => h.toLowerCase().includes("juve"))) {
-    parole.push(
-      { parola: "JUVENTUS", definizione: "Squadra di calcio" },
-      { parola: "BIANCONERI", definizione: "Soprannome dei tifosi della Juve" }
-    );
   }
 
   if (profilo.hobby.some((h: string) => h.toLowerCase().includes("orto"))) {
@@ -233,36 +322,6 @@ function generaParoleDaProfilo(): { parola: string; definizione: string }[] {
       { parola: "ORTO", definizione: "Dove si coltivano le verdure" },
       { parola: "POMODORO", definizione: "Verdura rossa estiva" },
       { parola: "ZAPPA", definizione: "Attrezzo per lavorare la terra" }
-    );
-  }
-
-  if (profilo.hobby.some((h: string) => h.toLowerCase().includes("giardin"))) {
-    parole.push(
-      { parola: "FIORE", definizione: "Cresce nel giardino" },
-      { parola: "ROSA", definizione: "Fiore con le spine" },
-      { parola: "POTATORE", definizione: "Attrezzo per il giardino" }
-    );
-  }
-
-  if (profilo.hobby.some((h: string) => h.toLowerCase().includes("pesca") || h.toLowerCase().includes("caccia"))) {
-    parole.push(
-      { parola: "LAGO", definizione: "Dove si pesca" },
-      { parola: "CANN", definizione: "Attrezzo per pescare" }
-    );
-  }
-
-  if (profilo.hobby.some((h: string) => h.toLowerCase().includes("cucin"))) {
-    parole.push(
-      { parola: "CUCINA", definizione: "Dove si preparano i pasti" },
-      { parola: "PENTOLA", definizione: "Contenitore per cucinare" },
-      { parola: "RICETTA", definizione: "Istruzioni per cucinare" }
-    );
-  }
-
-  if (profilo.hobby.some((h: string) => h.toLowerCase().includes("musica") || h.toLowerCase().includes("cantar"))) {
-    parole.push(
-      { parola: "MUSICA", definizione: "Si ascolta con le orecchie" },
-      { parola: "CANTARE", definizione: "Fare musica con la voce" }
     );
   }
 
@@ -275,28 +334,31 @@ function generaParoleDaProfilo(): { parola: string; definizione: string }[] {
     { parola: "MARE", definizione: "Acqua salata" }
   );
 
-  return parole.slice(0, 8);
+  return parole.slice(0, 10);
 }
 
 export default function GiocoCruciverba({ onChiudi }: CruciverbaProps) {
   const [modalita, setModalita] = useState<"scegli" | "profilo" | "custom" | "gioco">("scegli");
   const [griglia, setGriglia] = useState<CellaCruciverba[][]>([]);
-  const [paroleInserite, setParoleInserite] = useState<any[]>([]);
+  const [paroleInserite, setParoleInserite] = useState<ParolaInserita[]>([]);
+  const [boundingBox, setBoundingBox] = useState({ minRiga: 0, maxRiga: 14, minCol: 0, maxCol: 14 });
   const [cellaSelezionata, setCellaSelezionata] = useState<{ riga: number; colonna: number } | null>(null);
   const [risposteUtente, setRisposteUtente] = useState<{ [key: string]: string }>({});
 
   const iniziaDaProfilo = () => {
     const parole = generaParoleDaProfilo();
-    const { griglia: nuovaGriglia, paroleInserite: nuoveParole } = generaCruciverba(parole);
+    const { griglia: nuovaGriglia, paroleInserite: nuoveParole, boundingBox: bb } = generaCruciverba(parole);
     setGriglia(nuovaGriglia);
     setParoleInserite(nuoveParole);
+    setBoundingBox(bb);
     setModalita("gioco");
   };
 
   const iniziaCustom = (paroleCustom: { parola: string; definizione: string }[]) => {
-    const { griglia: nuovaGriglia, paroleInserite: nuoveParole } = generaCruciverba(paroleCustom);
+    const { griglia: nuovaGriglia, paroleInserite: nuoveParole, boundingBox: bb } = generaCruciverba(paroleCustom);
     setGriglia(nuovaGriglia);
     setParoleInserite(nuoveParole);
+    setBoundingBox(bb);
     setModalita("gioco");
   };
 
@@ -311,8 +373,20 @@ export default function GiocoCruciverba({ onChiudi }: CruciverbaProps) {
     setRisposteUtente((prev) => ({ ...prev, [key]: lettera.toUpperCase().slice(0, 1) }));
   };
 
-  const paroleOrizzontali = paroleInserite.filter((p) => p.direzione === "orizzontale").sort((a, b) => a.numero - b.numero);
-  const paroleVerticali = paroleInserite.filter((p) => p.direzione === "verticale").sort((a, b) => a.numero - b.numero);
+  // Filtra e ordina parole per i pannelli
+  const paroleOrizzontali = useMemo(() => 
+    paroleInserite
+      .filter((p) => p.direzione === "orizzontale" && p.numero)
+      .sort((a, b) => (a.numero || 0) - (b.numero || 0)),
+    [paroleInserite]
+  );
+
+  const paroleVerticali = useMemo(() => 
+    paroleInserite
+      .filter((p) => p.direzione === "verticale" && p.numero)
+      .sort((a, b) => (a.numero || 0) - (b.numero || 0)),
+    [paroleInserite]
+  );
 
   if (modalita === "scegli") {
     return (
@@ -356,6 +430,11 @@ export default function GiocoCruciverba({ onChiudi }: CruciverbaProps) {
     return <CruciverbaCustom onIndietro={() => setModalita("scegli")} onGenera={iniziaCustom} onChiudi={onChiudi} />;
   }
 
+  // Calcola la griglia da mostrare (crop attorno al bounding box)
+  const grigliaCrop = griglia.slice(boundingBox.minRiga, boundingBox.maxRiga + 1).map(riga => 
+    riga.slice(boundingBox.minCol, boundingBox.maxCol + 1)
+  );
+
   return (
     <div className="fixed inset-0 bg-slate-100 overflow-auto z-50">
       <div className="max-w-6xl mx-auto p-4 md:p-8">
@@ -375,16 +454,18 @@ export default function GiocoCruciverba({ onChiudi }: CruciverbaProps) {
           <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="overflow-x-auto">
               <div className="inline-block min-w-max">
-                {griglia.map((riga, rigaIdx) => (
+                {grigliaCrop.map((riga, rigaIdx) => (
                   <div key={rigaIdx} className="flex">
                     {riga.map((cella, colIdx) => {
-                      const key = `${rigaIdx}-${colIdx}`;
-                      const isSelected = cellaSelezionata?.riga === rigaIdx && cellaSelezionata?.colonna === colIdx;
+                      const rigaOriginale = boundingBox.minRiga + rigaIdx;
+                      const colOriginale = boundingBox.minCol + colIdx;
+                      const key = `${rigaOriginale}-${colOriginale}`;
+                      const isSelected = cellaSelezionata?.riga === rigaOriginale && cellaSelezionata?.colonna === colOriginale;
 
                       return (
                         <div
                           key={colIdx}
-                          onClick={() => cella.attiva && gestisciClickCella(rigaIdx, colIdx)}
+                          onClick={() => cella.attiva && gestisciClickCella(rigaOriginale, colOriginale)}
                           className={`w-10 h-10 md:w-12 md:h-12 border border-slate-300 relative ${
                             cella.attiva 
                               ? "bg-white cursor-pointer hover:bg-blue-50" 
