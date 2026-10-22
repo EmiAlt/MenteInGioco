@@ -429,7 +429,7 @@ function App() {
                   theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
                 }`}>
                   <div className="text-5xl md:text-6xl mb-2">🔗</div>
-                  <div className="text-base md:text-lg font-bold">Assoc.</div>
+                  <div className="text-base md:text-lg font-bold">Associa</div>
                 </button>
                 <button onClick={() => setGiocoAttivo("canzone")} className={`p-6 bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
                   theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
