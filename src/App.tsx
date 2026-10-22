@@ -19,6 +19,8 @@ import PannelloRicordi from "./components/PannelloRicordi";
 import MemoryVita from "./components/MemoryVita";
 import AssociazioniTematiche from "./components/AssociazioniTematiche";
 import FooterThemeSelector from "./components/FooterThemeSelector";
+import Forza4 from "./components/Forza4";
+import Tris from "./components/Tris";
 
 /** Durata del feedback visivo in millisecondi */
 const FEEDBACK_DURATION_MS = 2500;
@@ -38,6 +40,8 @@ type GiocoAttivo =
   | "orologio"
   | "memory-vita"
   | "associazioni"
+  | "forza4"
+  | "tris"
   | null;
 
 function App() {
@@ -474,6 +478,18 @@ function App() {
                   <div className="text-5xl md:text-6xl mb-2">⏰</div>
                   <div className="text-base md:text-lg font-bold">Orologio</div>
                 </button>
+                <button onClick={() => setGiocoAttivo("forza4")} className={`p-6 bg-gradient-to-br from-blue-600 to-cyan-700 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
+                  <div className="text-5xl md:text-6xl mb-2">🎯</div>
+                  <div className="text-base md:text-lg font-bold">Forza 4</div>
+                </button>
+                <button onClick={() => setGiocoAttivo("tris")} className={`p-6 bg-gradient-to-br from-purple-600 to-pink-700 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
+                  <div className="text-5xl md:text-6xl mb-2">⭕</div>
+                  <div className="text-base md:text-lg font-bold">Tris</div>
+                </button>
               </div>
             </section>
           </div>
@@ -721,6 +737,14 @@ function App() {
 
       {giocoAttivo === "associazioni" && (
         <AssociazioniTematiche onChiudi={() => setGiocoAttivo(null)} />
+      )}
+
+      {giocoAttivo === "forza4" && (
+        <Forza4 onChiudi={() => setGiocoAttivo(null)} />
+      )}
+
+      {giocoAttivo === "tris" && (
+        <Tris onChiudi={() => setGiocoAttivo(null)} />
       )}
     </div>
   );
