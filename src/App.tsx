@@ -180,168 +180,147 @@ function App() {
 
       {/* ─── SCHERMATA BENVENUTO ─── */}
       {fase === "benvenuto" && (
-        <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
-          <div className="max-w-2xl w-full text-center space-y-8">
-            {/* Icona gentile */}
-            <div className="text-7xl" aria-hidden="true">
-              🧠
+        <div className="flex-1 flex flex-col items-center justify-center px-4 py-4 max-h-screen overflow-hidden">
+          <div className="max-w-5xl w-full text-center space-y-3">
+            {/* Header compatto */}
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <div className="text-5xl" aria-hidden="true">🧠</div>
+              <div className="text-left">
+                <h1 className="text-2xl md:text-3xl font-bold text-slate-900 leading-tight">
+                  Allenamento della mente
+                </h1>
+                <p className="text-sm text-slate-600">
+                  Scegli un'attività • Prenditi il tuo tempo
+                </p>
+              </div>
             </div>
 
-            {/* Titolo */}
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
-              Allenamento della mente
-            </h1>
-
-            {/* Sottotitolo rassicurante */}
-            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed">
-              Scegli un'attività per tenere la mente attiva.
-              <br />
-              <span className="text-slate-500">Non c'è fretta, prenditi il tuo tempo.</span>
-            </p>
-
             {/* Sezione: Quiz e Giochi di Parole */}
-            <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-slate-700 text-left">📝 Quiz e Giochi di Parole</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-slate-700 text-left">📝 Quiz e Giochi di Parole</h3>
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={handleInizia}
-                  className="p-4 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                  className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-lg shadow transition-all duration-200"
                 >
-                  <div className="text-4xl mb-2">📝</div>
-                  <div className="text-lg font-bold mb-1">Quiz</div>
+                  <div className="text-3xl mb-1">📝</div>
+                  <div className="text-sm font-bold">Quiz</div>
                   <div className="text-xs opacity-90">{numeroDomande} domande</div>
                 </button>
                 <button
                   onClick={() => setGiocoAttivo("cruciverba")}
-                  className="p-4 bg-gradient-to-br from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                  className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-lg shadow transition-all duration-200"
                 >
-                  <div className="text-4xl mb-2">🧩</div>
-                  <div className="text-lg font-bold mb-1">Cruciverba</div>
-                  <div className="text-xs opacity-90">Parole e definizioni</div>
+                  <div className="text-3xl mb-1">🧩</div>
+                  <div className="text-sm font-bold">Cruciverba</div>
+                  <div className="text-xs opacity-90">Parole</div>
                 </button>
                 <button
                   onClick={() => setGiocoAttivo("proverbi")}
-                  className="p-4 bg-gradient-to-br from-amber-600 to-yellow-700 hover:from-amber-700 hover:to-yellow-800 text-white rounded-xl shadow-lg transition-all duration-200"
+                  className="p-3 bg-gradient-to-br from-amber-600 to-yellow-700 hover:from-amber-700 hover:to-yellow-800 text-white rounded-lg shadow transition-all duration-200"
                 >
-                  <div className="text-4xl mb-2">📜</div>
-                  <div className="text-lg font-bold mb-1">Proverbi</div>
+                  <div className="text-3xl mb-1">📜</div>
+                  <div className="text-sm font-bold">Proverbi</div>
                   <div className="text-xs opacity-90">Modi di dire</div>
                 </button>
               </div>
             </div>
 
             {/* Sezione: Memoria e Associazione */}
-            <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-slate-700 text-left">🧠 Memoria e Associazione</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-slate-700 text-left">🧠 Memoria e Associazione</h3>
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={() => setGiocoAttivo("memory")}
-                  className="p-4 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                  className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow transition-all duration-200"
                 >
-                  <div className="text-4xl mb-2">🃏</div>
-                  <div className="text-lg font-bold mb-1">Memory</div>
-                  <div className="text-xs opacity-90">Trova le coppie</div>
+                  <div className="text-3xl mb-1">🃏</div>
+                  <div className="text-sm font-bold">Memory</div>
+                  <div className="text-xs opacity-90">Coppie</div>
                 </button>
                 <button
                   onClick={() => setGiocoAttivo("intruso")}
-                  className="p-4 bg-gradient-to-br from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                  className="p-3 bg-gradient-to-br from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white rounded-lg shadow transition-all duration-200"
                 >
-                  <div className="text-4xl mb-2">🔍</div>
-                  <div className="text-lg font-bold mb-1">Intruso</div>
-                  <div className="text-xs opacity-90">Trova l'elemento diverso</div>
+                  <div className="text-3xl mb-1">🔍</div>
+                  <div className="text-sm font-bold">Intruso</div>
+                  <div className="text-xs opacity-90">Diverso</div>
                 </button>
                 <button
                   onClick={() => setGiocoAttivo("ombre")}
-                  className="p-4 bg-gradient-to-br from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black text-white rounded-xl shadow-lg transition-all duration-200"
+                  className="p-3 bg-gradient-to-br from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black text-white rounded-lg shadow transition-all duration-200"
                 >
-                  <div className="text-4xl mb-2">🌑</div>
-                  <div className="text-lg font-bold mb-1">Ombre</div>
-                  <div className="text-xs opacity-90">Associa le sagome</div>
+                  <div className="text-3xl mb-1">🌑</div>
+                  <div className="text-sm font-bold">Ombre</div>
+                  <div className="text-xs opacity-90">Sagome</div>
                 </button>
               </div>
             </div>
 
             {/* Sezione: Musica e Ricordi */}
-            <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-slate-700 text-left">🎵 Musica e Ricordi</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-slate-700 text-left">🎵 Musica e Ricordi</h3>
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={() => setGiocoAttivo("canzone")}
-                  className="p-4 bg-gradient-to-br from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                  className="p-3 bg-gradient-to-br from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-lg shadow transition-all duration-200"
                 >
-                  <div className="text-4xl mb-2">🎶</div>
-                  <div className="text-lg font-bold mb-1">Canzoni</div>
-                  <div className="text-xs opacity-90">Completa il testo</div>
+                  <div className="text-3xl mb-1">🎶</div>
+                  <div className="text-sm font-bold">Canzoni</div>
+                  <div className="text-xs opacity-90">Testo</div>
                 </button>
                 <button
                   onClick={() => setGiocoAttivo("puzzle")}
-                  className="p-4 bg-gradient-to-br from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                  className="p-3 bg-gradient-to-br from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-lg shadow transition-all duration-200"
                 >
-                  <div className="text-4xl mb-2">🖼️</div>
-                  <div className="text-lg font-bold mb-1">Puzzle</div>
-                  <div className="text-xs opacity-90">Componi l'immagine</div>
+                  <div className="text-3xl mb-1">🖼️</div>
+                  <div className="text-sm font-bold">Puzzle</div>
+                  <div className="text-xs opacity-90">Immagini</div>
                 </button>
                 <button
                   onClick={() => setGiocoAttivo("valigia")}
-                  className="p-4 bg-gradient-to-br from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                  className="p-3 bg-gradient-to-br from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg shadow transition-all duration-200"
                 >
-                  <div className="text-4xl mb-2">🧳</div>
-                  <div className="text-lg font-bold mb-1">Valigia</div>
-                  <div className="text-xs opacity-90">Cosa portiamo?</div>
+                  <div className="text-3xl mb-1">🧳</div>
+                  <div className="text-sm font-bold">Valigia</div>
+                  <div className="text-xs opacity-90">Oggetti</div>
                 </button>
               </div>
             </div>
 
-            {/* Sezione: Orientamento */}
-            <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-slate-700 text-left">⏰ Orientamento</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {/* Sezione: Orientamento + AI */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-slate-700 text-left">⏰ Orientamento</h3>
                 <button
                   onClick={() => setGiocoAttivo("orologio")}
-                  className="p-4 bg-gradient-to-br from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                  className="w-full p-3 bg-gradient-to-br from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white rounded-lg shadow transition-all duration-200"
                 >
-                  <div className="text-4xl mb-2">⏰</div>
-                  <div className="text-lg font-bold mb-1">Orologio</div>
+                  <div className="text-3xl mb-1">⏰</div>
+                  <div className="text-sm font-bold">Orologio</div>
                   <div className="text-xs opacity-90">Che ore sono?</div>
                 </button>
               </div>
-            </div>
-
-            {/* Info generica */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-              <p className="text-slate-500">
-                Nessuna pressione, nessun voto. Solo un momento per te.
-              </p>
-            </div>
-
-            {/* Pulsante Genera Esercizio Personalizzato AI */}
-            <div className="pt-4 border-t border-slate-200">
-              <button
-                onClick={handleGeneraAI}
-                disabled={caricamentoAI}
-                className="w-full max-w-md mx-auto py-4 px-6 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 active:from-purple-700 active:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 text-white text-lg md:text-xl font-semibold rounded-2xl shadow-lg shadow-purple-500/20 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-purple-300 flex items-center justify-center gap-3"
-                aria-label="Genera esercizio personalizzato con intelligenza artificiale"
-              >
-                {caricamentoAI ? (
-                  <>
-                    <span className="animate-spin text-2xl">⚙️</span>
-                    <span>Generazione in corso...</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-2xl">🤖</span>
-                    <span>Genera Esercizio Personalizzato AI</span>
-                  </>
-                )}
-              </button>
-              <p className="text-sm text-slate-500 mt-3 text-center">
-                Crea domande basate sui ricordi e gli hobby di <strong>{profiloPaziente.nome}</strong>
-              </p>
-              {domandeAIGenerate && (
-                <p className="text-sm text-emerald-600 mt-2 text-center font-medium">
-                  ✅ Esercizio personalizzato pronto!
-                </p>
-              )}
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-slate-700 text-left">🤖 AI</h3>
+                <button
+                  onClick={handleGeneraAI}
+                  disabled={caricamentoAI}
+                  className="w-full p-3 bg-gradient-to-br from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-lg shadow transition-all duration-200"
+                >
+                  {caricamentoAI ? (
+                    <div className="text-3xl mb-1 animate-spin">⚙️</div>
+                  ) : (
+                    <div className="text-3xl mb-1">🤖</div>
+                  )}
+                  <div className="text-sm font-bold">
+                    {caricamentoAI ? "Generando..." : "Personalizza"}
+                  </div>
+                  <div className="text-xs opacity-90">
+                    {caricamentoAI ? "Attendi..." : `Per ${profiloPaziente.nome}`}
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
         </div>
