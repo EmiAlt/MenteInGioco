@@ -6,13 +6,31 @@ import { useImpostazioniSessione } from "./hooks/useImpostazioniSessione";
 import PannelloCaregiver from "./components/PannelloCaregiver";
 import GiocoCruciverba from "./components/GiocoCruciverba";
 import GiocoPuzzle from "./components/GiocoPuzzle";
+import IntrusoLogico from "./components/IntrusoLogico";
+import MemorySemplificato from "./components/MemorySemplificato";
+import OmbreSagome from "./components/OmbreSagome";
+import CompletaCanzone from "./components/CompletaCanzone";
+import ProverbiPopolari from "./components/ProverbiPopolari";
+import ValigiaSpesa from "./components/ValigiaSpesa";
+import OrologioDigitale from "./components/OrologioDigitale";
 
 /** Durata del feedback visivo in millisecondi */
 const FEEDBACK_DURATION_MS = 2500;
 
 type FaseSessione = "benvenuto" | "domanda" | "feedback" | "fine";
 type VistaApp = "paziente" | "caregiver";
-type GiocoAttivo = "quiz" | "cruciverba" | "puzzle" | null;
+type GiocoAttivo = 
+  | "quiz" 
+  | "cruciverba" 
+  | "puzzle" 
+  | "intruso" 
+  | "memory" 
+  | "ombre" 
+  | "canzone" 
+  | "proverbi" 
+  | "valigia" 
+  | "orologio" 
+  | null;
 
 function App() {
   const [profiloPaziente] = useProfiloPaziente();
@@ -181,46 +199,112 @@ function App() {
               <span className="text-slate-500">Non c'è fretta, prenditi il tuo tempo.</span>
             </p>
 
-            {/* Menu giochi */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Quiz */}
-              <button
-                onClick={handleInizia}
-                className="p-6 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-2xl shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                aria-label="Inizia il quiz con domande"
-              >
-                <div className="text-5xl mb-3">📝</div>
-                <div className="text-xl font-bold mb-2">Quiz</div>
-                <div className="text-sm opacity-90">
-                  {numeroDomande} domande semplici
-                </div>
-              </button>
+            {/* Sezione: Quiz e Giochi di Parole */}
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold text-slate-700 text-left">📝 Quiz e Giochi di Parole</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <button
+                  onClick={handleInizia}
+                  className="p-4 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                >
+                  <div className="text-4xl mb-2">📝</div>
+                  <div className="text-lg font-bold mb-1">Quiz</div>
+                  <div className="text-xs opacity-90">{numeroDomande} domande</div>
+                </button>
+                <button
+                  onClick={() => setGiocoAttivo("cruciverba")}
+                  className="p-4 bg-gradient-to-br from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                >
+                  <div className="text-4xl mb-2">🧩</div>
+                  <div className="text-lg font-bold mb-1">Cruciverba</div>
+                  <div className="text-xs opacity-90">Parole e definizioni</div>
+                </button>
+                <button
+                  onClick={() => setGiocoAttivo("proverbi")}
+                  className="p-4 bg-gradient-to-br from-amber-600 to-yellow-700 hover:from-amber-700 hover:to-yellow-800 text-white rounded-xl shadow-lg transition-all duration-200"
+                >
+                  <div className="text-4xl mb-2">📜</div>
+                  <div className="text-lg font-bold mb-1">Proverbi</div>
+                  <div className="text-xs opacity-90">Modi di dire</div>
+                </button>
+              </div>
+            </div>
 
-              {/* Cruciverba */}
-              <button
-                onClick={() => setGiocoAttivo("cruciverba")}
-                className="p-6 bg-gradient-to-br from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-2xl shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-purple-300"
-                aria-label="Inizia il cruciverba"
-              >
-                <div className="text-5xl mb-3">🧩</div>
-                <div className="text-xl font-bold mb-2">Cruciverba</div>
-                <div className="text-sm opacity-90">
-                  Parole e definizioni
-                </div>
-              </button>
+            {/* Sezione: Memoria e Associazione */}
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold text-slate-700 text-left">🧠 Memoria e Associazione</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <button
+                  onClick={() => setGiocoAttivo("memory")}
+                  className="p-4 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                >
+                  <div className="text-4xl mb-2">🃏</div>
+                  <div className="text-lg font-bold mb-1">Memory</div>
+                  <div className="text-xs opacity-90">Trova le coppie</div>
+                </button>
+                <button
+                  onClick={() => setGiocoAttivo("intruso")}
+                  className="p-4 bg-gradient-to-br from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                >
+                  <div className="text-4xl mb-2">🔍</div>
+                  <div className="text-lg font-bold mb-1">Intruso</div>
+                  <div className="text-xs opacity-90">Trova l'elemento diverso</div>
+                </button>
+                <button
+                  onClick={() => setGiocoAttivo("ombre")}
+                  className="p-4 bg-gradient-to-br from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black text-white rounded-xl shadow-lg transition-all duration-200"
+                >
+                  <div className="text-4xl mb-2">🌑</div>
+                  <div className="text-lg font-bold mb-1">Ombre</div>
+                  <div className="text-xs opacity-90">Associa le sagome</div>
+                </button>
+              </div>
+            </div>
 
-              {/* Puzzle */}
-              <button
-                onClick={() => setGiocoAttivo("puzzle")}
-                className="p-6 bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-2xl shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-amber-300"
-                aria-label="Inizia il puzzle"
-              >
-                <div className="text-5xl mb-3">🖼️</div>
-                <div className="text-xl font-bold mb-2">Puzzle</div>
-                <div className="text-sm opacity-90">
-                  Componi l'immagine
-                </div>
-              </button>
+            {/* Sezione: Musica e Ricordi */}
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold text-slate-700 text-left">🎵 Musica e Ricordi</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <button
+                  onClick={() => setGiocoAttivo("canzone")}
+                  className="p-4 bg-gradient-to-br from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                >
+                  <div className="text-4xl mb-2">🎶</div>
+                  <div className="text-lg font-bold mb-1">Canzoni</div>
+                  <div className="text-xs opacity-90">Completa il testo</div>
+                </button>
+                <button
+                  onClick={() => setGiocoAttivo("puzzle")}
+                  className="p-4 bg-gradient-to-br from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                >
+                  <div className="text-4xl mb-2">🖼️</div>
+                  <div className="text-lg font-bold mb-1">Puzzle</div>
+                  <div className="text-xs opacity-90">Componi l'immagine</div>
+                </button>
+                <button
+                  onClick={() => setGiocoAttivo("valigia")}
+                  className="p-4 bg-gradient-to-br from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                >
+                  <div className="text-4xl mb-2">🧳</div>
+                  <div className="text-lg font-bold mb-1">Valigia</div>
+                  <div className="text-xs opacity-90">Cosa portiamo?</div>
+                </button>
+              </div>
+            </div>
+
+            {/* Sezione: Orientamento */}
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold text-slate-700 text-left">⏰ Orientamento</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <button
+                  onClick={() => setGiocoAttivo("orologio")}
+                  className="p-4 bg-gradient-to-br from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white rounded-xl shadow-lg transition-all duration-200"
+                >
+                  <div className="text-4xl mb-2">⏰</div>
+                  <div className="text-lg font-bold mb-1">Orologio</div>
+                  <div className="text-xs opacity-90">Che ore sono?</div>
+                </button>
+              </div>
             </div>
 
             {/* Info generica */}
@@ -448,6 +532,34 @@ function App() {
 
       {giocoAttivo === "puzzle" && (
         <GiocoPuzzle onChiudi={() => setGiocoAttivo(null)} />
+      )}
+
+      {giocoAttivo === "intruso" && (
+        <IntrusoLogico onChiudi={() => setGiocoAttivo(null)} />
+      )}
+
+      {giocoAttivo === "memory" && (
+        <MemorySemplificato onChiudi={() => setGiocoAttivo(null)} />
+      )}
+
+      {giocoAttivo === "ombre" && (
+        <OmbreSagome onChiudi={() => setGiocoAttivo(null)} />
+      )}
+
+      {giocoAttivo === "canzone" && (
+        <CompletaCanzone onChiudi={() => setGiocoAttivo(null)} />
+      )}
+
+      {giocoAttivo === "proverbi" && (
+        <ProverbiPopolari onChiudi={() => setGiocoAttivo(null)} />
+      )}
+
+      {giocoAttivo === "valigia" && (
+        <ValigiaSpesa onChiudi={() => setGiocoAttivo(null)} />
+      )}
+
+      {giocoAttivo === "orologio" && (
+        <OrologioDigitale onChiudi={() => setGiocoAttivo(null)} />
       )}
     </div>
   );
