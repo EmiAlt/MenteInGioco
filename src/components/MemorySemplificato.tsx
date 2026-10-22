@@ -4,12 +4,18 @@ interface MemorySemplificatoProps {
   onChiudi: () => void;
 }
 
+interface Carta {
+  emoji: string;
+  girata: boolean;
+  trovata: boolean;
+}
+
 const IMMAGINI = ["🍎", "🐕", "🏠", "🚗", "🌸", "🎵"];
 
 export default function MemorySemplificato({ onChiudi }: MemorySemplificatoProps) {
-  const [carte, setCarte] = useState<{ id: number; emoji: string; girata: boolean; trovata: boolean }[]>([]);
-  const [cartaSelezionata, setCartaSelezionata] = useState<number | null>(null);
-  const [staConfrontando, setStaConfrontando] = useState(false);
+  const [carte, setCarte] = useState<Carta[]>([]);
+  const [posizioneSelezionata, setPosizioneSelezionata] = useState<number | null>(null);
+  const [bloccato, setBloccato] = useState(false);
   const [mosse, setMosse] = useState(0);
   const [completato, setCompletato] = useState(false);
   const [numeroCoppie, setNumeroCoppie] = useState(() => {
@@ -27,53 +33,60 @@ export default function MemorySemplificato({ onChiudi }: MemorySemplificatoProps
     const coppie = IMMAGINI.slice(0, numeroCoppie);
     const carteDoppie = [...coppie, ...coppie];
     
-    // Mescola
-    const carteMescolate = carteDoppie
-      .map((emoji, idx) => ({
-        id: idx,
-        emoji,
-        girata: false,
-        trovata: false,
-      }))
-      .sort(() => Math.random() - 0.5);
+    // Mescola usando Fisher-Yates
+    for (let i = carteDoppie.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [carteDoppie[i], carteDoppie[j]] = [carteDoppie[j], carteDoppie[i]];
+    }
+    
+    // Crea array di carte con stato iniziale
+    const nuoveCarte: Carta[] = carteDoppie.map(emoji => ({
+      emoji,
+      girata: false,
+      trovata: false,
+    }));
 
-    setCarte(carteMescolate);
-    setCartaSelezionata(null);
-    setStaConfrontando(false);
+    setCarte(nuoveCarte);
+    setPosizioneSelezionata(null);
+    setBloccato(false);
     setMosse(0);
     setCompletato(false);
   };
 
-  const gestisciClickCarta = (id: number) => {
+  const gestisciClickCarta = (posizione: number) => {
     // Blocca se sta confrontando o se la carta è già girata/trovata
-    if (staConfrontando || carte[id].girata || carte[id].trovata) {
+    if (bloccato || carte[posizione].girata || carte[posizione].trovata) {
       return;
     }
 
-    // Gira la carta
+    // Crea copia dell'array
     const nuoveCarte = [...carte];
-    nuoveCarte[id].girata = true;
-    setCarte(nuoveCarte);
-
-    if (cartaSelezionata === null) {
-      // Prima carta selezionata
-      setCartaSelezionata(id);
+    
+    if (posizioneSelezionata === null) {
+      // Prima carta: gira e seleziona
+      nuoveCarte[posizione].girata = true;
+      setCarte(nuoveCarte);
+      setPosizioneSelezionata(posizione);
     } else {
-      // Seconda carta selezionata - confronta
-      setStaConfrontando(true);
+      // Seconda carta: gira e confronta
+      nuoveCarte[posizione].girata = true;
+      setCarte(nuoveCarte);
+      setBloccato(true);
       setMosse(mosse + 1);
       
-      if (carte[cartaSelezionata].emoji === carte[id].emoji) {
+      const primaPos = posizioneSelezionata;
+      
+      if (carte[primaPos].emoji === carte[posizione].emoji) {
         // Coppia trovata!
         setTimeout(() => {
           const carteAggiornate = [...carte];
-          carteAggiornate[cartaSelezionata].trovata = true;
-          carteAggiornate[cartaSelezionata].girata = false;
-          carteAggiornate[id].trovata = true;
-          carteAggiornate[id].girata = false;
+          carteAggiornate[primaPos].trovata = true;
+          carteAggiornate[primaPos].girata = false;
+          carteAggiornate[posizione].trovata = true;
+          carteAggiornate[posizione].girata = false;
           setCarte(carteAggiornate);
-          setCartaSelezionata(null);
-          setStaConfrontando(false);
+          setPosizioneSelezionata(null);
+          setBloccato(false);
 
           // Controlla se il gioco è completato
           if (carteAggiornate.every(c => c.trovata)) {
@@ -84,11 +97,11 @@ export default function MemorySemplificato({ onChiudi }: MemorySemplificatoProps
         // Non è una coppia, gira indietro
         setTimeout(() => {
           const carteAggiornate = [...carte];
-          carteAggiornate[cartaSelezionata].girata = false;
-          carteAggiornate[id].girata = false;
+          carteAggiornate[primaPos].girata = false;
+          carteAggiornate[posizione].girata = false;
           setCarte(carteAggiornate);
-          setCartaSelezionata(null);
-          setStaConfrontando(false);
+          setPosizioneSelezionata(null);
+          setBloccato(false);
         }, 1200);
       }
     }
@@ -164,11 +177,11 @@ export default function MemorySemplificato({ onChiudi }: MemorySemplificatoProps
               gridTemplateColumns: `repeat(${colonne}, 1fr)`,
             }}
           >
-            {carte.map((carta) => (
+            {carte.map((carta, posizione) => (
               <button
-                key={carta.id}
-                onClick={() => gestisciClickCarta(carta.id)}
-                disabled={carta.girata || carta.trovata || staConfrontando}
+                key={posizione}
+                onClick={() => gestisciClickCarta(posizione)}
+                disabled={carta.girata || carta.trovata || bloccato}
                 className={`aspect-square rounded-2xl border-4 transition-all text-6xl flex items-center justify-center ${
                   carta.trovata
                     ? "bg-emerald-100 border-emerald-500"
