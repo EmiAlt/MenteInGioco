@@ -78,6 +78,7 @@ function GestioneImmaginiPuzzle({
  * - L'utente clicca su una tessera per selezionarla
  * - L'utente clicca su un'altra tessera per scambiarle
  * - Il puzzle è completato quando tutte le tessere sono nella posizione corretta
+ * - Mantiene l'aspect ratio originale dell'immagine
  */
 export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
   const [immaginiPuzzle, setImmaginiPuzzle] = useState<string[]>(() => {
@@ -87,20 +88,29 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
 
   const [fase, setFase] = useState<"scegli" | "gestione" | "gioco">("scegli");
   const [immagineSelezionata, setImmagineSelezionata] = useState<string | null>(null);
-  const [dimensioneGriglia, setDimensioneGriglia] = useState(3);
+  const [difficolta, setDifficolta] = useState(3); // 3, 4, o 5 (numero di divisioni sul lato più lungo)
   
-  // ordineAttuale[i] = id del pezzo nella posizione i della griglia
-  // Quando l'utente scambia due pezzi, scambio i loro id in questo array
   const [ordineAttuale, setOrdineAttuale] = useState<number[]>([]);
-  const [pezzoSelezionato, setPezzoSelezionato] = useState<number | null>(null); // posizione nella griglia
+  const [pezzoSelezionato, setPezzoSelezionato] = useState<number | null>(null);
   const [mosse, setMosse] = useState(0);
   const [completato, setCompletato] = useState(false);
-  const [aspectRatio, setAspectRatio] = useState<number>(1); // aspect ratio dell'immagine originale
+  const [dimensioniImmagine, setDimensioniImmagine] = useState<{ width: number; height: number } | null>(null);
 
   // Salva immagini nel localStorage
   useEffect(() => {
     localStorage.setItem("stimolazione_cognitiva_puzzle_immagini", JSON.stringify(immaginiPuzzle));
   }, [immaginiPuzzle]);
+
+  // Carica l'immagine e calcola le dimensioni
+  useEffect(() => {
+    if (immagineSelezionata) {
+      const img = new Image();
+      img.onload = () => {
+        setDimensioniImmagine({ width: img.width, height: img.height });
+      };
+      img.src = immagineSelezionata;
+    }
+  }, [immagineSelezionata]);
 
   const aggiungiImmagine = (url: string) => {
     setImmaginiPuzzle([...immaginiPuzzle, url]);
@@ -111,14 +121,39 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
   };
 
   /**
-   * Mescola l'array in modo che sia sempre risolvibile
-   * (un numero pari di scambi garantisce la risolvibilità)
+   * Calcola il numero di righe e colonne in base all'aspect ratio dell'immagine
+   * e alla difficoltà selezionata
    */
-  const mescolaArray = (dimensione: number): number[] => {
-    const arr = Array.from({ length: dimensione * dimensione }, (_, i) => i);
+  const calcolaGriglia = () => {
+    if (!dimensioniImmagine) return { righe: 3, colonne: 3 };
+
+    const aspectRatio = dimensioniImmagine.width / dimensioniImmagine.height;
     
-    // Fai un numero pari di scambi casuali per garantire risolvibilità
-    const numScambi = dimensione * dimensione * 10; // Abbastanza scambi per mescolare bene
+    // Se l'immagine è più larga che alta (panoramica)
+    if (aspectRatio > 1) {
+      const colonne = difficolta;
+      const righe = Math.round(difficolta / aspectRatio);
+      return { righe: Math.max(2, righe), colonne };
+    } 
+    // Se l'immagine è più alta che larga (verticale)
+    else if (aspectRatio < 1) {
+      const righe = difficolta;
+      const colonne = Math.round(difficolta * aspectRatio);
+      return { righe, colonne: Math.max(2, colonne) };
+    } 
+    // Se l'immagine è quadrata
+    else {
+      return { righe: difficolta, colonne: difficolta };
+    }
+  };
+
+  /**
+   * Mescola l'array in modo che sia sempre risolvibile
+   */
+  const mescolaArray = (totalePezzi: number): number[] => {
+    const arr = Array.from({ length: totalePezzi }, (_, i) => i);
+    
+    const numScambi = totalePezzi * 10;
     for (let i = 0; i < numScambi; i++) {
       const idx1 = Math.floor(Math.random() * arr.length);
       const idx2 = Math.floor(Math.random() * arr.length);
@@ -127,62 +162,46 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
       }
     }
     
-    // Assicurati che non sia già risolto
     const giaRisolto = arr.every((val, idx) => val === idx);
     if (giaRisolto) {
-      // Fai uno scambio extra
       [arr[0], arr[1]] = [arr[1], arr[0]];
     }
     
     return arr;
   };
 
-  // Carica l'immagine e calcola l'aspect ratio
-  useEffect(() => {
-    if (immagineSelezionata) {
-      const img = new Image();
-      img.onload = () => {
-        setAspectRatio(img.width / img.height);
-      };
-      img.src = immagineSelezionata;
-    }
-  }, [immagineSelezionata]);
-
-  const iniziaPuzzle = (immagine: string, dimensione: number) => {
+  const iniziaPuzzle = (immagine: string, diff: number) => {
     setImmagineSelezionata(immagine);
-    setDimensioneGriglia(dimensione);
-    setOrdineAttuale(mescolaArray(dimensione));
-    setPezzoSelezionato(null);
-    setMosse(0);
-    setCompletato(false);
-    setFase("gioco");
+    setDifficolta(diff);
+    
+    // Aspetta che le dimensioni dell'immagine siano caricate
+    setTimeout(() => {
+      const griglia = calcolaGriglia();
+      const totalePezzi = griglia.righe * griglia.colonne;
+      setOrdineAttuale(mescolaArray(totalePezzi));
+      setPezzoSelezionato(null);
+      setMosse(0);
+      setCompletato(false);
+      setFase("gioco");
+    }, 100);
   };
 
-  /**
-   * Gestisce il click su una tessera del puzzle
-   * - Se nessuna tessera è selezionata: seleziona questa
-   * - Se una tessera è già selezionata: scambia le due tessere
-   */
-  const gestisciClickTessera = (posizioneCliccata: number) => {
+  const gestisciClickTessera = (posizione: number) => {
     if (completato) return;
 
     if (pezzoSelezionato === null) {
-      // Prima selezione
-      setPezzoSelezionato(posizioneCliccata);
-    } else if (pezzoSelezionato === posizioneCliccata) {
-      // Deseleziona se clicca sulla stessa
+      setPezzoSelezionato(posizione);
+    } else if (pezzoSelezionato === posizione) {
       setPezzoSelezionato(null);
     } else {
-      // Scambia le due tessere
       const nuovoOrdine = [...ordineAttuale];
-      [nuovoOrdine[pezzoSelezionato], nuovoOrdine[posizioneCliccata]] = 
-        [nuovoOrdine[posizioneCliccata], nuovoOrdine[pezzoSelezionato]];
+      [nuovoOrdine[pezzoSelezionato], nuovoOrdine[posizione]] = 
+        [nuovoOrdine[posizione], nuovoOrdine[pezzoSelezionato]];
       
       setOrdineAttuale(nuovoOrdine);
       setPezzoSelezionato(null);
       setMosse(mosse + 1);
 
-      // Controlla se il puzzle è completato
       const isCompletato = nuovoOrdine.every((id, idx) => id === idx);
       if (isCompletato) {
         setCompletato(true);
@@ -193,8 +212,8 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
   // Schermata selezione
   if (fase === "scegli") {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-auto p-8 space-y-6">
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-auto p-8 space-y-6 my-auto">
           <h2 className="text-3xl font-bold text-slate-900 text-center">🧩 Puzzle</h2>
 
           {immaginiPuzzle.length === 0 ? (
@@ -230,7 +249,7 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
                               onClick={() => iniziaPuzzle(img, dim)}
                               className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors"
                             >
-                              {dim}×{dim}
+                              {dim}
                             </button>
                           ))}
                         </div>
@@ -289,6 +308,9 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
   }
 
   // Schermata gioco
+  const griglia = calcolaGriglia();
+  const aspectRatio = dimensioniImmagine ? dimensioniImmagine.width / dimensioniImmagine.height : 1;
+
   return (
     <div className="fixed inset-0 bg-slate-100 overflow-auto z-50">
       <div className="max-w-4xl mx-auto p-4 md:p-8">
@@ -324,22 +346,21 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
           <div
             className="grid gap-1 mx-auto"
             style={{
-              gridTemplateColumns: `repeat(${dimensioneGriglia}, 1fr)`,
-              maxWidth: "600px",
-              aspectRatio: aspectRatio, // Usa l'aspect ratio dell'immagine originale
+              gridTemplateColumns: `repeat(${griglia.colonne}, 1fr)`,
+              gridTemplateRows: `repeat(${griglia.righe}, 1fr)`,
+              maxWidth: "100%",
+              aspectRatio: `${aspectRatio}`,
+              overflow: "hidden",
             }}
           >
             {ordineAttuale.map((idPezzo, posizione) => {
               const isSelected = pezzoSelezionato === posizione;
-              const rigaOrig = Math.floor(idPezzo / dimensioneGriglia);
-              const colOrig = idPezzo % dimensioneGriglia;
+              const rigaOrig = Math.floor(idPezzo / griglia.colonne);
+              const colOrig = idPezzo % griglia.colonne;
 
-              // Calcola la porzione di immagine per questa tessera
-              // Mantiene l'aspect ratio originale dell'immagine
-              const bgSizeX = dimensioneGriglia * 100;
-              const bgSizeY = dimensioneGriglia * 100;
-              const bgPosX = dimensioneGriglia > 1 ? (colOrig / (dimensioneGriglia - 1)) * 100 : 0;
-              const bgPosY = dimensioneGriglia > 1 ? (rigaOrig / (dimensioneGriglia - 1)) * 100 : 0;
+              // Calcola la posizione del background per questa tessera
+              const bgPosX = griglia.colonne > 1 ? (colOrig / (griglia.colonne - 1)) * 100 : 0;
+              const bgPosY = griglia.righe > 1 ? (rigaOrig / (griglia.righe - 1)) * 100 : 0;
 
               return (
                 <div
@@ -350,13 +371,12 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
                       ? "ring-4 ring-blue-500 scale-95 z-10" 
                       : "hover:scale-98 hover:ring-2 hover:ring-blue-300"
                   }`}
-                  style={{ aspectRatio: "1" }}
                 >
                   <div
                     className="w-full h-full bg-no-repeat"
                     style={{
                       backgroundImage: `url(${immagineSelezionata})`,
-                      backgroundSize: `${bgSizeX}% ${bgSizeY}%`,
+                      backgroundSize: `${griglia.colonne * 100}% ${griglia.righe * 100}%`,
                       backgroundPosition: `${bgPosX}% ${bgPosY}%`,
                     }}
                   />
@@ -380,7 +400,6 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
                 src={immagineSelezionata}
                 alt="Anteprima"
                 className="max-w-full h-auto max-h-48 object-contain rounded-lg border-2 border-slate-200"
-                style={{ aspectRatio: aspectRatio }}
               />
             </div>
           </div>
@@ -389,7 +408,7 @@ export default function GiocoPuzzle({ onChiudi }: PuzzleProps) {
         {/* Controlli */}
         <div className="mt-6 flex gap-3">
           <button
-            onClick={() => immagineSelezionata && iniziaPuzzle(immagineSelezionata, dimensioneGriglia)}
+            onClick={() => immagineSelezionata && iniziaPuzzle(immagineSelezionata, difficolta)}
             className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
           >
             🔄 Ricomincia
