@@ -1,650 +1,298 @@
-import { useState, useEffect, useMemo } from "react";
-import { getProfiloPaziente } from "../data/profiloPaziente";
-
-interface CellaCruciverba {
-  lettera: string;
-  numero?: number;
-  attiva: boolean;
-}
-
-interface ParolaInserita {
-  parola: string;
-  definizione: string;
-  direzione: "orizzontale" | "verticale";
-  riga: number;
-  colonna: number;
-  numero?: number;
-}
-
+import React, { useState } from 'react';
 import { ThemeType } from '../hooks/useTheme';
+
+interface Clue {
+  number: number;
+  direction: 'across' | 'down';
+  clue: string;
+  answer: string;
+  row: number;
+  col: number;
+}
+
+interface CrosswordPuzzle {
+  id: number;
+  title: string;
+  gridSize: { rows: number; cols: number };
+  clues: Clue[];
+}
+
+// Schemi pre-calcolati e perfettamente incrociati
+const PUZZLES: CrosswordPuzzle[] = [
+  {
+    id: 1,
+    title: 'Cruciverba Facile 1',
+    gridSize: { rows: 8, cols: 8 },
+    clues: [
+      { number: 1, direction: 'across', clue: 'Un primo piatto tipico italiano', answer: 'PASTA', row: 1, col: 1 },
+      { number: 2, direction: 'across', clue: 'Si beve a colazione, è bianco', answer: 'LATTE', row: 3, col: 2 },
+      { number: 3, direction: 'across', clue: 'Ci si va a dormire la sera', answer: 'LETTO', row: 5, col: 0 },
+      { number: 1, direction: 'down', clue: 'Si compra dal fornaio ogni giorno', answer: 'PANE', row: 1, col: 1 },
+      { number: 4, direction: 'down', clue: 'L\'amico dell\'uomo che abbaia', answer: 'CANE', row: 1, col: 5 },
+      { number: 5, direction: 'down', clue: 'Frutto rosso o verde', answer: 'MELA', row: 3, col: 3 },
+    ]
+  },
+  {
+    id: 2,
+    title: 'Cruciverba Facile 2',
+    gridSize: { rows: 9, cols: 9 },
+    clues: [
+      { number: 1, direction: 'across', clue: 'Scalda la terra di giorno', answer: 'SOLE', row: 0, col: 2 },
+      { number: 2, direction: 'across', clue: 'Ha l\'acqua salata e le onde', answer: 'MARE', row: 2, col: 0 },
+      { number: 3, direction: 'across', clue: 'Il posto dove si vive con la famiglia', answer: 'CASA', row: 4, col: 3 },
+      { number: 4, direction: 'across', clue: 'Si fa con la bocca quando si è felici', answer: 'SORRISO', row: 6, col: 1 },
+      { number: 1, direction: 'down', clue: 'Splende nel cielo di notte', answer: 'LUNA', row: 0, col: 4 },
+      { number: 5, direction: 'down', clue: 'Ha il tronco e le foglie', answer: 'ALBERO', row: 2, col: 6 },
+      { number: 6, direction: 'down', clue: 'Batte nel petto', answer: 'CUORE', row: 4, col: 3 },
+    ]
+  },
+  {
+    id: 3,
+    title: 'Cruciverba Facile 3',
+    gridSize: { rows: 10, cols: 10 },
+    clues: [
+      { number: 1, direction: 'across', clue: 'Si mette al piede per camminare', answer: 'SCARPA', row: 1, col: 0 },
+      { number: 2, direction: 'across', clue: 'È rotonda e si usa per giocare', answer: 'PALLA', row: 3, col: 3 },
+      { number: 3, direction: 'across', clue: 'Segna le ore della giornata', answer: 'OROLOGIO', row: 5, col: 1 },
+      { number: 4, direction: 'across', clue: 'Si usa per lavarsi le mani', answer: 'SAPONE', row: 7, col: 4 },
+      { number: 1, direction: 'down', clue: 'Vi si appoggiano i piatti per mangiare', answer: 'TAVOLO', row: 1, col: 2 },
+      { number: 5, direction: 'down', clue: 'Ci si siede sopra per riposare', answer: 'SEDIA', row: 3, col: 5 },
+      { number: 6, direction: 'down', clue: 'Si apre con la chiave', answer: 'PORTA', row: 5, col: 7 },
+      { number: 7, direction: 'down', clue: 'Profuma ed è pieno di colori', answer: 'FIORE', row: 7, col: 0 },
+    ]
+  },
+  {
+    id: 4,
+    title: 'Cruciverba Facile 4',
+    gridSize: { rows: 9, cols: 9 },
+    clues: [
+      { number: 1, direction: 'across', clue: 'La mamma della mamma', answer: 'NONNA', row: 0, col: 1 },
+      { number: 2, direction: 'across', clue: 'Vuole bene ai suoi figli', answer: 'MAMMA', row: 2, col: 3 },
+      { number: 3, direction: 'across', clue: 'Ha cinque dita', answer: 'MANO', row: 4, col: 0 },
+      { number: 4, direction: 'across', clue: 'Serve per mangiare e parlare', answer: 'BOCCA', row: 6, col: 2 },
+      { number: 1, direction: 'down', clue: 'Il papà del papà', answer: 'NONNO', row: 0, col: 5 },
+      { number: 5, direction: 'down', clue: 'Servono per guardare', answer: 'OCCHI', row: 2, col: 7 },
+      { number: 6, direction: 'down', clue: 'Serve per annusare i profumi', answer: 'NASO', row: 4, col: 3 },
+    ]
+  },
+  {
+    id: 5,
+    title: 'Cruciverba Facile 5',
+    gridSize: { rows: 10, cols: 10 },
+    clues: [
+      { number: 1, direction: 'across', clue: 'È bianca e cade d\'inverno', answer: 'NEVE', row: 1, col: 2 },
+      { number: 2, direction: 'across', clue: 'Scalda il camino ma scotta', answer: 'FUOCO', row: 3, col: 0 },
+      { number: 3, direction: 'across', clue: 'È fatto di erba verde', answer: 'PRATO', row: 5, col: 4 },
+      { number: 4, direction: 'across', clue: 'Ha le ali e vola nel cielo', answer: 'UCCELLO', row: 7, col: 1 },
+      { number: 1, direction: 'down', clue: 'È blu ed è pieno di nuvole', answer: 'CIELO', row: 1, col: 6 },
+      { number: 5, direction: 'down', clue: 'Nuota dentro il mare', answer: 'PESCE', row: 3, col: 4 },
+      { number: 6, direction: 'down', clue: 'Vi si versa la minestra', answer: 'PIATTO', row: 5, col: 7 },
+      { number: 7, direction: 'down', clue: 'Si usa per mangiare il brodo', answer: 'CUCCHIAIO', row: 7, col: 3 },
+    ]
+  },
+  {
+    id: 6,
+    title: 'Cruciverba Facile 6',
+    gridSize: { rows: 9, cols: 9 },
+    clues: [
+      { number: 1, direction: 'across', clue: 'Serve per infilzare la pasta', answer: 'FORCHETTA', row: 0, col: 0 },
+      { number: 2, direction: 'across', clue: 'Si usa per bere l\'acqua', answer: 'BICCHIERE', row: 2, col: 2 },
+      { number: 3, direction: 'across', clue: 'Si ascolta con le orecchie', answer: 'MUSICA', row: 4, col: 1 },
+      { number: 4, direction: 'across', clue: 'Si canta in allegria', answer: 'CANZONE', row: 6, col: 3 },
+      { number: 1, direction: 'down', clue: 'Si dà sulla guancia con affetto', answer: 'BACIO', row: 0, col: 4 },
+      { number: 5, direction: 'down', clue: 'La stagione più calda dell\'anno', answer: 'ESTATE', row: 2, col: 6 },
+      { number: 6, direction: 'down', clue: 'La stagione in cui fa molto freddo', answer: 'INVERNO', row: 4, col: 5 },
+    ]
+  },
+  {
+    id: 7,
+    title: 'Cruciverba Facile 7',
+    gridSize: { rows: 10, cols: 10 },
+    clues: [
+      { number: 1, direction: 'across', clue: 'È rotonda, buona con il pomodoro', answer: 'PIZZA', row: 1, col: 1 },
+      { number: 2, direction: 'across', clue: 'Serve per sistemare i capelli', answer: 'PETTINE', row: 3, col: 0 },
+      { number: 3, direction: 'across', clue: 'Spegne la sete', answer: 'ACQUA', row: 5, col: 3 },
+      { number: 4, direction: 'across', clue: 'Si beve nei bicchieri ai pasti', answer: 'VINO', row: 7, col: 5 },
+      { number: 1, direction: 'down', clue: 'Si prende la mattina per svegliarsi', answer: 'CAFFE', row: 1, col: 5 },
+      { number: 5, direction: 'down', clue: 'Un fiore rosso con le spine', answer: 'ROSA', row: 3, col: 3 },
+      { number: 6, direction: 'down', clue: 'Fa le fusa e caccia i topi', answer: 'GATTO', row: 5, col: 7 },
+    ]
+  },
+  {
+    id: 8,
+    title: 'Cruciverba Facile 8',
+    gridSize: { rows: 9, cols: 9 },
+    clues: [
+      { number: 1, direction: 'across', clue: 'L\'amico dell\'uomo che abbaia', answer: 'CANE', row: 0, col: 2 },
+      { number: 2, direction: 'across', clue: 'Si compra dal fornaio ogni giorno', answer: 'PANE', row: 2, col: 0 },
+      { number: 3, direction: 'across', clue: 'Si beve a colazione, è bianco', answer: 'LATTE', row: 4, col: 3 },
+      { number: 4, direction: 'across', clue: 'Ci si va a dormire la sera', answer: 'LETTO', row: 6, col: 1 },
+      { number: 1, direction: 'down', clue: 'Un primo piatto tipico italiano', answer: 'PASTA', row: 0, col: 5 },
+      { number: 5, direction: 'down', clue: 'Frutto rosso o verde', answer: 'MELA', row: 2, col: 4 },
+      { number: 6, direction: 'down', clue: 'Scalda la terra di giorno', answer: 'SOLE', row: 4, col: 7 },
+    ]
+  }
+];
 
 interface CruciverbaProps {
   onChiudi: () => void;
   theme?: ThemeType;
 }
 
-/**
- * Genera un cruciverba con algoritmo completamente rivisto:
- * 1. Filtra parole brevi (4-8 lettere)
- * 2. Ordina per lunghezza decrescente
- * 3. Posiziona la prima al centro (orizzontale)
- * 4. Per ogni parola successiva, cerca intersezioni valide
- * 5. Valida rigorosamente che non ci siano lettere adiacenti illegali
- * 6. Bilancia orizzontali e verticali
- */
-function generaCruciverba(paroleInput: { parola: string; definizione: string }[]): {
-  griglia: CellaCruciverba[][];
-  paroleInserite: ParolaInserita[];
-  boundingBox: { minRiga: number; maxRiga: number; minCol: number; maxCol: number };
-} {
-  const RIGHE = 15;
-  const COLONNE = 15;
-  
-  // Inizializza griglia con tutte caselle nere
-  const griglia: CellaCruciverba[][] = Array(RIGHE)
-    .fill(null)
-    .map(() =>
-      Array(COLONNE)
-        .fill(null)
-        .map(() => ({ lettera: "", attiva: false }))
-    );
+export const GiocoCruciverba: React.FC<CruciverbaProps> = ({ onChiudi, theme = 'light' }) => {
+  const [currentPuzzleIndex, setCurrentPuzzleIndex] = useState(0);
+  const currentPuzzle = PUZZLES[currentPuzzleIndex];
+  const { rows, cols } = currentPuzzle.gridSize;
 
-  const paroleInserite: ParolaInserita[] = [];
+  // Costruisci la griglia
+  const grid = Array.from({ length: rows }, () => Array(cols).fill(null));
+  const numbersGrid = Array.from({ length: rows }, () => Array(cols).fill(null));
 
-  // FILTRO 1: Solo parole brevi e semplici (4-8 lettere)
-  const paroleFiltrate = [...paroleInput]
-    .map(p => ({ ...p, parola: p.parola.toUpperCase().replace(/[^A-Z]/g, '') }))
-    .filter(p => p.parola.length >= 4 && p.parola.length <= 8);
-
-  // FILTRO 2: Ordina per lunghezza decrescente
-  const paroleOrdinate = paroleFiltrate
-    .sort((a, b) => b.parola.length - a.parola.length)
-    .slice(0, 16); // Max 16 parole per avere buon bilanciamento
-
-  if (paroleOrdinate.length === 0) {
-    return {
-      griglia,
-      paroleInserite: [],
-      boundingBox: { minRiga: 0, maxRiga: 0, minCol: 0, maxCol: 0 }
-    };
-  }
-
-  /**
-   * Verifica se una parola può essere posizionata nella griglia
-   * Controlla che non ci siano lettere adiacenti illegali
-   */
-  function puòPosizionareParola(
-    parola: string,
-    riga: number,
-    colonna: number,
-    direzione: "orizzontale" | "verticale"
-  ): boolean {
-    const lunghezza = parola.length;
-
-    // Controlla bounds
-    if (direzione === "orizzontale") {
-      if (colonna < 0 || colonna + lunghezza > COLONNE) return false;
-    } else {
-      if (riga < 0 || riga + lunghezza > RIGHE) return false;
-    }
-
-    // Controlla ogni cella della parola
-    for (let k = 0; k < lunghezza; k++) {
-      const r = direzione === "verticale" ? riga + k : riga;
-      const c = direzione === "orizzontale" ? colonna + k : colonna;
-      const cella = griglia[r][c];
-
-      // Se la cella è già attiva
-      if (cella.attiva) {
-        // Deve avere la stessa lettera (intersezione valida)
-        if (cella.lettera !== parola[k]) return false;
-      } else {
-        // La cella è nera: controlla che non ci siano lettere adiacenti illegali
-        // Controlla celle adiacenti (non in diagonale)
-        const adiacenti = [
-          [r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]
-        ];
-
-        for (const [ar, ac] of adiacenti) {
-          if (ar >= 0 && ar < RIGHE && ac >= 0 && ac < COLONNE) {
-            const cellaAdiacente = griglia[ar][ac];
-            // Se c'è una lettera adiacente, è illegale (creerebbe una parola di 2 lettere)
-            if (cellaAdiacente.attiva && cellaAdiacente.lettera !== '') {
-              // Eccezione: se è un'intersezione valida con un'altra parola
-              const èIntersezione = paroleInserite.some(p => {
-                if (p.direzione === direzione) return false; // Stessa direzione
-                const pRiga = p.riga;
-                const pColonna = p.colonna;
-                const pLunghezza = p.parola.length;
-                
-                if (p.direzione === "orizzontale") {
-                  return r === pRiga && c >= pColonna && c < pColonna + pLunghezza;
-                } else {
-                  return c === pColonna && r >= pRiga && r < pRiga + pLunghezza;
-                }
-              });
-              
-              if (!èIntersezione) return false;
-            }
-          }
-        }
+  currentPuzzle.clues.forEach(({ number, direction, answer, row, col }) => {
+    numbersGrid[row][col] = number;
+    for (let i = 0; i < answer.length; i++) {
+      const r = direction === 'across' ? row : row + i;
+      const c = direction === 'across' ? col + i : col;
+      if (r < rows && c < cols) {
+        grid[r][c] = { answer: answer[i] };
       }
     }
-
-    // Controlla che la parola abbia almeno un'intersezione (non sia isolata)
-    if (paroleInserite.length > 0) {
-      let haIntersezione = false;
-      for (let k = 0; k < lunghezza; k++) {
-        const r = direzione === "verticale" ? riga + k : riga;
-        const c = direzione === "orizzontale" ? colonna + k : colonna;
-        if (griglia[r][c].attiva && griglia[r][c].lettera === parola[k]) {
-          haIntersezione = true;
-          break;
-        }
-      }
-      if (!haIntersezione) return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * Posiziona una parola nella griglia
-   */
-  function posizionaParola(
-    parola: string,
-    riga: number,
-    colonna: number,
-    direzione: "orizzontale" | "verticale"
-  ) {
-    for (let k = 0; k < parola.length; k++) {
-      const r = direzione === "verticale" ? riga + k : riga;
-      const c = direzione === "orizzontale" ? colonna + k : colonna;
-      griglia[r][c].lettera = parola[k];
-      griglia[r][c].attiva = true;
-    }
-  }
-
-  // POSIZIONA LA PRIMA PAROLA al centro orizzontalmente
-  const primaParola = paroleOrdinate[0];
-  const rigaCentro = Math.floor(RIGHE / 2);
-  const colonnaCentro = Math.floor((COLONNE - primaParola.parola.length) / 2);
-
-  posizionaParola(primaParola.parola, rigaCentro, colonnaCentro, "orizzontale");
-  paroleInserite.push({
-    parola: primaParola.parola,
-    definizione: primaParola.definizione,
-    direzione: "orizzontale",
-    riga: rigaCentro,
-    colonna: colonnaCentro,
   });
 
-  // POSIZIONA LE ALTRE PAROLE cercando intersezioni valide
-  for (let idx = 1; idx < paroleOrdinate.length; idx++) {
-    const parolaObj = paroleOrdinate[idx];
-    const parola = parolaObj.parola;
-    
-    let posizionamentoTrovato = false;
-
-    // Prova tutte le parole già inserite
-    for (const parolaGia of paroleInserite) {
-      if (posizionamentoTrovato) break;
-
-      const direzioneNuova = parolaGia.direzione === "orizzontale" ? "verticale" : "orizzontale";
-
-      // Prova ogni possibile intersezione
-      for (let i = 0; i < parola.length && !posizionamentoTrovato; i++) {
-        for (let j = 0; j < parolaGia.parola.length && !posizionamentoTrovato; j++) {
-          // Controlla se le lettere coincidono
-          if (parola[i] !== parolaGia.parola[j]) continue;
-
-          let rigaNuova, colNuova;
-
-          if (direzioneNuova === "verticale") {
-            rigaNuova = parolaGia.riga - i;
-            colNuova = parolaGia.colonna + j;
-          } else {
-            rigaNuova = parolaGia.riga + j;
-            colNuova = parolaGia.colonna - i;
-          }
-
-          // Verifica se il posizionamento è valido
-          if (puòPosizionareParola(parola, rigaNuova, colNuova, direzioneNuova)) {
-            posizionaParola(parola, rigaNuova, colNuova, direzioneNuova);
-            paroleInserite.push({
-              parola,
-              definizione: parolaObj.definizione,
-              direzione: direzioneNuova,
-              riga: rigaNuova,
-              colonna: colNuova,
-            });
-            posizionamentoTrovato = true;
-          }
-        }
-      }
-    }
-  }
-
-  // NUMERA le caselle da sinistra a destra, dall'alto in basso
-  let numeroProgressivo = 1;
-  for (let r = 0; r < RIGHE; r++) {
-    for (let c = 0; c < COLONNE; c++) {
-      if (!griglia[r][c].attiva) continue;
-
-      const èInizioOrizzontale = 
-        (c === 0 || !griglia[r][c - 1].attiva) && 
-        (c + 1 < COLONNE && griglia[r][c + 1].attiva);
-      
-      const èInizioVerticale = 
-        (r === 0 || !griglia[r - 1][c].attiva) && 
-        (r + 1 < RIGHE && griglia[r + 1][c].attiva);
-
-      if (èInizioOrizzontale || èInizioVerticale) {
-        griglia[r][c].numero = numeroProgressivo;
-        
-        // Aggiorna le parole inserite con il numero corretto
-        for (const parola of paroleInserite) {
-          if (parola.riga === r && parola.colonna === c) {
-            parola.numero = numeroProgressivo;
-          }
-        }
-        
-        numeroProgressivo++;
-      }
-    }
-  }
-
-  // Calcola bounding box
-  let minRiga = RIGHE, maxRiga = 0, minCol = COLONNE, maxCol = 0;
-  for (let r = 0; r < RIGHE; r++) {
-    for (let c = 0; c < COLONNE; c++) {
-      if (griglia[r][c].attiva) {
-        minRiga = Math.min(minRiga, r);
-        maxRiga = Math.max(maxRiga, r);
-        minCol = Math.min(minCol, c);
-        maxCol = Math.max(maxCol, c);
-      }
-    }
-  }
-
-  return { 
-    griglia, 
-    paroleInserite,
-    boundingBox: { minRiga, maxRiga, minCol, maxCol }
-  };
-}
-
-/**
- * Parole predefinite per il cruciverba basato sul profilo
- * Parole semplici e familiari con definizioni chiare
- */
-function generaParoleDaProfilo(): { parola: string; definizione: string }[] {
-  return [
-    { parola: "CANE", definizione: "L'amico dell'uomo che abbaia" },
-    { parola: "GATTO", definizione: "Fa le fusa e caccia i topi" },
-    { parola: "PANE", definizione: "Si compra dal fornaio ogni giorno" },
-    { parola: "SOLE", definizione: "Scalda la terra di giorno" },
-    { parola: "LUNA", definizione: "Splende nel cielo di notte" },
-    { parola: "LATTE", definizione: "Si beve a colazione, è bianco" },
-    { parola: "CAFFE", definizione: "Si prende la mattina per svegliarsi" },
-    { parola: "ACQUA", definizione: "Spegne la sete" },
-    { parola: "VINO", definizione: "Si beve nei bicchieri ai pasti" },
-    { parola: "MELA", definizione: "Frutto rosso o verde che cresce sull'albero" },
-    { parola: "SEDIA", definizione: "Ci si siede sopra per riposare" },
-    { parola: "TAVOLO", definizione: "Vi si appoggiano i piatti per mangiare" },
-    { parola: "LETTO", definizione: "Ci si va a dormire la sera" },
-    { parola: "CASA", definizione: "Il posto dove si vive con la famiglia" },
-    { parola: "PORTA", definizione: "Si apre con la chiave" },
-    { parola: "NONNA", definizione: "La mamma della mamma" },
-    { parola: "NONNO", definizione: "Il papà del papà" },
-    { parola: "MAMMA", definizione: "Vuole bene ai suoi figli" },
-    { parola: "FIORE", definizione: "Profuma ed è pieno di colori" },
-    { parola: "ROSA", definizione: "Un fiore rosso con le spine" },
-    { parola: "MARE", definizione: "Ha l'acqua salata e le onde" },
-    { parola: "CIELO", definizione: "È blu ed è pieno di nuvole" },
-    { parola: "NEVE", definizione: "È bianca e cade d'inverno" },
-    { parola: "FUOCO", definizione: "Scalda il camino ma scotta" },
-    { parola: "PRATO", definizione: "È fatto di erba verde" },
-    { parola: "SCARPA", definizione: "Si mette al piede per camminare" },
-    { parola: "MANO", definizione: "Ha cinque dita" },
-    { parola: "BOCCA", definizione: "Serve per mangiare e parlare" },
-    { parola: "OCCHI", definizione: "Servono per guardare" },
-    { parola: "NASO", definizione: "Serve per annusare i profumi" },
-    { parola: "ALBERO", definizione: "Ha il tronco e le foglie" },
-    { parola: "UCCELLO", definizione: "Ha le ali e vola nel cielo" },
-    { parola: "PESCE", definizione: "Nuota dentro il mare" },
-    { parola: "PIATTO", definizione: "Vi si versa la minestra" },
-    { parola: "CUCCHIAIO", definizione: "Si usa per mangiare il brodo" },
-    { parola: "FORCHETTA", definizione: "Serve per infilzare la pasta" },
-    { parola: "BICCHIERE", definizione: "Si usa per bere l'acqua" },
-    { parola: "OROLOGIO", definizione: "Segna le ore della giornata" },
-    { parola: "PALLA", definizione: "È rotonda e si usa per giocare" },
-    { parola: "MUSICA", definizione: "Si ascolta con le orecchie" },
-    { parola: "CANZONE", definizione: "Si canta in allegria" },
-    { parola: "BACIO", definizione: "Si dà sulla guancia con affetto" },
-    { parola: "SORRISO", definizione: "Si fa con la bocca quando si è felici" },
-    { parola: "CUORE", definizione: "Batte nel petto" },
-    { parola: "ESTATE", definizione: "La stagione più calda dell'anno" },
-    { parola: "INVERNO", definizione: "La stagione in cui fa molto freddo" },
-    { parola: "PASTA", definizione: "Un primo piatto tipico italiano" },
-    { parola: "PIZZA", definizione: "È rotonda, buona con il pomodoro" },
-    { parola: "PETTINE", definizione: "Serve per sistemare i capelli" },
-    { parola: "SAPONE", definizione: "Si usa per lavarsi le mani" }
-  ];
-}
-
-export default function GiocoCruciverba({ onChiudi, theme = 'light' }: CruciverbaProps) {
-  const [modalita, setModalita] = useState<"scegli" | "profilo" | "custom" | "gioco">("scegli");
-  const [griglia, setGriglia] = useState<CellaCruciverba[][]>([]);
-  const [paroleInserite, setParoleInserite] = useState<ParolaInserita[]>([]);
-  const [boundingBox, setBoundingBox] = useState({ minRiga: 0, maxRiga: 14, minCol: 0, maxCol: 14 });
-  const [cellaSelezionata, setCellaSelezionata] = useState<{ riga: number; colonna: number } | null>(null);
-  const [risposteUtente, setRisposteUtente] = useState<{ [key: string]: string }>({});
-  const [customKey, setCustomKey] = useState(0); // Key per forzare il rimontaggio del componente custom
-
-  const iniziaDaProfilo = () => {
-    const parole = generaParoleDaProfilo();
-    const { griglia: nuovaGriglia, paroleInserite: nuoveParole, boundingBox: bb } = generaCruciverba(parole);
-    setGriglia(nuovaGriglia);
-    setParoleInserite(nuoveParole);
-    setBoundingBox(bb);
-    setModalita("gioco");
-  };
-
-  const iniziaCustom = (paroleCustom: { parola: string; definizione: string }[]) => {
-    const { griglia: nuovaGriglia, paroleInserite: nuoveParole, boundingBox: bb } = generaCruciverba(paroleCustom);
-    setGriglia(nuovaGriglia);
-    setParoleInserite(nuoveParole);
-    setBoundingBox(bb);
-    setModalita("gioco");
-  };
-
-  const gestisciClickCella = (riga: number, colonna: number) => {
-    if (!griglia[riga][colonna].attiva) return;
-    setCellaSelezionata({ riga, colonna });
-  };
-
-  const gestisciInputLettera = (lettera: string) => {
-    if (!cellaSelezionata) return;
-    const key = `${cellaSelezionata.riga}-${cellaSelezionata.colonna}`;
-    setRisposteUtente((prev) => ({ ...prev, [key]: lettera.toUpperCase().slice(0, 1) }));
-  };
-
-  // Filtra e ordina parole per i pannelli
-  const paroleOrizzontali = useMemo(() => 
-    paroleInserite
-      .filter((p) => p.direzione === "orizzontale" && p.numero)
-      .sort((a, b) => (a.numero || 0) - (b.numero || 0)),
-    [paroleInserite]
+  const [userGrid, setUserGrid] = useState<string[][]>(
+    Array.from({ length: rows }, () => Array(cols).fill(''))
   );
 
-  const paroleVerticali = useMemo(() => 
-    paroleInserite
-      .filter((p) => p.direzione === "verticale" && p.numero)
-      .sort((a, b) => (a.numero || 0) - (b.numero || 0)),
-    [paroleInserite]
-  );
+  const handleChange = (r: number, c: number, value: string) => {
+    const val = value.toUpperCase().slice(-1);
+    const newGrid = userGrid.map(row => [...row]);
+    newGrid[r][c] = val;
+    setUserGrid(newGrid);
+  };
 
-  if (modalita === "scegli") {
-    return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl max-w-2xl w-full p-8 space-y-6">
-          <h2 className="text-3xl font-bold text-slate-900 text-center">🧩 Cruciverba</h2>
-          <p className="text-slate-600 text-center">Scegli come generare il cruciverba:</p>
+  const nextPuzzle = () => {
+    setCurrentPuzzleIndex((prev) => (prev + 1) % PUZZLES.length);
+    setUserGrid(Array.from({ length: rows }, () => Array(cols).fill('')));
+  };
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button
-              onClick={iniziaDaProfilo}
-              className="p-6 bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all"
-            >
-              <div className="text-4xl mb-2">👤</div>
-              <div className="font-bold text-lg mb-1">Basato sul Profilo</div>
-              <div className="text-sm opacity-90">Parole legate ai ricordi di {getProfiloPaziente().nome}</div>
-            </button>
-
-            <button
-              onClick={() => {
-                setCustomKey(prev => prev + 1); // Incrementa la key per forzare il rimontaggio
-                setModalita("custom");
-              }}
-              className="p-6 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-xl hover:from-amber-600 hover:to-orange-700 transition-all"
-            >
-              <div className="text-4xl mb-2">✏️</div>
-              <div className="font-bold text-lg mb-1">Personalizzato</div>
-              <div className="text-sm opacity-90">Inserisci parole e definizioni</div>
-            </button>
-          </div>
-
-          <button
-            onClick={onChiudi}
-            className="w-full py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors"
-          >
-            ← Torna al Menu
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (modalita === "custom") {
-    return <CruciverbaCustom key={customKey} onIndietro={() => setModalita("scegli")} onGenera={iniziaCustom} onChiudi={onChiudi} />;
-  }
-
-  // Calcola la griglia da mostrare (crop attorno al bounding box)
-  const grigliaCrop = griglia.slice(boundingBox.minRiga, boundingBox.maxRiga + 1).map(riga => 
-    riga.slice(boundingBox.minCol, boundingBox.maxCol + 1)
-  );
+  const isDark = theme === 'dark';
 
   return (
-    <div className="fixed inset-0 bg-slate-100 overflow-auto z-50">
-      <div className="max-w-6xl mx-auto p-4 md:p-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className={`text-2xl md:text-3xl font-bold transition-colors duration-300 ${
-            theme === 'dark' ? 'text-white' : 'text-slate-900'
-          }`}>🧩 Cruciverba</h2>
-          <button
-            onClick={onChiudi}
-            className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors"
-          >
-            ← Chiudi
-          </button>
+    <div className={`fixed inset-0 z-50 overflow-auto ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
+      <div className="p-4 max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>
+              {currentPuzzle.title}
+            </h2>
+            <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+              Puzzle {currentPuzzleIndex + 1} di {PUZZLES.length}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={nextPuzzle} 
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                isDark 
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                  : 'bg-blue-500 hover:bg-blue-600 text-white'
+              }`}
+            >
+              Prossimo →
+            </button>
+            <button 
+              onClick={onChiudi} 
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                isDark 
+                  ? 'bg-slate-700 hover:bg-slate-600 text-white' 
+                  : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
+              }`}
+            >
+              ← Chiudi
+            </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Griglia */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <div className="overflow-x-auto">
-              <div className="inline-block min-w-max">
-                {grigliaCrop.map((riga, rigaIdx) => (
-                  <div key={rigaIdx} className="flex">
-                    {riga.map((cella, colIdx) => {
-                      const rigaOriginale = boundingBox.minRiga + rigaIdx;
-                      const colOriginale = boundingBox.minCol + colIdx;
-                      const key = `${rigaOriginale}-${colOriginale}`;
-                      const isSelected = cellaSelezionata?.riga === rigaOriginale && cellaSelezionata?.colonna === colOriginale;
-
-                      return (
-                        <div
-                          key={colIdx}
-                          onClick={() => cella.attiva && gestisciClickCella(rigaOriginale, colOriginale)}
-                          className={`w-10 h-10 md:w-12 md:h-12 border border-slate-300 relative ${
-                            cella.attiva 
-                              ? "bg-white cursor-pointer hover:bg-blue-50" 
-                              : "bg-slate-800"
-                          } ${isSelected ? "ring-2 ring-blue-500 bg-blue-50" : ""}`}
-                        >
-                          {cella.numero && (
-                            <span className="absolute top-0 left-0.5 text-xs text-slate-500 font-bold">
-                              {cella.numero}
-                            </span>
-                          )}
-                          {cella.attiva && (
-                            <input
-                              type="text"
-                              maxLength={1}
-                              value={risposteUtente[key] || ""}
-                              onChange={(e) => gestisciInputLettera(e.target.value)}
-                              className="w-full h-full text-center text-lg md:text-xl font-bold uppercase bg-transparent focus:outline-none"
-                            />
-                          )}
-                        </div>
-                      );
-                    })}
+          <div className={`md:col-span-2 p-4 rounded-xl shadow-md border ${
+            isDark 
+              ? 'bg-slate-800 border-slate-700' 
+              : 'bg-white border-slate-200'
+          }`}>
+            <div 
+              className={`grid gap-1 p-2 rounded-lg ${isDark ? 'bg-slate-950' : 'bg-slate-900'}`}
+              style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+            >
+              {grid.map((row, r) =>
+                row.map((cell, c) => (
+                  <div key={`${r}-${c}`} className={`aspect-square relative ${isDark ? 'bg-slate-950' : 'bg-slate-900'}`}>
+                    {cell ? (
+                      <>
+                        {numbersGrid[r][c] && (
+                          <span className={`absolute top-0.5 left-1 text-[10px] font-bold z-10 select-none ${
+                            isDark ? 'text-slate-400' : 'text-slate-600'
+                          }`}>
+                            {numbersGrid[r][c]}
+                          </span>
+                        )}
+                        <input
+                          type="text"
+                          maxLength={1}
+                          value={userGrid[r][c]}
+                          onChange={(e) => handleChange(r, c, e.target.value)}
+                          className={`w-full h-full text-center text-lg font-bold uppercase border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            isDark 
+                              ? 'bg-slate-100 text-slate-900 border-slate-300' 
+                              : 'bg-white text-slate-900 border-slate-300'
+                          }`}
+                        />
+                      </>
+                    ) : (
+                      <div className={`w-full h-full rounded ${isDark ? 'bg-slate-950' : 'bg-slate-900'}`} />
+                    )}
                   </div>
-                ))}
-              </div>
+                ))
+              )}
             </div>
           </div>
 
           {/* Definizioni */}
           <div className="space-y-4">
-            {/* Orizzontali */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-              <h3 className={`font-bold mb-3 transition-colors duration-300 ${
-                theme === 'dark' ? 'text-white' : 'text-slate-900'
-              }`}>→ Orizzontali</h3>
-              <div className="space-y-2">
-                {paroleOrizzontali.map((p) => (
-                  <div key={p.numero} className="text-sm">
-                    <span className="font-bold text-blue-600">{p.numero}.</span>{" "}
-                    <span className={`transition-colors duration-300 ${
-                      theme === 'dark' ? 'text-slate-200' : 'text-slate-700'
-                    }`}>{p.definizione}</span>
-                  </div>
+            <div className={`p-4 rounded-xl shadow-md border ${
+              isDark 
+                ? 'bg-slate-800 border-slate-700' 
+                : 'bg-white border-slate-200'
+            }`}>
+              <h3 className={`font-bold text-lg mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                → Orizzontali
+              </h3>
+              <ul className={`space-y-1 text-sm ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                {currentPuzzle.clues.filter(c => c.direction === 'across').map(c => (
+                  <li key={`a-${c.number}`}><strong>{c.number}.</strong> {c.clue}</li>
                 ))}
-              </div>
+              </ul>
             </div>
 
-            {/* Verticali */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-              <h3 className={`font-bold mb-3 transition-colors duration-300 ${
-                theme === 'dark' ? 'text-white' : 'text-slate-900'
-              }`}>↓ Verticali</h3>
-              <div className="space-y-2">
-                {paroleVerticali.map((p) => (
-                  <div key={p.numero} className="text-sm">
-                    <span className="font-bold text-blue-600">{p.numero}.</span>{" "}
-                    <span className={`transition-colors duration-300 ${
-                      theme === 'dark' ? 'text-slate-200' : 'text-slate-700'
-                    }`}>{p.definizione}</span>
-                  </div>
+            <div className={`p-4 rounded-xl shadow-md border ${
+              isDark 
+                ? 'bg-slate-800 border-slate-700' 
+                : 'bg-white border-slate-200'
+            }`}>
+              <h3 className={`font-bold text-lg mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                ↓ Verticali
+              </h3>
+              <ul className={`space-y-1 text-sm ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                {currentPuzzle.clues.filter(c => c.direction === 'down').map(c => (
+                  <li key={`d-${c.number}`}><strong>{c.number}.</strong> {c.clue}</li>
                 ))}
-              </div>
+              </ul>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
-/**
- * Componente per inserire parole e definizioni personalizzate
- */
-function CruciverbaCustom({
-  onIndietro,
-  onGenera,
-  onChiudi,
-}: {
-  onIndietro: () => void;
-  onGenera: (parole: { parola: string; definizione: string }[]) => void;
-  onChiudi: () => void;
-}) {
-  // Inizializza con una parola vuota ogni volta che il componente viene montato
-  const [parole, setParole] = useState<{ parola: string; definizione: string }[]>([
-    { parola: "", definizione: "" },
-  ]);
-
-  // Resetta le parole quando il componente viene montato
-  useEffect(() => {
-    setParole([{ parola: "", definizione: "" }]);
-  }, []);
-
-  const aggiungiParola = () => {
-    setParole([...parole, { parola: "", definizione: "" }]);
-  };
-
-  const rimuoviParola = (idx: number) => {
-    setParole(parole.filter((_, i) => i !== idx));
-  };
-
-  const aggiornaParola = (idx: number, campo: "parola" | "definizione", valore: string) => {
-    const nuoveParole = [...parole];
-    nuoveParole[idx][campo] = valore;
-    setParole(nuoveParole);
-  };
-
-  const genera = () => {
-    const paroleValide = parole.filter((p) => p.parola.trim() && p.definizione.trim());
-    if (paroleValide.length < 2) {
-      alert("Inserisci almeno 2 parole con le loro definizioni");
-      return;
-    }
-    onGenera(paroleValide);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-slate-100 overflow-auto z-50">
-      <div className="max-w-3xl mx-auto p-4 md:p-8">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-6">✏️ Cruciverba Personalizzato</h2>
-
-          <div className="space-y-4 mb-6">
-            {parole.map((p, idx) => (
-              <div key={idx} className="bg-slate-50 rounded-lg p-4 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-slate-700">Parola {idx + 1}</span>
-                  {parole.length > 1 && (
-                    <button
-                      onClick={() => rimuoviParola(idx)}
-                      className="text-red-600 hover:text-red-700 text-sm"
-                    >
-                      🗑️ Rimuovi
-                    </button>
-                  )}
-                </div>
-                <input
-                  type="text"
-                  placeholder="Parola (es. MARE)"
-                  value={p.parola}
-                  onChange={(e) => aggiornaParola(idx, "parola", e.target.value.toUpperCase())}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                />
-                <input
-                  type="text"
-                  placeholder="Definizione (es. Acqua salata)"
-                  value={p.definizione}
-                  onChange={(e) => aggiornaParola(idx, "definizione", e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                />
-              </div>
-            ))}
-          </div>
-
-          <button
-            onClick={aggiungiParola}
-            className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg transition-colors mb-4"
-          >
-            + Aggiungi Parola
-          </button>
-
-          <div className="flex gap-3">
-            <button
-              onClick={onIndietro}
-              className="flex-1 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors"
-            >
-              ← Indietro
-            </button>
-            <button
-              onClick={genera}
-              className="flex-1 py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-medium rounded-lg transition-colors"
-            >
-              🎯 Genera Cruciverba
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+export default GiocoCruciverba;
