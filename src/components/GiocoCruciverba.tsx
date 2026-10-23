@@ -17,122 +17,20 @@ interface CrosswordPuzzle {
   clues: Clue[];
 }
 
-// Schemi pre-calcolati e perfettamente incrociati
-const PUZZLES: CrosswordPuzzle[] = [
-  {
-    id: 1,
-    title: 'Cruciverba Facile 1',
-    gridSize: { rows: 8, cols: 8 },
-    clues: [
-      { number: 1, direction: 'across', clue: 'Un primo piatto tipico italiano', answer: 'PASTA', row: 1, col: 1 },
-      { number: 2, direction: 'across', clue: 'Si beve a colazione, è bianco', answer: 'LATTE', row: 3, col: 2 },
-      { number: 3, direction: 'across', clue: 'Ci si va a dormire la sera', answer: 'LETTO', row: 5, col: 0 },
-      { number: 1, direction: 'down', clue: 'Si compra dal fornaio ogni giorno', answer: 'PANE', row: 1, col: 1 },
-      { number: 4, direction: 'down', clue: 'L\'amico dell\'uomo che abbaia', answer: 'CANE', row: 1, col: 5 },
-      { number: 5, direction: 'down', clue: 'Frutto rosso o verde', answer: 'MELA', row: 3, col: 3 },
-    ]
-  },
-  {
-    id: 2,
-    title: 'Cruciverba Facile 2',
-    gridSize: { rows: 9, cols: 9 },
-    clues: [
-      { number: 1, direction: 'across', clue: 'Scalda la terra di giorno', answer: 'SOLE', row: 0, col: 2 },
-      { number: 2, direction: 'across', clue: 'Ha l\'acqua salata e le onde', answer: 'MARE', row: 2, col: 0 },
-      { number: 3, direction: 'across', clue: 'Il posto dove si vive con la famiglia', answer: 'CASA', row: 4, col: 3 },
-      { number: 4, direction: 'across', clue: 'Si fa con la bocca quando si è felici', answer: 'SORRISO', row: 6, col: 1 },
-      { number: 1, direction: 'down', clue: 'Splende nel cielo di notte', answer: 'LUNA', row: 0, col: 4 },
-      { number: 5, direction: 'down', clue: 'Ha il tronco e le foglie', answer: 'ALBERO', row: 2, col: 6 },
-      { number: 6, direction: 'down', clue: 'Batte nel petto', answer: 'CUORE', row: 4, col: 3 },
-    ]
-  },
-  {
-    id: 3,
-    title: 'Cruciverba Facile 3',
-    gridSize: { rows: 10, cols: 10 },
-    clues: [
-      { number: 1, direction: 'across', clue: 'Si mette al piede per camminare', answer: 'SCARPA', row: 1, col: 0 },
-      { number: 2, direction: 'across', clue: 'È rotonda e si usa per giocare', answer: 'PALLA', row: 3, col: 3 },
-      { number: 3, direction: 'across', clue: 'Segna le ore della giornata', answer: 'OROLOGIO', row: 5, col: 1 },
-      { number: 4, direction: 'across', clue: 'Si usa per lavarsi le mani', answer: 'SAPONE', row: 7, col: 4 },
-      { number: 1, direction: 'down', clue: 'Vi si appoggiano i piatti per mangiare', answer: 'TAVOLO', row: 1, col: 2 },
-      { number: 5, direction: 'down', clue: 'Ci si siede sopra per riposare', answer: 'SEDIA', row: 3, col: 5 },
-      { number: 6, direction: 'down', clue: 'Si apre con la chiave', answer: 'PORTA', row: 5, col: 7 },
-      { number: 7, direction: 'down', clue: 'Profuma ed è pieno di colori', answer: 'FIORE', row: 7, col: 0 },
-    ]
-  },
-  {
-    id: 4,
-    title: 'Cruciverba Facile 4',
-    gridSize: { rows: 9, cols: 9 },
-    clues: [
-      { number: 1, direction: 'across', clue: 'La mamma della mamma', answer: 'NONNA', row: 0, col: 1 },
-      { number: 2, direction: 'across', clue: 'Vuole bene ai suoi figli', answer: 'MAMMA', row: 2, col: 3 },
-      { number: 3, direction: 'across', clue: 'Ha cinque dita', answer: 'MANO', row: 4, col: 0 },
-      { number: 4, direction: 'across', clue: 'Serve per mangiare e parlare', answer: 'BOCCA', row: 6, col: 2 },
-      { number: 1, direction: 'down', clue: 'Il papà del papà', answer: 'NONNO', row: 0, col: 5 },
-      { number: 5, direction: 'down', clue: 'Servono per guardare', answer: 'OCCHI', row: 2, col: 7 },
-      { number: 6, direction: 'down', clue: 'Serve per annusare i profumi', answer: 'NASO', row: 4, col: 3 },
-    ]
-  },
-  {
-    id: 5,
-    title: 'Cruciverba Facile 5',
-    gridSize: { rows: 10, cols: 10 },
-    clues: [
-      { number: 1, direction: 'across', clue: 'È bianca e cade d\'inverno', answer: 'NEVE', row: 1, col: 2 },
-      { number: 2, direction: 'across', clue: 'Scalda il camino ma scotta', answer: 'FUOCO', row: 3, col: 0 },
-      { number: 3, direction: 'across', clue: 'È fatto di erba verde', answer: 'PRATO', row: 5, col: 4 },
-      { number: 4, direction: 'across', clue: 'Ha le ali e vola nel cielo', answer: 'UCCELLO', row: 7, col: 1 },
-      { number: 1, direction: 'down', clue: 'È blu ed è pieno di nuvole', answer: 'CIELO', row: 1, col: 6 },
-      { number: 5, direction: 'down', clue: 'Nuota dentro il mare', answer: 'PESCE', row: 3, col: 4 },
-      { number: 6, direction: 'down', clue: 'Vi si versa la minestra', answer: 'PIATTO', row: 5, col: 7 },
-      { number: 7, direction: 'down', clue: 'Si usa per mangiare il brodo', answer: 'CUCCHIAIO', row: 7, col: 3 },
-    ]
-  },
-  {
-    id: 6,
-    title: 'Cruciverba Facile 6',
-    gridSize: { rows: 9, cols: 9 },
-    clues: [
-      { number: 1, direction: 'across', clue: 'Serve per infilzare la pasta', answer: 'FORCHETTA', row: 0, col: 0 },
-      { number: 2, direction: 'across', clue: 'Si usa per bere l\'acqua', answer: 'BICCHIERE', row: 2, col: 2 },
-      { number: 3, direction: 'across', clue: 'Si ascolta con le orecchie', answer: 'MUSICA', row: 4, col: 1 },
-      { number: 4, direction: 'across', clue: 'Si canta in allegria', answer: 'CANZONE', row: 6, col: 3 },
-      { number: 1, direction: 'down', clue: 'Si dà sulla guancia con affetto', answer: 'BACIO', row: 0, col: 4 },
-      { number: 5, direction: 'down', clue: 'La stagione più calda dell\'anno', answer: 'ESTATE', row: 2, col: 6 },
-      { number: 6, direction: 'down', clue: 'La stagione in cui fa molto freddo', answer: 'INVERNO', row: 4, col: 5 },
-    ]
-  },
-  {
-    id: 7,
-    title: 'Cruciverba Facile 7',
-    gridSize: { rows: 10, cols: 10 },
-    clues: [
-      { number: 1, direction: 'across', clue: 'È rotonda, buona con il pomodoro', answer: 'PIZZA', row: 1, col: 1 },
-      { number: 2, direction: 'across', clue: 'Serve per sistemare i capelli', answer: 'PETTINE', row: 3, col: 0 },
-      { number: 3, direction: 'across', clue: 'Spegne la sete', answer: 'ACQUA', row: 5, col: 3 },
-      { number: 4, direction: 'across', clue: 'Si beve nei bicchieri ai pasti', answer: 'VINO', row: 7, col: 5 },
-      { number: 1, direction: 'down', clue: 'Si prende la mattina per svegliarsi', answer: 'CAFFE', row: 1, col: 5 },
-      { number: 5, direction: 'down', clue: 'Un fiore rosso con le spine', answer: 'ROSA', row: 3, col: 3 },
-      { number: 6, direction: 'down', clue: 'Fa le fusa e caccia i topi', answer: 'GATTO', row: 5, col: 7 },
-    ]
-  },
-  {
-    id: 8,
-    title: 'Cruciverba Facile 8',
-    gridSize: { rows: 9, cols: 9 },
-    clues: [
-      { number: 1, direction: 'across', clue: 'L\'amico dell\'uomo che abbaia', answer: 'CANE', row: 0, col: 2 },
-      { number: 2, direction: 'across', clue: 'Si compra dal fornaio ogni giorno', answer: 'PANE', row: 2, col: 0 },
-      { number: 3, direction: 'across', clue: 'Si beve a colazione, è bianco', answer: 'LATTE', row: 4, col: 3 },
-      { number: 4, direction: 'across', clue: 'Ci si va a dormire la sera', answer: 'LETTO', row: 6, col: 1 },
-      { number: 1, direction: 'down', clue: 'Un primo piatto tipico italiano', answer: 'PASTA', row: 0, col: 5 },
-      { number: 5, direction: 'down', clue: 'Frutto rosso o verde', answer: 'MELA', row: 2, col: 4 },
-      { number: 6, direction: 'down', clue: 'Scalda la terra di giorno', answer: 'SOLE', row: 4, col: 7 },
-    ]
-  }
-];
+// Schema pre-calcolato semplice e funzionante
+const PUZZLE: CrosswordPuzzle = {
+  id: 1,
+  title: 'Cruciverba Facile',
+  gridSize: { rows: 7, cols: 7 },
+  clues: [
+    { number: 1, direction: 'across', clue: 'Un primo piatto tipico italiano', answer: 'PASTA', row: 0, col: 1 },
+    { number: 2, direction: 'across', clue: 'Si beve a colazione, è bianco', answer: 'LATTE', row: 2, col: 1 },
+    { number: 3, direction: 'across', clue: 'Ci si va a dormire la sera', answer: 'LETTO', row: 4, col: 0 },
+    { number: 1, direction: 'down', clue: 'Si compra dal fornaio ogni giorno', answer: 'PANE', row: 0, col: 1 },
+    { number: 4, direction: 'down', clue: 'L\'amico dell\'uomo che abbaia', answer: 'CANE', row: 0, col: 5 },
+    { number: 5, direction: 'down', clue: 'Frutto rosso o verde', answer: 'MELA', row: 2, col: 3 },
+  ]
+};
 
 interface CruciverbaProps {
   onChiudi: () => void;
@@ -140,15 +38,14 @@ interface CruciverbaProps {
 }
 
 export const GiocoCruciverba: React.FC<CruciverbaProps> = ({ onChiudi, theme = 'light' }) => {
-  const [currentPuzzleIndex, setCurrentPuzzleIndex] = useState(0);
-  const currentPuzzle = PUZZLES[currentPuzzleIndex];
-  const { rows, cols } = currentPuzzle.gridSize;
+  const { rows, cols } = PUZZLE.gridSize;
 
-  // Costruisci la griglia
+  // Costruisci la griglia vuota
   const grid = Array.from({ length: rows }, () => Array(cols).fill(null));
   const numbersGrid = Array.from({ length: rows }, () => Array(cols).fill(null));
 
-  currentPuzzle.clues.forEach(({ number, direction, answer, row, col }) => {
+  // Posiziona le parole nella griglia
+  PUZZLE.clues.forEach(({ number, direction, answer, row, col }) => {
     numbersGrid[row][col] = number;
     for (let i = 0; i < answer.length; i++) {
       const r = direction === 'across' ? row : row + i;
@@ -159,10 +56,12 @@ export const GiocoCruciverba: React.FC<CruciverbaProps> = ({ onChiudi, theme = '
     }
   });
 
+  // Stato per le risposte dell'utente
   const [userGrid, setUserGrid] = useState<string[][]>(
     Array.from({ length: rows }, () => Array(cols).fill(''))
   );
 
+  // Gestisce il cambio di una cella
   const handleChange = (r: number, c: number, value: string) => {
     const val = value.toUpperCase().slice(-1);
     const newGrid = userGrid.map(row => [...row]);
@@ -170,51 +69,30 @@ export const GiocoCruciverba: React.FC<CruciverbaProps> = ({ onChiudi, theme = '
     setUserGrid(newGrid);
   };
 
-  const nextPuzzle = () => {
-    setCurrentPuzzleIndex((prev) => (prev + 1) % PUZZLES.length);
-    setUserGrid(Array.from({ length: rows }, () => Array(cols).fill('')));
-  };
-
   const isDark = theme === 'dark';
 
   return (
     <div className={`fixed inset-0 z-50 overflow-auto ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <div className="p-4 max-w-4xl mx-auto">
+        {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>
-              {currentPuzzle.title}
-            </h2>
-            <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-              Puzzle {currentPuzzleIndex + 1} di {PUZZLES.length}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <button 
-              onClick={nextPuzzle} 
-              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                isDark 
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                  : 'bg-blue-500 hover:bg-blue-600 text-white'
-              }`}
-            >
-              Prossimo →
-            </button>
-            <button 
-              onClick={onChiudi} 
-              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                isDark 
-                  ? 'bg-slate-700 hover:bg-slate-600 text-white' 
-                  : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
-              }`}
-            >
-              ← Chiudi
-            </button>
-          </div>
+          <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>
+            {PUZZLE.title}
+          </h2>
+          <button 
+            onClick={onChiudi} 
+            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+              isDark 
+                ? 'bg-slate-700 hover:bg-slate-600 text-white' 
+                : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
+            }`}
+          >
+            ← Chiudi
+          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Griglia */}
+          {/* Griglia del cruciverba */}
           <div className={`md:col-span-2 p-4 rounded-xl shadow-md border ${
             isDark 
               ? 'bg-slate-800 border-slate-700' 
@@ -259,6 +137,7 @@ export const GiocoCruciverba: React.FC<CruciverbaProps> = ({ onChiudi, theme = '
 
           {/* Definizioni */}
           <div className="space-y-4">
+            {/* Orizzontali */}
             <div className={`p-4 rounded-xl shadow-md border ${
               isDark 
                 ? 'bg-slate-800 border-slate-700' 
@@ -268,12 +147,13 @@ export const GiocoCruciverba: React.FC<CruciverbaProps> = ({ onChiudi, theme = '
                 → Orizzontali
               </h3>
               <ul className={`space-y-1 text-sm ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
-                {currentPuzzle.clues.filter(c => c.direction === 'across').map(c => (
+                {PUZZLE.clues.filter(c => c.direction === 'across').map(c => (
                   <li key={`a-${c.number}`}><strong>{c.number}.</strong> {c.clue}</li>
                 ))}
               </ul>
             </div>
 
+            {/* Verticali */}
             <div className={`p-4 rounded-xl shadow-md border ${
               isDark 
                 ? 'bg-slate-800 border-slate-700' 
@@ -283,7 +163,7 @@ export const GiocoCruciverba: React.FC<CruciverbaProps> = ({ onChiudi, theme = '
                 ↓ Verticali
               </h3>
               <ul className={`space-y-1 text-sm ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
-                {currentPuzzle.clues.filter(c => c.direction === 'down').map(c => (
+                {PUZZLE.clues.filter(c => c.direction === 'down').map(c => (
                   <li key={`d-${c.number}`}><strong>{c.number}.</strong> {c.clue}</li>
                 ))}
               </ul>

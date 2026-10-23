@@ -710,7 +710,7 @@ function App() {
       )}
 
       {giocoAttivo === "memory" && (
-        <MemorySemplificato onChiudi={() => setGiocoAttivo(null)} />
+        <MemorySemplificato onChiudi={() => setGiocoAttivo(null)} theme={theme} />
       )}
 
       {giocoAttivo === "ombre" && (
