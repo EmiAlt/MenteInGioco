@@ -367,6 +367,7 @@ export default function GiocoCruciverba({ onChiudi, theme = 'light' }: Cruciverb
   const [boundingBox, setBoundingBox] = useState({ minRiga: 0, maxRiga: 14, minCol: 0, maxCol: 14 });
   const [cellaSelezionata, setCellaSelezionata] = useState<{ riga: number; colonna: number } | null>(null);
   const [risposteUtente, setRisposteUtente] = useState<{ [key: string]: string }>({});
+  const [customKey, setCustomKey] = useState(0); // Key per forzare il rimontaggio del componente custom
 
   const iniziaDaProfilo = () => {
     const parole = generaParoleDaProfilo();
@@ -429,7 +430,10 @@ export default function GiocoCruciverba({ onChiudi, theme = 'light' }: Cruciverb
             </button>
 
             <button
-              onClick={() => setModalita("custom")}
+              onClick={() => {
+                setCustomKey(prev => prev + 1); // Incrementa la key per forzare il rimontaggio
+                setModalita("custom");
+              }}
               className="p-6 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-xl hover:from-amber-600 hover:to-orange-700 transition-all"
             >
               <div className="text-4xl mb-2">✏️</div>
@@ -450,7 +454,7 @@ export default function GiocoCruciverba({ onChiudi, theme = 'light' }: Cruciverb
   }
 
   if (modalita === "custom") {
-    return <CruciverbaCustom onIndietro={() => setModalita("scegli")} onGenera={iniziaCustom} onChiudi={onChiudi} />;
+    return <CruciverbaCustom key={customKey} onIndietro={() => setModalita("scegli")} onGenera={iniziaCustom} onChiudi={onChiudi} />;
   }
 
   // Calcola la griglia da mostrare (crop attorno al bounding box)
@@ -574,9 +578,15 @@ function CruciverbaCustom({
   onGenera: (parole: { parola: string; definizione: string }[]) => void;
   onChiudi: () => void;
 }) {
+  // Inizializza con una parola vuota ogni volta che il componente viene montato
   const [parole, setParole] = useState<{ parola: string; definizione: string }[]>([
     { parola: "", definizione: "" },
   ]);
+
+  // Resetta le parole quando il componente viene montato
+  useEffect(() => {
+    setParole([{ parola: "", definizione: "" }]);
+  }, []);
 
   const aggiungiParola = () => {
     setParole([...parole, { parola: "", definizione: "" }]);
