@@ -31,6 +31,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
 
   function dropPiece(col: number) {
     if (currentPlayer !== 'player' || winner) return;
+    if (col < 0 || col >= 7) return; // Colonna non valida
 
     const newBoard = board.map(row => [...row]);
     
@@ -43,7 +44,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
       }
     }
 
-    if (row === -1) return; // Colonna piena
+    if (row === -1) return; // Colonna piena, annulla la mossa
 
     newBoard[row][col] = 'player';
     setBoard(newBoard);
@@ -76,6 +77,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
     if (difficolta === 'facile') {
       // Gioca casualmente
       const availableCols = getAvailableColumns(newBoard);
+      if (availableCols.length === 0) return; // Nessuna colonna disponibile
       col = availableCols[Math.floor(Math.random() * availableCols.length)];
     } else if (difficolta === 'media') {
       // 50% di chance di giocare in modo strategico
@@ -89,7 +91,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
       col = findWinningMove(newBoard, 'ai') ?? findWinningMove(newBoard, 'player') ?? findStrategicMove(newBoard) ?? getRandomColumn(newBoard);
     }
 
-    if (col === -1) return;
+    if (col === -1 || col < 0 || col >= 7) return; // Colonna non valida
 
     // Trova la riga
     let row = -1;
@@ -99,6 +101,8 @@ export default function Forza4({ onChiudi }: Forza4Props) {
         break;
       }
     }
+
+    if (row === -1) return; // Colonna piena, annulla la mossa
 
     newBoard[row][col] = 'ai';
     setBoard(newBoard);
@@ -131,12 +135,15 @@ export default function Forza4({ onChiudi }: Forza4Props) {
 
   function getRandomColumn(board: CellType[][]): number {
     const cols = getAvailableColumns(board);
+    if (cols.length === 0) return -1; // Nessuna colonna disponibile
     return cols[Math.floor(Math.random() * cols.length)];
   }
 
   function findWinningMove(board: CellType[][], player: 'player' | 'ai'): number | null {
     const cols = getAvailableColumns(board);
     for (const col of cols) {
+      if (col < 0 || col >= 7) continue; // Salta colonne non valide
+      
       const testBoard = board.map(row => [...row]);
       let row = -1;
       for (let r = 5; r >= 0; r--) {
@@ -145,7 +152,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
           break;
         }
       }
-      if (row !== -1) {
+      if (row !== -1 && row >= 0 && row < 6) {
         testBoard[row][col] = player;
         if (checkWinner(testBoard, row, col, player) !== null) {
           return col;
@@ -170,6 +177,13 @@ export default function Forza4({ onChiudi }: Forza4Props) {
   }
 
   function checkWinner(board: CellType[][], row: number, col: number, player: 'player' | 'ai'): [number, number][] | null {
+    // Verifica che la posizione iniziale sia valida
+    if (row < 0 || row >= 6 || col < 0 || col >= 7) return null;
+    if (board[row][col] !== player) return null;
+
+    const ROWS = 6;
+    const COLS = 7;
+    
     const directions = [
       [[0, 1], [0, -1]],   // orizzontale
       [[1, 0], [-1, 0]],   // verticale
@@ -183,7 +197,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
       // Conta in una direzione
       let r = row + dir1[0];
       let c = col + dir1[1];
-      while (r >= 0 && r < 6 && c >= 0 && c < 7 && board[r][c] === player) {
+      while (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c] === player) {
         cells.push([r, c]);
         r += dir1[0];
         c += dir1[1];
@@ -192,7 +206,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
       // Conta nell'altra direzione
       r = row + dir2[0];
       c = col + dir2[1];
-      while (r >= 0 && r < 6 && c >= 0 && c < 7 && board[r][c] === player) {
+      while (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c] === player) {
         cells.push([r, c]);
         r += dir2[0];
         c += dir2[1];
