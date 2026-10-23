@@ -24,75 +24,177 @@ interface CruciverbaProps {
 }
 
 /**
- * Genera un cruciverba con algoritmo migliorato:
- * 1. Ordina parole per lunghezza (decrescente)
- * 2. Posiziona la più lunga al centro
- * 3. Per ogni parola successiva, cerca intersezioni ottimali
- * 4. Numera correttamente da sinistra a destra, alto in basso
+ * Genera un cruciverba con algoritmo completamente rivisto:
+ * 1. Filtra parole brevi (4-8 lettere)
+ * 2. Ordina per lunghezza decrescente
+ * 3. Posiziona la prima al centro (orizzontale)
+ * 4. Per ogni parola successiva, cerca intersezioni valide
+ * 5. Valida rigorosamente che non ci siano lettere adiacenti illegali
+ * 6. Bilancia orizzontali e verticali
  */
 function generaCruciverba(paroleInput: { parola: string; definizione: string }[]): {
   griglia: CellaCruciverba[][];
   paroleInserite: ParolaInserita[];
   boundingBox: { minRiga: number; maxRiga: number; minCol: number; maxCol: number };
 } {
-  const dimensione = 15;
+  const RIGHE = 15;
+  const COLONNE = 15;
   
   // Inizializza griglia con tutte caselle nere
-  const griglia: CellaCruciverba[][] = Array(dimensione)
+  const griglia: CellaCruciverba[][] = Array(RIGHE)
     .fill(null)
     .map(() =>
-      Array(dimensione)
+      Array(COLONNE)
         .fill(null)
         .map(() => ({ lettera: "", attiva: false }))
     );
 
   const paroleInserite: ParolaInserita[] = [];
 
-  // Ordina parole per lunghezza (decrescente) per massimizzare incroci
-  const paroleOrdinate = [...paroleInput]
-    .map(p => ({ ...p, parola: p.parola.toUpperCase() }))
+  // FILTRO 1: Solo parole brevi e semplici (4-8 lettere)
+  const paroleFiltrate = [...paroleInput]
+    .map(p => ({ ...p, parola: p.parola.toUpperCase().replace(/[^A-Z]/g, '') }))
+    .filter(p => p.parola.length >= 4 && p.parola.length <= 8);
+
+  // FILTRO 2: Ordina per lunghezza decrescente
+  const paroleOrdinate = paroleFiltrate
     .sort((a, b) => b.parola.length - a.parola.length)
-    .slice(0, 10); // Max 10 parole
+    .slice(0, 16); // Max 16 parole per avere buon bilanciamento
 
-  // Posiziona la prima parola (la più lunga) al centro orizzontalmente
-  if (paroleOrdinate.length > 0) {
-    const primaParola = paroleOrdinate[0];
-    const riga = Math.floor(dimensione / 2);
-    const colonna = Math.floor((dimensione - primaParola.parola.length) / 2);
-
-    for (let i = 0; i < primaParola.parola.length; i++) {
-      griglia[riga][colonna + i].lettera = primaParola.parola[i];
-      griglia[riga][colonna + i].attiva = true;
-    }
-
-    paroleInserite.push({
-      parola: primaParola.parola,
-      definizione: primaParola.definizione,
-      direzione: "orizzontale",
-      riga,
-      colonna,
-    });
+  if (paroleOrdinate.length === 0) {
+    return {
+      griglia,
+      paroleInserite: [],
+      boundingBox: { minRiga: 0, maxRiga: 0, minCol: 0, maxCol: 0 }
+    };
   }
 
-  // Per ogni parola successiva, cerca la migliore intersezione
+  /**
+   * Verifica se una parola può essere posizionata nella griglia
+   * Controlla che non ci siano lettere adiacenti illegali
+   */
+  function puòPosizionareParola(
+    parola: string,
+    riga: number,
+    colonna: number,
+    direzione: "orizzontale" | "verticale"
+  ): boolean {
+    const lunghezza = parola.length;
+
+    // Controlla bounds
+    if (direzione === "orizzontale") {
+      if (colonna < 0 || colonna + lunghezza > COLONNE) return false;
+    } else {
+      if (riga < 0 || riga + lunghezza > RIGHE) return false;
+    }
+
+    // Controlla ogni cella della parola
+    for (let k = 0; k < lunghezza; k++) {
+      const r = direzione === "verticale" ? riga + k : riga;
+      const c = direzione === "orizzontale" ? colonna + k : colonna;
+      const cella = griglia[r][c];
+
+      // Se la cella è già attiva
+      if (cella.attiva) {
+        // Deve avere la stessa lettera (intersezione valida)
+        if (cella.lettera !== parola[k]) return false;
+      } else {
+        // La cella è nera: controlla che non ci siano lettere adiacenti illegali
+        // Controlla celle adiacenti (non in diagonale)
+        const adiacenti = [
+          [r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]
+        ];
+
+        for (const [ar, ac] of adiacenti) {
+          if (ar >= 0 && ar < RIGHE && ac >= 0 && ac < COLONNE) {
+            const cellaAdiacente = griglia[ar][ac];
+            // Se c'è una lettera adiacente, è illegale (creerebbe una parola di 2 lettere)
+            if (cellaAdiacente.attiva && cellaAdiacente.lettera !== '') {
+              // Eccezione: se è un'intersezione valida con un'altra parola
+              const èIntersezione = paroleInserite.some(p => {
+                if (p.direzione === direzione) return false; // Stessa direzione
+                const pRiga = p.riga;
+                const pColonna = p.colonna;
+                const pLunghezza = p.parola.length;
+                
+                if (p.direzione === "orizzontale") {
+                  return r === pRiga && c >= pColonna && c < pColonna + pLunghezza;
+                } else {
+                  return c === pColonna && r >= pRiga && r < pRiga + pLunghezza;
+                }
+              });
+              
+              if (!èIntersezione) return false;
+            }
+          }
+        }
+      }
+    }
+
+    // Controlla che la parola abbia almeno un'intersezione (non sia isolata)
+    if (paroleInserite.length > 0) {
+      let haIntersezione = false;
+      for (let k = 0; k < lunghezza; k++) {
+        const r = direzione === "verticale" ? riga + k : riga;
+        const c = direzione === "orizzontale" ? colonna + k : colonna;
+        if (griglia[r][c].attiva && griglia[r][c].lettera === parola[k]) {
+          haIntersezione = true;
+          break;
+        }
+      }
+      if (!haIntersezione) return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Posiziona una parola nella griglia
+   */
+  function posizionaParola(
+    parola: string,
+    riga: number,
+    colonna: number,
+    direzione: "orizzontale" | "verticale"
+  ) {
+    for (let k = 0; k < parola.length; k++) {
+      const r = direzione === "verticale" ? riga + k : riga;
+      const c = direzione === "orizzontale" ? colonna + k : colonna;
+      griglia[r][c].lettera = parola[k];
+      griglia[r][c].attiva = true;
+    }
+  }
+
+  // POSIZIONA LA PRIMA PAROLA al centro orizzontalmente
+  const primaParola = paroleOrdinate[0];
+  const rigaCentro = Math.floor(RIGHE / 2);
+  const colonnaCentro = Math.floor((COLONNE - primaParola.parola.length) / 2);
+
+  posizionaParola(primaParola.parola, rigaCentro, colonnaCentro, "orizzontale");
+  paroleInserite.push({
+    parola: primaParola.parola,
+    definizione: primaParola.definizione,
+    direzione: "orizzontale",
+    riga: rigaCentro,
+    colonna: colonnaCentro,
+  });
+
+  // POSIZIONA LE ALTRE PAROLE cercando intersezioni valide
   for (let idx = 1; idx < paroleOrdinate.length; idx++) {
     const parolaObj = paroleOrdinate[idx];
     const parola = parolaObj.parola;
     
-    let migliorPosizionamento: {
-      riga: number;
-      colonna: number;
-      direzione: "orizzontale" | "verticale";
-      punteggio: number;
-    } | null = null;
+    let posizionamentoTrovato = false;
 
-    // Prova tutte le combinazioni con parole già inserite
+    // Prova tutte le parole già inserite
     for (const parolaGia of paroleInserite) {
+      if (posizionamentoTrovato) break;
+
       const direzioneNuova = parolaGia.direzione === "orizzontale" ? "verticale" : "orizzontale";
 
       // Prova ogni possibile intersezione
-      for (let i = 0; i < parola.length; i++) {
-        for (let j = 0; j < parolaGia.parola.length; j++) {
+      for (let i = 0; i < parola.length && !posizionamentoTrovato; i++) {
+        for (let j = 0; j < parolaGia.parola.length && !posizionamentoTrovato; j++) {
           // Controlla se le lettere coincidono
           if (parola[i] !== parolaGia.parola[j]) continue;
 
@@ -107,59 +209,35 @@ function generaCruciverba(paroleInput: { parola: string; definizione: string }[]
           }
 
           // Verifica se il posizionamento è valido
-          if (!puoInserire(griglia, rigaNuova, colNuova, parola, direzioneNuova, dimensione)) {
-            continue;
-          }
-
-          // Calcola punteggio (numero di intersezioni)
-          const punteggio = calcolaPunteggio(griglia, rigaNuova, colNuova, parola, direzioneNuova);
-
-          if (!migliorPosizionamento || punteggio > migliorPosizionamento.punteggio) {
-            migliorPosizionamento = {
+          if (puòPosizionareParola(parola, rigaNuova, colNuova, direzioneNuova)) {
+            posizionaParola(parola, rigaNuova, colNuova, direzioneNuova);
+            paroleInserite.push({
+              parola,
+              definizione: parolaObj.definizione,
+              direzione: direzioneNuova,
               riga: rigaNuova,
               colonna: colNuova,
-              direzione: direzioneNuova,
-              punteggio,
-            };
+            });
+            posizionamentoTrovato = true;
           }
         }
       }
     }
-
-    // Inserisci la parola nel miglior posizionamento trovato
-    if (migliorPosizionamento) {
-      const { riga, colonna, direzione } = migliorPosizionamento;
-      
-      for (let k = 0; k < parola.length; k++) {
-        const r = direzione === "verticale" ? riga + k : riga;
-        const c = direzione === "orizzontale" ? colonna + k : colonna;
-        griglia[r][c].lettera = parola[k];
-        griglia[r][c].attiva = true;
-      }
-
-      paroleInserite.push({
-        parola,
-        definizione: parolaObj.definizione,
-        direzione,
-        riga,
-        colonna,
-      });
-    }
   }
 
-  // Numera le caselle da sinistra a destra, dall'alto in basso
+  // NUMERA le caselle da sinistra a destra, dall'alto in basso
   let numeroProgressivo = 1;
-  for (let r = 0; r < dimensione; r++) {
-    for (let c = 0; c < dimensione; c++) {
+  for (let r = 0; r < RIGHE; r++) {
+    for (let c = 0; c < COLONNE; c++) {
       if (!griglia[r][c].attiva) continue;
 
       const èInizioOrizzontale = 
         (c === 0 || !griglia[r][c - 1].attiva) && 
-        (c + 1 < dimensione && griglia[r][c + 1].attiva);
+        (c + 1 < COLONNE && griglia[r][c + 1].attiva);
       
       const èInizioVerticale = 
         (r === 0 || !griglia[r - 1][c].attiva) && 
-        (r + 1 < dimensione && griglia[r + 1][c].attiva);
+        (r + 1 < RIGHE && griglia[r + 1][c].attiva);
 
       if (èInizioOrizzontale || èInizioVerticale) {
         griglia[r][c].numero = numeroProgressivo;
@@ -177,9 +255,9 @@ function generaCruciverba(paroleInput: { parola: string; definizione: string }[]
   }
 
   // Calcola bounding box
-  let minRiga = dimensione, maxRiga = 0, minCol = dimensione, maxCol = 0;
-  for (let r = 0; r < dimensione; r++) {
-    for (let c = 0; c < dimensione; c++) {
+  let minRiga = RIGHE, maxRiga = 0, minCol = COLONNE, maxCol = 0;
+  for (let r = 0; r < RIGHE; r++) {
+    for (let c = 0; c < COLONNE; c++) {
       if (griglia[r][c].attiva) {
         minRiga = Math.min(minRiga, r);
         maxRiga = Math.max(maxRiga, r);
@@ -197,85 +275,8 @@ function generaCruciverba(paroleInput: { parola: string; definizione: string }[]
 }
 
 /**
- * Verifica se una parola può essere inserita nella posizione specificata
- */
-function puoInserire(
-  griglia: CellaCruciverba[][],
-  riga: number,
-  colonna: number,
-  parola: string,
-  direzione: "orizzontale" | "verticale",
-  dimensione: number
-): boolean {
-  const lunghezza = parola.length;
-
-  // Controlla bounds
-  if (direzione === "orizzontale") {
-    if (colonna < 0 || colonna + lunghezza > dimensione) return false;
-  } else {
-    if (riga < 0 || riga + lunghezza > dimensione) return false;
-  }
-
-  // Controlla ogni casella della parola
-  for (let k = 0; k < lunghezza; k++) {
-    const r = direzione === "verticale" ? riga + k : riga;
-    const c = direzione === "orizzontale" ? colonna + k : colonna;
-    const cella = griglia[r][c];
-
-    // Se la casella è attiva e ha una lettera diversa, non va bene
-    if (cella.attiva && cella.lettera !== parola[k]) {
-      return false;
-    }
-
-    // Se la casella è attiva e la lettera è vuota, non va bene
-    if (cella.attiva && cella.lettera === "") {
-      return false;
-    }
-  }
-
-  // Controlla caselle adiacenti (devono essere nere)
-  if (direzione === "orizzontale") {
-    // Casella prima dell'inizio
-    if (colonna > 0 && griglia[riga][colonna - 1].attiva) return false;
-    // Casella dopo la fine
-    if (colonna + lunghezza < dimensione && griglia[riga][colonna + lunghezza].attiva) return false;
-  } else {
-    // Casella sopra l'inizio
-    if (riga > 0 && griglia[riga - 1][colonna].attiva) return false;
-    // Casella sotto la fine
-    if (riga + lunghezza < dimensione && griglia[riga + lunghezza][colonna].attiva) return false;
-  }
-
-  return true;
-}
-
-/**
- * Calcola il punteggio di un posizionamento (numero di intersezioni)
- */
-function calcolaPunteggio(
-  griglia: CellaCruciverba[][],
-  riga: number,
-  colonna: number,
-  parola: string,
-  direzione: "orizzontale" | "verticale"
-): number {
-  let punteggio = 0;
-
-  for (let k = 0; k < parola.length; k++) {
-    const r = direzione === "verticale" ? riga + k : riga;
-    const c = direzione === "orizzontale" ? colonna + k : colonna;
-
-    // Se la casella è già attiva, è un'intersezione
-    if (griglia[r][c].attiva) {
-      punteggio += 2; // Bonus per intersezione
-    }
-  }
-
-  return punteggio;
-}
-
-/**
  * Parole predefinite basate sul profilo del paziente
+ * FILTRO: Solo parole brevi e semplici (4-8 lettere)
  */
 function generaParoleDaProfilo(): { parola: string; definizione: string }[] {
   const profilo = getProfiloPaziente();
@@ -315,8 +316,8 @@ function generaParoleDaProfilo(): { parola: string; definizione: string }[] {
   if (profilo.hobby.some((h: string) => h.toLowerCase().includes("inter"))) {
     parole.push(
       { parola: "INTER", definizione: "Squadra di calcio del cuore" },
-      { parola: "SAN SIRO", definizione: "Stadio dove gioca l'Inter" },
-      { parola: "NERAZZURRI", definizione: "Soprannome dei tifosi dell'Inter" }
+      { parola: "GOL", definizione: "Segnare nella porta" },
+      { parola: "PALLONE", definizione: "Si calcola con il piede" }
     );
   }
 
@@ -328,16 +329,35 @@ function generaParoleDaProfilo(): { parola: string; definizione: string }[] {
     );
   }
 
-  // Parole generiche
+  // Parole generiche semplici e brevi
   parole.push(
-    { parola: "FAMIGLIA", definizione: "Persone care" },
+    { parola: "CANE", definizione: "Animale che abbaia" },
+    { parola: "GATTO", definizione: "Animale che fa le fusa" },
+    { parola: "PANE", definizione: "Si mangia a tavola" },
+    { parola: "VINO", definizione: "Bevanda rossa o bianca" },
+    { parola: "LUNA", definizione: "Brilla nel cielo di notte" },
+    { parola: "STELLA", definizione: "Brilla in cielo" },
+    { parola: "MANO", definizione: "Si usa per prendere" },
+    { parola: "VISO", definizione: "La faccia" },
+    { parola: "CUORE", definizione: "Batte nel petto" },
+    { parola: "AMORE", definizione: "Sentimento forte" },
+    { parola: "TEMPO", definizione: "Scorre veloce" },
+    { parola: "VITA", definizione: "Esistere" },
+    { parola: "PACE", definizione: "Assenza di guerra" },
+    { parola: "GIOIA", definizione: "Felicità" },
+    { parola: "FIUME", definizione: "Acqua che scorre" },
+    { parola: "MONTE", definizione: "Rilievo terrestre" },
+    { parola: "PIANTA", definizione: "Cresce nel giardino" },
+    { parola: "FIORE", definizione: "Profumato e colorato" },
+    { parola: "ALBERO", definizione: "Ha foglie e rami" },
     { parola: "CASA", definizione: "Dove si abita" },
-    { parola: "AMICO", definizione: "Persona a cui si vuole bene" },
-    { parola: "SOLE", definizione: "Brilla in cielo di giorno" },
-    { parola: "MARE", definizione: "Acqua salata" }
+    { parola: "PORTA", definizione: "Si apre e si chiude" },
+    { parola: "TETTO", definizione: "Copre la casa" },
+    { parola: "TAVOLO", definizione: "Si mangia sopra" },
+    { parola: "SEDIA", definizione: "Ci si siede sopra" }
   );
 
-  return parole.slice(0, 10);
+  return parole.slice(0, 20); // Aumentato per avere più scelta
 }
 
 export default function GiocoCruciverba({ onChiudi, theme = 'light' }: CruciverbaProps) {
