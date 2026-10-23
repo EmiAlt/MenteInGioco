@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { ThemeType } from "../hooks/useTheme";
 
 interface IntrusoLogicoProps {
   onChiudi: () => void;
+  theme?: ThemeType;
 }
 
 interface RoundIntruso {
@@ -67,7 +69,7 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
-export default function IntrusoLogico({ onChiudi }: IntrusoLogicoProps) {
+export default function IntrusoLogico({ onChiudi, theme = 'light' }: IntrusoLogicoProps) {
   const [rounds, setRounds] = useState<RoundIntruso[]>([]);
   const [roundCorrente, setRoundCorrente] = useState(0);
   const [feedback, setFeedback] = useState<"corretto" | "sbagliato" | null>(null);
@@ -128,8 +130,12 @@ export default function IntrusoLogico({ onChiudi }: IntrusoLogicoProps) {
       <div className="fixed inset-0 bg-slate-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
         <div className="bg-white rounded-2xl max-w-2xl w-full p-6 md:p-8 text-center space-y-4 md:space-y-6 my-auto">
           <div className="text-6xl md:text-7xl">🎉</div>
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Bravissimo!</h2>
-          <p className="text-lg md:text-xl text-slate-600">
+          <h2 className={`text-2xl md:text-3xl font-bold transition-colors duration-300 ${
+            theme === 'dark' ? 'text-white' : 'text-slate-900'
+          }`}>Bravissimo!</h2>
+          <p className={`text-lg md:text-xl transition-colors duration-300 ${
+            theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+          }`}>
             Hai trovato {punteggio} intrusi su {rounds.length}
           </p>
           <button
@@ -148,7 +154,9 @@ export default function IntrusoLogico({ onChiudi }: IntrusoLogicoProps) {
       {/* Header */}
       <div className="bg-white border-b border-slate-200 p-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-slate-900">🔍 L'Intruso Logico</h2>
+          <h2 className={`text-2xl font-bold transition-colors duration-300 ${
+            theme === 'dark' ? 'text-white' : 'text-slate-900'
+          }`}>🔍 L'Intruso Logico</h2>
           <button
             onClick={onChiudi}
             className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg"
@@ -163,10 +171,14 @@ export default function IntrusoLogico({ onChiudi }: IntrusoLogicoProps) {
         <div className="max-w-2xl w-full space-y-8">
           {/* Istruzioni */}
           <div className="text-center">
-            <p className="text-2xl text-slate-700 font-medium mb-2">
+            <p className={`text-2xl font-medium mb-2 transition-colors duration-300 ${
+              theme === 'dark' ? 'text-slate-200' : 'text-slate-700'
+            }`}>
               Trova l'intruso!
             </p>
-            <p className="text-lg text-slate-500">
+            <p className={`text-lg transition-colors duration-300 ${
+              theme === 'dark' ? 'text-slate-300' : 'text-slate-500'
+            }`}>
               Quale di questi non c'entra con gli altri?
             </p>
           </div>
@@ -187,7 +199,9 @@ export default function IntrusoLogico({ onChiudi }: IntrusoLogicoProps) {
                 }`}
               >
                 <div className="text-6xl mb-3">{elem.emoji}</div>
-                <div className="text-xl font-semibold text-slate-900">{elem.testo}</div>
+                <div className={`text-xl font-semibold transition-colors duration-300 ${
+                  theme === 'dark' ? 'text-white' : 'text-slate-900'
+                }`}>{elem.testo}</div>
               </button>
             ))}
           </div>
@@ -208,7 +222,9 @@ export default function IntrusoLogico({ onChiudi }: IntrusoLogicoProps) {
           )}
 
           {/* Progresso */}
-          <div className="text-center text-slate-500">
+          <div className={`text-center transition-colors duration-300 ${
+            theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+          }`}>
             Round {roundCorrente + 1} di {rounds.length}
           </div>
         </div>

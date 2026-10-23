@@ -706,7 +706,7 @@ function App() {
       )}
 
       {giocoAttivo === "intruso" && (
-        <IntrusoLogico onChiudi={() => setGiocoAttivo(null)} />
+        <IntrusoLogico onChiudi={() => setGiocoAttivo(null)} theme={theme} />
       )}
 
       {giocoAttivo === "memory" && (
