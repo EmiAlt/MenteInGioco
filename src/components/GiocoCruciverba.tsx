@@ -275,89 +275,62 @@ function generaCruciverba(paroleInput: { parola: string; definizione: string }[]
 }
 
 /**
- * Parole predefinite basate sul profilo del paziente
- * FILTRO: Solo parole brevi e semplici (4-8 lettere)
+ * Parole predefinite per il cruciverba basato sul profilo
+ * Parole semplici e familiari con definizioni chiare
  */
 function generaParoleDaProfilo(): { parola: string; definizione: string }[] {
-  const profilo = getProfiloPaziente();
-  const parole: { parola: string; definizione: string }[] = [];
-
-  // Parole basate sul mestiere
-  if (profilo.exMestiere.toLowerCase().includes("falegname")) {
-    parole.push(
-      { parola: "LEGNO", definizione: `Materiale con cui lavorava ${profilo.nome}` },
-      { parola: "SEGA", definizione: "Attrezzo per tagliare il legno" },
-      { parola: "MARTELLO", definizione: "Attrezzo per battere i chiodi" },
-      { parola: "NOCE", definizione: "Tipo di legno pregiato" }
-    );
-  } else if (profilo.exMestiere.toLowerCase().includes("insegn")) {
-    parole.push(
-      { parola: "SCUOLA", definizione: `Dove lavorava ${profilo.nome}` },
-      { parola: "LIBRO", definizione: "Si legge per imparare" },
-      { parola: "ALUNNO", definizione: "Chi va a scuola" },
-      { parola: "MAESTRA", definizione: "Chi insegna ai bambini" }
-    );
-  } else if (profilo.exMestiere.toLowerCase().includes("medic") || profilo.exMestiere.toLowerCase().includes("dottor")) {
-    parole.push(
-      { parola: "OSPEDALE", definizione: `Dove lavorava ${profilo.nome}` },
-      { parola: "DOTTORE", definizione: "Chi cura i malati" },
-      { parola: "MEDICINA", definizione: "Si prende per guarire" },
-      { parola: "PAZIENTE", definizione: "Chi viene curato" }
-    );
-  } else if (profilo.exMestiere) {
-    parole.push(
-      { parola: "LAVORO", definizione: `Il mestiere di ${profilo.nome}` },
-      { parola: "UFFICIO", definizione: "Dove si lavora" },
-      { parola: "COLLEGA", definizione: "Chi lavora con te" }
-    );
-  }
-
-  // Parole basate sugli hobby
-  if (profilo.hobby.some((h: string) => h.toLowerCase().includes("inter"))) {
-    parole.push(
-      { parola: "INTER", definizione: "Squadra di calcio del cuore" },
-      { parola: "GOL", definizione: "Segnare nella porta" },
-      { parola: "PALLONE", definizione: "Si calcola con il piede" }
-    );
-  }
-
-  if (profilo.hobby.some((h: string) => h.toLowerCase().includes("orto"))) {
-    parole.push(
-      { parola: "ORTO", definizione: "Dove si coltivano le verdure" },
-      { parola: "POMODORO", definizione: "Verdura rossa estiva" },
-      { parola: "ZAPPA", definizione: "Attrezzo per lavorare la terra" }
-    );
-  }
-
-  // Parole generiche semplici e brevi
-  parole.push(
-    { parola: "CANE", definizione: "Animale che abbaia" },
-    { parola: "GATTO", definizione: "Animale che fa le fusa" },
-    { parola: "PANE", definizione: "Si mangia a tavola" },
-    { parola: "VINO", definizione: "Bevanda rossa o bianca" },
-    { parola: "LUNA", definizione: "Brilla nel cielo di notte" },
-    { parola: "STELLA", definizione: "Brilla in cielo" },
-    { parola: "MANO", definizione: "Si usa per prendere" },
-    { parola: "VISO", definizione: "La faccia" },
+  return [
+    { parola: "CANE", definizione: "L'amico dell'uomo che abbaia" },
+    { parola: "GATTO", definizione: "Fa le fusa e caccia i topi" },
+    { parola: "PANE", definizione: "Si compra dal fornaio ogni giorno" },
+    { parola: "SOLE", definizione: "Scalda la terra di giorno" },
+    { parola: "LUNA", definizione: "Splende nel cielo di notte" },
+    { parola: "LATTE", definizione: "Si beve a colazione, è bianco" },
+    { parola: "CAFFE", definizione: "Si prende la mattina per svegliarsi" },
+    { parola: "ACQUA", definizione: "Spegne la sete" },
+    { parola: "VINO", definizione: "Si beve nei bicchieri ai pasti" },
+    { parola: "MELA", definizione: "Frutto rosso o verde che cresce sull'albero" },
+    { parola: "SEDIA", definizione: "Ci si siede sopra per riposare" },
+    { parola: "TAVOLO", definizione: "Vi si appoggiano i piatti per mangiare" },
+    { parola: "LETTO", definizione: "Ci si va a dormire la sera" },
+    { parola: "CASA", definizione: "Il posto dove si vive con la famiglia" },
+    { parola: "PORTA", definizione: "Si apre con la chiave" },
+    { parola: "NONNA", definizione: "La mamma della mamma" },
+    { parola: "NONNO", definizione: "Il papà del papà" },
+    { parola: "MAMMA", definizione: "Vuole bene ai suoi figli" },
+    { parola: "FIORE", definizione: "Profuma ed è pieno di colori" },
+    { parola: "ROSA", definizione: "Un fiore rosso con le spine" },
+    { parola: "MARE", definizione: "Ha l'acqua salata e le onde" },
+    { parola: "CIELO", definizione: "È blu ed è pieno di nuvole" },
+    { parola: "NEVE", definizione: "È bianca e cade d'inverno" },
+    { parola: "FUOCO", definizione: "Scalda il camino ma scotta" },
+    { parola: "PRATO", definizione: "È fatto di erba verde" },
+    { parola: "SCARPA", definizione: "Si mette al piede per camminare" },
+    { parola: "MANO", definizione: "Ha cinque dita" },
+    { parola: "BOCCA", definizione: "Serve per mangiare e parlare" },
+    { parola: "OCCHI", definizione: "Servono per guardare" },
+    { parola: "NASO", definizione: "Serve per annusare i profumi" },
+    { parola: "ALBERO", definizione: "Ha il tronco e le foglie" },
+    { parola: "UCCELLO", definizione: "Ha le ali e vola nel cielo" },
+    { parola: "PESCE", definizione: "Nuota dentro il mare" },
+    { parola: "PIATTO", definizione: "Vi si versa la minestra" },
+    { parola: "CUCCHIAIO", definizione: "Si usa per mangiare il brodo" },
+    { parola: "FORCHETTA", definizione: "Serve per infilzare la pasta" },
+    { parola: "BICCHIERE", definizione: "Si usa per bere l'acqua" },
+    { parola: "OROLOGIO", definizione: "Segna le ore della giornata" },
+    { parola: "PALLA", definizione: "È rotonda e si usa per giocare" },
+    { parola: "MUSICA", definizione: "Si ascolta con le orecchie" },
+    { parola: "CANZONE", definizione: "Si canta in allegria" },
+    { parola: "BACIO", definizione: "Si dà sulla guancia con affetto" },
+    { parola: "SORRISO", definizione: "Si fa con la bocca quando si è felici" },
     { parola: "CUORE", definizione: "Batte nel petto" },
-    { parola: "AMORE", definizione: "Sentimento forte" },
-    { parola: "TEMPO", definizione: "Scorre veloce" },
-    { parola: "VITA", definizione: "Esistere" },
-    { parola: "PACE", definizione: "Assenza di guerra" },
-    { parola: "GIOIA", definizione: "Felicità" },
-    { parola: "FIUME", definizione: "Acqua che scorre" },
-    { parola: "MONTE", definizione: "Rilievo terrestre" },
-    { parola: "PIANTA", definizione: "Cresce nel giardino" },
-    { parola: "FIORE", definizione: "Profumato e colorato" },
-    { parola: "ALBERO", definizione: "Ha foglie e rami" },
-    { parola: "CASA", definizione: "Dove si abita" },
-    { parola: "PORTA", definizione: "Si apre e si chiude" },
-    { parola: "TETTO", definizione: "Copre la casa" },
-    { parola: "TAVOLO", definizione: "Si mangia sopra" },
-    { parola: "SEDIA", definizione: "Ci si siede sopra" }
-  );
-
-  return parole.slice(0, 20); // Aumentato per avere più scelta
+    { parola: "ESTATE", definizione: "La stagione più calda dell'anno" },
+    { parola: "INVERNO", definizione: "La stagione in cui fa molto freddo" },
+    { parola: "PASTA", definizione: "Un primo piatto tipico italiano" },
+    { parola: "PIZZA", definizione: "È rotonda, buona con il pomodoro" },
+    { parola: "PETTINE", definizione: "Serve per sistemare i capelli" },
+    { parola: "SAPONE", definizione: "Si usa per lavarsi le mani" }
+  ];
 }
 
 export default function GiocoCruciverba({ onChiudi, theme = 'light' }: CruciverbaProps) {
