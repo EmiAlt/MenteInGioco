@@ -300,8 +300,8 @@ export default function Forza4({ onChiudi }: Forza4Props) {
           </div>
 
           {/* Griglia di gioco */}
-          <div className="bg-blue-600 rounded-xl p-4 shadow-xl">
-            <div className="grid grid-cols-6 gap-2">
+          <div className="bg-blue-600 rounded-xl p-2 shadow-xl max-w-md mx-auto">
+            <div className="grid grid-cols-6 gap-1">
               {board.map((row, rowIndex) =>
                 row.map((cell, colIndex) => {
                   const isWinning = isWinningCell(rowIndex, colIndex);
@@ -332,7 +332,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
           </div>
 
           {/* Indicatori colonne */}
-          <div className="grid grid-cols-6 gap-2">
+          <div className="grid grid-cols-6 gap-1 max-w-md mx-auto">
             {Array(6).fill(null).map((_, i) => (
               <div key={i} className="text-center text-sm text-slate-500">
                 {i + 1}
