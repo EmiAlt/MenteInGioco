@@ -108,33 +108,52 @@ export const WordSearch: React.FC<WordSearchProps> = ({ onChiudi, theme = 'light
     }
   }, [phase, difficulty]);
 
+  const calculateOptimalGridSize = (words: string[]): number => {
+    if (words.length === 0) return 8;
+    
+    // Calcola la lunghezza media delle parole
+    const avgLength = words.reduce((sum, w) => sum + w.length, 0) / words.length;
+    
+    // Calcola lo spazio totale necessario
+    // Ogni parola occupa circa avgLength celle, ma con incroci possiamo ottimizzare
+    const totalSpace = words.length * avgLength;
+    
+    // Formula per griglia ottimale:
+    // - Minimo 8x8 per non essere troppo piccola
+    // - Massimo 15x15 per non essere troppo grande
+    // - Dimensione basata su sqrt dello spazio necessario con fattore 1.3 per incroci
+    const optimalSize = Math.ceil(Math.sqrt(totalSpace * 1.3));
+    
+    // Applica limiti
+    return Math.max(8, Math.min(15, optimalSize));
+  };
+
   const initializeGame = () => {
-    let config: DifficultyConfig;
     let selectedWords: string[];
+    let directions: DifficultyConfig['directions'];
 
     if (difficulty === 'custom') {
       // Usa parole custom
       selectedWords = [...customWords].sort(() => Math.random() - 0.5).slice(0, 10);
-      config = {
-        gridSize: 12,
-        wordCount: selectedWords.length,
-        directions: ['horizontal', 'vertical', 'diagonal-down', 'diagonal-up'],
-        words: selectedWords
-      };
+      directions = ['horizontal', 'vertical', 'diagonal-down', 'diagonal-up'];
     } else {
-      config = DIFFICULTIES[difficulty];
+      const config = DIFFICULTIES[difficulty];
       selectedWords = [...config.words]
         .sort(() => Math.random() - 0.5)
         .slice(0, config.wordCount);
+      directions = config.directions;
     }
 
-    setGridSize(config.gridSize);
+    // Calcola dimensione griglia ottimale in base al numero di parole
+    const optimalGridSize = calculateOptimalGridSize(selectedWords);
+
+    setGridSize(optimalGridSize);
     setWords(selectedWords);
     setFoundWords([]);
     setHintsRemaining(MAX_HINTS);
     setHintCells([]);
     
-    initializeGrid(selectedWords, config.gridSize, config.directions);
+    initializeGrid(selectedWords, optimalGridSize, directions);
   };
 
   const initializeGrid = (wordsToPlace: string[], size: number, directions: string[]) => {
@@ -562,6 +581,19 @@ export const WordSearch: React.FC<WordSearchProps> = ({ onChiudi, theme = 'light
             </div>
           )}
 
+          {customWords.length >= 3 && (
+            <div className={`p-4 rounded-lg mb-4 ${
+              isDark ? 'bg-blue-900/30 border border-blue-700' : 'bg-blue-50 border border-blue-200'
+            }`}>
+              <p className={`text-sm font-medium ${isDark ? 'text-blue-200' : 'text-blue-900'}`}>
+                📐 Dimensione griglia stimata: {calculateOptimalGridSize(customWords)}x{calculateOptimalGridSize(customWords)}
+              </p>
+              <p className={`text-xs mt-1 ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
+                La griglia viene adattata automaticamente al numero di parole per una ricerca più facile
+              </p>
+            </div>
+          )}
+
           <button
             onClick={() => {
               if (customWords.length >= 3) {
@@ -590,16 +622,20 @@ export const WordSearch: React.FC<WordSearchProps> = ({ onChiudi, theme = 'light
     <div className={`fixed inset-0 z-50 overflow-auto ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <div className="p-4 max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>
-              Parole Intrecciate - {difficulty === 'custom' ? 'Custom' : difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-            </h2>
-            <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-              {gridSize}x{gridSize} • {words.length} parole
-            </p>
-          </div>
-          <div className="flex gap-3">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>
+                Parole Intrecciate - {difficulty === 'custom' ? 'Custom' : difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+              </h2>
+              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                Griglia {gridSize}x{gridSize} • {words.length} parole da trovare
+              </p>
+              {difficulty === 'custom' && (
+                <p className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
+                  💡 Griglia adattata al numero di parole per facilitare la ricerca
+                </p>
+              )}
+            </div>          <div className="flex gap-3">
             <button
               onClick={handleHint}
               disabled={hintsRemaining <= 0 || foundWords.length === words.length}
