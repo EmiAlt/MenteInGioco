@@ -714,7 +714,7 @@ function App() {
       )}
 
       {giocoAttivo === "ombre" && (
-        <OmbreSagome onChiudi={() => setGiocoAttivo(null)} />
+        <OmbreSagome onChiudi={() => setGiocoAttivo(null)} theme={theme} />
       )}
 
       {giocoAttivo === "canzone" && (

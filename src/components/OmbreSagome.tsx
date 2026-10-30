@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { ThemeType } from "../hooks/useTheme";
 
 interface OmbreSagomeProps {
   onChiudi: () => void;
+  theme?: ThemeType;
 }
 
 interface RoundOmbra {
@@ -68,7 +70,7 @@ const ROUNDS: RoundOmbra[] = [
   },
 ];
 
-export default function OmbreSagome({ onChiudi }: OmbreSagomeProps) {
+export default function OmbreSagome({ onChiudi, theme = 'light' }: OmbreSagomeProps) {
   const [rounds, setRounds] = useState<RoundOmbra[]>([]);
   const [roundCorrente, setRoundCorrente] = useState(0);
   const [feedback, setFeedback] = useState<"corretto" | "sbagliato" | null>(null);
@@ -113,8 +115,12 @@ export default function OmbreSagome({ onChiudi }: OmbreSagomeProps) {
       <div className="fixed inset-0 bg-slate-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
         <div className="bg-white rounded-2xl max-w-2xl w-full p-6 md:p-8 text-center space-y-4 md:space-y-6 my-auto">
           <div className="text-6xl md:text-7xl">🎉</div>
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Bravissimo!</h2>
-          <p className="text-lg md:text-xl text-slate-600">
+          <h2 className={`text-2xl md:text-3xl font-bold transition-colors duration-300 ${
+            theme === 'dark' ? 'text-white' : 'text-slate-900'
+          }`}>Bravissimo!</h2>
+          <p className={`text-lg md:text-xl transition-colors duration-300 ${
+            theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+          }`}>
             Hai associato {punteggio} oggetti su {rounds.length}
           </p>
           <button
@@ -133,7 +139,9 @@ export default function OmbreSagome({ onChiudi }: OmbreSagomeProps) {
       {/* Header */}
       <div className="bg-white border-b border-slate-200 p-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-slate-900">🌑 Ombre e Sagome</h2>
+          <h2 className={`text-2xl font-bold transition-colors duration-300 ${
+            theme === 'dark' ? 'text-white' : 'text-slate-900'
+          }`}>🌑 Ombre e Sagome</h2>
           <button
             onClick={onChiudi}
             className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg"
@@ -148,10 +156,14 @@ export default function OmbreSagome({ onChiudi }: OmbreSagomeProps) {
         <div className="max-w-2xl w-full space-y-8">
           {/* Istruzioni */}
           <div className="text-center">
-            <p className="text-2xl text-slate-700 font-medium mb-2">
+            <p className={`text-2xl font-medium mb-2 transition-colors duration-300 ${
+              theme === 'dark' ? 'text-slate-200' : 'text-slate-700'
+            }`}>
               Trova la sagoma corretta!
             </p>
-            <p className="text-lg text-slate-500">
+            <p className={`text-lg transition-colors duration-300 ${
+              theme === 'dark' ? 'text-slate-300' : 'text-slate-500'
+            }`}>
               Quale di queste è la sagoma di {round.oggetto.toLowerCase()}?
             </p>
           </div>
@@ -159,7 +171,9 @@ export default function OmbreSagome({ onChiudi }: OmbreSagomeProps) {
           {/* Oggetto colorato */}
           <div className="bg-white rounded-2xl border-4 border-blue-300 p-8 text-center">
             <div className="text-8xl mb-4">{round.emoji}</div>
-            <p className="text-2xl font-bold text-slate-900">{round.oggetto}</p>
+            <p className={`text-2xl font-bold transition-colors duration-300 ${
+              theme === 'dark' ? 'text-white' : 'text-slate-900'
+            }`}>{round.oggetto}</p>
           </div>
 
           {/* Sagome */}
@@ -198,7 +212,9 @@ export default function OmbreSagome({ onChiudi }: OmbreSagomeProps) {
           )}
 
           {/* Progresso */}
-          <div className="text-center text-slate-500">
+          <div className={`text-center transition-colors duration-300 ${
+            theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+          }`}>
             Round {roundCorrente + 1} di {rounds.length}
           </div>
         </div>
