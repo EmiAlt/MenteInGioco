@@ -17,7 +17,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
   const [winningCells, setWinningCells] = useState<[number, number][]>([]);
 
   function createEmptyBoard(): CellType[][] {
-    return Array(6).fill(null).map(() => Array(7).fill(null));
+    return Array(6).fill(null).map(() => Array(6).fill(null));
   }
 
   function startGame(diff: Difficolta) {
@@ -31,7 +31,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
 
   function dropPiece(col: number) {
     if (currentPlayer !== 'player' || winner) return;
-    if (col < 0 || col >= 7) return; // Colonna non valida
+    if (col < 0 || col >= 6) return; // Colonna non valida
 
     const newBoard = board.map(row => [...row]);
     
@@ -91,7 +91,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
       col = findWinningMove(newBoard, 'ai') ?? findWinningMove(newBoard, 'player') ?? findStrategicMove(newBoard) ?? getRandomColumn(newBoard);
     }
 
-    if (col === -1 || col < 0 || col >= 7) return; // Colonna non valida
+    if (col === -1 || col < 0 || col >= 6) return; // Colonna non valida
 
     // Trova la riga
     let row = -1;
@@ -127,7 +127,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
 
   function getAvailableColumns(board: CellType[][]): number[] {
     const cols: number[] = [];
-    for (let c = 0; c < 7; c++) {
+    for (let c = 0; c < 6; c++) {
       if (board[0][c] === null) cols.push(c);
     }
     return cols;
@@ -142,7 +142,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
   function findWinningMove(board: CellType[][], player: 'player' | 'ai'): number | null {
     const cols = getAvailableColumns(board);
     for (const col of cols) {
-      if (col < 0 || col >= 7) continue; // Salta colonne non valide
+      if (col < 0 || col >= 6) continue; // Salta colonne non valide
       
       const testBoard = board.map(row => [...row]);
       let row = -1;
@@ -170,7 +170,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
     // Poi colonne adiacenti al centro
     for (const offset of [1, -1, 2, -2, 3, -3]) {
       const col = centerCol + offset;
-      if (col >= 0 && col < 7 && board[0][col] === null) return col;
+      if (col >= 0 && col < 6 && board[0][col] === null) return col;
     }
     
     return null;
@@ -178,11 +178,11 @@ export default function Forza4({ onChiudi }: Forza4Props) {
 
   function checkWinner(board: CellType[][], row: number, col: number, player: 'player' | 'ai'): [number, number][] | null {
     // Verifica che la posizione iniziale sia valida
-    if (row < 0 || row >= 6 || col < 0 || col >= 7) return null;
+    if (row < 0 || row >= 6 || col < 0 || col >= 6) return null;
     if (board[row][col] !== player) return null;
 
     const ROWS = 6;
-    const COLS = 7;
+    const COLS = 6;
     
     const directions = [
       [[0, 1], [0, -1]],   // orizzontale
@@ -301,7 +301,7 @@ export default function Forza4({ onChiudi }: Forza4Props) {
 
           {/* Griglia di gioco */}
           <div className="bg-blue-600 rounded-xl p-4 shadow-xl">
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-6 gap-2">
               {board.map((row, rowIndex) =>
                 row.map((cell, colIndex) => {
                   const isWinning = isWinningCell(rowIndex, colIndex);
@@ -332,8 +332,8 @@ export default function Forza4({ onChiudi }: Forza4Props) {
           </div>
 
           {/* Indicatori colonne */}
-          <div className="grid grid-cols-7 gap-2">
-            {Array(7).fill(null).map((_, i) => (
+          <div className="grid grid-cols-6 gap-2">
+            {Array(6).fill(null).map((_, i) => (
               <div key={i} className="text-center text-sm text-slate-500">
                 {i + 1}
               </div>
