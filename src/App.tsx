@@ -4,6 +4,7 @@ import { simulaChiamataAI } from "./services/aiSimulator";
 import { useProfiloPaziente } from "./hooks/useProfiloPaziente";
 import { useImpostazioniSessione } from "./hooks/useImpostazioniSessione";
 import { useTheme } from "./hooks/useTheme";
+import { useTTSSettings } from "./hooks/useTextToSpeech";
 import PannelloCaregiver from "./components/PannelloCaregiver";
 import WordSearch from "./components/WordSearch";
 import GiocoPuzzle from "./components/GiocoPuzzle";
@@ -21,6 +22,8 @@ import AssociazioniTematiche from "./components/AssociazioniTematiche";
 import FooterThemeSelector from "./components/FooterThemeSelector";
 import Forza4 from "./components/Forza4";
 import Tris from "./components/Tris";
+import OrientamentoSpazioTemporale from "./components/OrientamentoSpazioTemporale";
+import SequenzeQuotidiane from "./components/SequenzeQuotidiane";
 
 /** Durata del feedback visivo in millisecondi */
 const FEEDBACK_DURATION_MS = 2500;
@@ -42,6 +45,8 @@ type GiocoAttivo =
   | "associazioni"
   | "forza4"
   | "tris"
+  | "orientamento"
+  | "sequenze"
   | null;
 
 function App() {
@@ -50,6 +55,7 @@ function App() {
   const [vistaCorrente, setVistaCorrente] = useState<VistaApp>("paziente");
   const [giocoAttivo, setGiocoAttivo] = useState<GiocoAttivo>(null);
   const { theme, setTheme, themeConfig } = useTheme();
+  const { ttsEnabled, setTtsEnabled } = useTTSSettings();
   
   // Numero di domande per sessione (configurabile dal caregiver)
   const numeroDomande = impostazioni.numeroDomande;
@@ -335,6 +341,20 @@ function App() {
             >
               <span>📥</span>
             </button>
+
+            {/* Pulsante TTS */}
+            <button
+              onClick={() => setTtsEnabled(!ttsEnabled)}
+              className={`w-9 h-9 md:w-10 md:h-10 rounded-full shadow transition-all flex items-center justify-center ${
+                ttsEnabled
+                  ? 'bg-violet-100 hover:bg-violet-200 text-violet-600 hover:text-violet-700 opacity-100'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 opacity-60 hover:opacity-100'
+              }`}
+              aria-label={ttsEnabled ? "Disattiva sintesi vocale" : "Attiva sintesi vocale"}
+              title={ttsEnabled ? "TTS: Attivo" : "TTS: Disattivato"}
+            >
+              <span>{ttsEnabled ? '🔊' : '🔇'}</span>
+            </button>
             
             {/* Pulsante Test (nascosto) */}
             <button
@@ -489,6 +509,29 @@ function App() {
                 }`}>
                   <div className="text-5xl md:text-6xl mb-2">⭕</div>
                   <div className="text-base md:text-lg font-bold">Tris</div>
+                </button>
+                <button onClick={() => setGiocoAttivo("sequenze")} className={`p-6 bg-gradient-to-br from-teal-500 to-cyan-600 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
+                  <div className="text-5xl md:text-6xl mb-2">📋</div>
+                  <div className="text-base md:text-lg font-bold">Sequenze</div>
+                </button>
+              </div>
+            </section>
+
+            {/* Categoria 4: Orientamento & Vita Quotidiana */}
+            <section>
+              <h2 className={`text-xl md:text-2xl font-bold mb-4 transition-colors duration-300 ${
+                theme === 'dark' ? 'text-slate-50' : 'text-slate-900'
+              }`}>
+                📅 Orientamento & Vita Quotidiana
+              </h2>
+              <div className="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                <button onClick={() => setGiocoAttivo("orientamento")} className={`p-6 bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                  theme === 'dark' ? 'ring-2 ring-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''
+                }`}>
+                  <div className="text-5xl md:text-6xl mb-2">📅</div>
+                  <div className="text-base md:text-lg font-bold">Orientamento</div>
                 </button>
               </div>
             </section>
@@ -747,6 +790,14 @@ function App() {
 
       {giocoAttivo === "tris" && (
         <Tris onChiudi={() => setGiocoAttivo(null)} />
+      )}
+
+      {giocoAttivo === "orientamento" && (
+        <OrientamentoSpazioTemporale onChiudi={() => setGiocoAttivo(null)} theme={theme} />
+      )}
+
+      {giocoAttivo === "sequenze" && (
+        <SequenzeQuotidiane onChiudi={() => setGiocoAttivo(null)} theme={theme} />
       )}
     </div>
   );

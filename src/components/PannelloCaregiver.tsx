@@ -3,6 +3,7 @@ import { useProfiloPaziente } from "../hooks/useProfiloPaziente";
 import { useCronologiaSessioni, SessioneSalvata } from "../hooks/useCronologiaSessioni";
 import { useImpostazioniSessione } from "../hooks/useImpostazioniSessione";
 import { useDatiPaziente } from "../hooks/useDatiPaziente";
+import { useTTSSettings } from "../hooks/useTextToSpeech";
 import ImportaDomande from "./ImportaDomande";
 import PersonalizzaAttività from "./PersonalizzaAttività";
 import ReportMedico from "./ReportMedico";
@@ -44,6 +45,20 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
 
   // Stato per report medico
   const [mostraReportMedico, setMostraReportMedico] = useState(false);
+
+  // Stato per sintesi vocale
+  const { ttsEnabled, setTtsEnabled } = useTTSSettings();
+
+  // Stato per livello difficoltà
+  const [livelloDifficolta, setLivelloDifficolta] = useState(() => {
+    const salvato = localStorage.getItem("livello_difficolta");
+    return salvato || "medio";
+  });
+
+  const handleSalvaLivelloDifficolta = (livello: string) => {
+    setLivelloDifficolta(livello);
+    localStorage.setItem("livello_difficolta", livello);
+  };
 
   // Salva profilo
   const handleSalvaProfilo = (e: React.FormEvent) => {
@@ -716,6 +731,18 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
                     {formNumeroCoppieMemory} ({formNumeroCoppieMemory * 2} carte)
                   </span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Sintesi vocale:</span>
+                  <span className="font-semibold text-slate-900">
+                    {ttsEnabled ? '✅ Attiva' : '⏸️ Disattivata'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Livello difficoltà:</span>
+                  <span className="font-semibold text-slate-900 capitalize">
+                    {livelloDifficolta}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -774,6 +801,117 @@ export default function PannelloCaregiver({ onTornaAlGioco }: PannelloCaregiverP
                   <span>📥</span>
                   <span>Esporta JSON Aggiornato</span>
                 </button>
+              </div>
+            </div>
+
+            {/* Card Sintesi Vocale */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-6 py-4 bg-gradient-to-r from-violet-600 to-purple-600">
+                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <span>🔊</span>
+                  Sintesi Vocale (Text-to-Speech)
+                </h2>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <p className="text-sm text-slate-600">
+                  Attiva o disattiva la lettura automatica delle istruzioni e dei testi dei giochi.
+                </p>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-slate-700">
+                    Lettura vocale automatica
+                  </span>
+                  <button
+                    onClick={() => setTtsEnabled(!ttsEnabled)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      ttsEnabled ? 'bg-violet-600' : 'bg-slate-300'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        ttsEnabled ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div className={`p-3 rounded-lg ${ttsEnabled ? 'bg-violet-50 border border-violet-200' : 'bg-slate-50 border border-slate-200'}`}>
+                  <p className={`text-sm ${ttsEnabled ? 'text-violet-800' : 'text-slate-600'}`}>
+                    {ttsEnabled 
+                      ? '✅ La sintesi vocale è attiva. I testi dei giochi verranno letti automaticamente.'
+                      : '⏸️ La sintesi vocale è disattivata. I testi non verranno letti.'
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Card Livello Difficoltà */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-6 py-4 bg-gradient-to-r from-amber-600 to-orange-600">
+                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <span>🎚️</span>
+                  Livello di Difficoltà Globale
+                </h2>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <p className="text-sm text-slate-600">
+                  Imposta il livello di difficoltà generale per tutti i giochi. Questo influenzerà il numero di opzioni e la complessità degli esercizi.
+                </p>
+                
+                <div className="grid grid-cols-3 gap-3">
+                  <button
+                    onClick={() => handleSalvaLivelloDifficolta('facile')}
+                    className={`p-4 rounded-lg font-semibold transition-all ${
+                      livelloDifficolta === 'facile'
+                        ? 'bg-green-500 text-white shadow-lg scale-105'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    <div className="text-2xl mb-1">🌱</div>
+                    <div className="text-sm">Facile</div>
+                    <div className="text-xs mt-1 opacity-80">2 opzioni</div>
+                  </button>
+                  <button
+                    onClick={() => handleSalvaLivelloDifficolta('medio')}
+                    className={`p-4 rounded-lg font-semibold transition-all ${
+                      livelloDifficolta === 'medio'
+                        ? 'bg-amber-500 text-white shadow-lg scale-105'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    <div className="text-2xl mb-1">⚡</div>
+                    <div className="text-sm">Medio</div>
+                    <div className="text-xs mt-1 opacity-80">3 opzioni</div>
+                  </button>
+                  <button
+                    onClick={() => handleSalvaLivelloDifficolta('difficile')}
+                    className={`p-4 rounded-lg font-semibold transition-all ${
+                      livelloDifficolta === 'difficile'
+                        ? 'bg-red-500 text-white shadow-lg scale-105'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    <div className="text-2xl mb-1">🔥</div>
+                    <div className="text-sm">Difficile</div>
+                    <div className="text-xs mt-1 opacity-80">4 opzioni</div>
+                  </button>
+                </div>
+
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-amber-900 mb-2">
+                    💡 Suggerimento
+                  </h4>
+                  <p className="text-sm text-amber-800">
+                    <strong>Facile:</strong> Ideale per pazienti con decadimento cognitivo moderato o all'inizio del percorso.
+                    <br />
+                    <strong>Medio:</strong> Adatto per la maggior parte dei pazienti con decadimento lieve.
+                    <br />
+                    <strong>Difficile:</strong> Per pazienti con buone capacità cognitive residue.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
