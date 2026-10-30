@@ -129,38 +129,59 @@ export const WordSearch: React.FC<WordSearchProps> = ({ onChiudi, theme = 'light
   };
 
   const initializeGame = () => {
-    let selectedWords: string[];
+    let candidateWords: string[];
+    let targetWordCount: number;
     let directions: DifficultyConfig['directions'];
 
     if (difficulty === 'custom') {
       // Usa parole custom
-      selectedWords = [...customWords].sort(() => Math.random() - 0.5).slice(0, 10);
+      candidateWords = [...customWords].sort(() => Math.random() - 0.5);
+      targetWordCount = Math.min(10, candidateWords.length);
       directions = ['horizontal', 'vertical', 'diagonal-down', 'diagonal-up'];
     } else {
       const config = DIFFICULTIES[difficulty];
-      selectedWords = [...config.words]
-        .sort(() => Math.random() - 0.5)
-        .slice(0, config.wordCount);
+      candidateWords = [...config.words].sort(() => Math.random() - 0.5);
+      targetWordCount = config.wordCount;
       directions = config.directions;
     }
 
-    // Calcola dimensione griglia ottimale in base al numero di parole
-    const optimalGridSize = calculateOptimalGridSize(selectedWords);
+    // Calcola dimensione griglia ottimale in base al numero di parole target
+    const optimalGridSize = calculateOptimalGridSize(candidateWords.slice(0, targetWordCount));
 
     setGridSize(optimalGridSize);
-    setWords(selectedWords);
     setFoundWords([]);
     setHintsRemaining(MAX_HINTS);
     setHintCells([]);
     
-    initializeGrid(selectedWords, optimalGridSize, directions);
+    // Inizializza griglia e posiziona parole con fallback
+    const { placedWords, positions } = initializeGridWithFallback(
+      candidateWords,
+      targetWordCount,
+      optimalGridSize,
+      directions
+    );
+
+    // IMPORTANTE: Imposta SOLO le parole effettivamente posizionate
+    setWords(placedWords);
+    setWordPositions(positions);
   };
 
-  const initializeGrid = (wordsToPlace: string[], size: number, directions: string[]) => {
+  const initializeGridWithFallback = (
+    candidateWords: string[],
+    targetCount: number,
+    size: number,
+    directions: string[]
+  ): { placedWords: string[]; positions: WordPosition[] } => {
     const newGrid: string[][] = Array(size).fill(null).map(() => Array(size).fill(''));
     const positions: WordPosition[] = [];
+    const placedWords: string[] = [];
+    const usedWords = new Set<string>();
 
-    wordsToPlace.forEach(word => {
+    // Tentativo 1: Prova a posizionare le parole candidate
+    for (const word of candidateWords) {
+      if (placedWords.length >= targetCount) break;
+      if (usedWords.has(word)) continue;
+
       let placed = false;
       let attempts = 0;
 
@@ -172,12 +193,43 @@ export const WordSearch: React.FC<WordSearchProps> = ({ onChiudi, theme = 'light
         if (canPlaceWord(newGrid, word, startRow, startCol, direction, size)) {
           placeWord(newGrid, word, startRow, startCol, direction);
           positions.push({ word, startRow, startCol, direction });
+          placedWords.push(word);
+          usedWords.add(word);
           placed = true;
         }
         attempts++;
       }
-    });
+    }
 
+    // Fallback: Se non abbiamo raggiunto il target, prova con parole più corte
+    if (placedWords.length < targetCount) {
+      const fallbackWords = ['CASA', 'MARE', 'SOLE', 'LUNA', 'PANE', 'VINO', 'AMORE', 'FIORE', 'CANE', 'GATTO'];
+      
+      for (const word of fallbackWords) {
+        if (placedWords.length >= targetCount) break;
+        if (usedWords.has(word)) continue;
+
+        let placed = false;
+        let attempts = 0;
+
+        while (!placed && attempts < 100) {
+          const direction = directions[Math.floor(Math.random() * directions.length)] as WordPosition['direction'];
+          const startRow = Math.floor(Math.random() * size);
+          const startCol = Math.floor(Math.random() * size);
+
+          if (canPlaceWord(newGrid, word, startRow, startCol, direction, size)) {
+            placeWord(newGrid, word, startRow, startCol, direction);
+            positions.push({ word, startRow, startCol, direction });
+            placedWords.push(word);
+            usedWords.add(word);
+            placed = true;
+          }
+          attempts++;
+        }
+      }
+    }
+
+    // Riempi le celle vuote con lettere casuali
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     for (let i = 0; i < size; i++) {
       for (let j = 0; j < size; j++) {
@@ -188,7 +240,8 @@ export const WordSearch: React.FC<WordSearchProps> = ({ onChiudi, theme = 'light
     }
 
     setGrid(newGrid);
-    setWordPositions(positions);
+    
+    return { placedWords, positions };
   };
 
   const canPlaceWord = (
