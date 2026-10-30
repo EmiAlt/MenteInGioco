@@ -5,7 +5,7 @@ import { useProfiloPaziente } from "./hooks/useProfiloPaziente";
 import { useImpostazioniSessione } from "./hooks/useImpostazioniSessione";
 import { useTheme } from "./hooks/useTheme";
 import PannelloCaregiver from "./components/PannelloCaregiver";
-import GiocoCruciverba from "./components/GiocoCruciverba";
+import WordSearch from "./components/WordSearch";
 import GiocoPuzzle from "./components/GiocoPuzzle";
 import IntrusoLogico from "./components/IntrusoLogico";
 import MemorySemplificato from "./components/MemorySemplificato";
@@ -698,7 +698,7 @@ function App() {
 
       {/* ─── GIOCHI EXTRA ─── */}
       {giocoAttivo === "cruciverba" && (
-        <GiocoCruciverba onChiudi={() => setGiocoAttivo(null)} theme={theme} />
+        <WordSearch onChiudi={() => setGiocoAttivo(null)} theme={theme} />
       )}
 
       {giocoAttivo === "puzzle" && (
